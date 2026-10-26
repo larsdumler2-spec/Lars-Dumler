@@ -1,13 +1,14 @@
-"""Generate the ElevenLabs voiceover ("James") for the Roman Empire video and sync it.
+"""Generate the ElevenLabs voiceover (deep male voice) for the Roman Empire video and sync it.
 
 Reads ELEVENLABS_API_KEY from the environment. For each narration line in
 rom/assets/data.js it requests speech from ElevenLabs, measures the clip, retimes
 the lines (captions and camera moves follow automatically), writes one combined
 rom/assets/voice.mp3 and adds an <audio> clip to rom/index.html.
 
-Usage: python3 hyperframes/tools/elevenlabs_voice.py [--voice-id ID]
+Usage: python3 hyperframes/tools/elevenlabs_voice.py --samples        # Hörproben
+       python3 hyperframes/tools/elevenlabs_voice.py [--voice brian|daniel|adam|NAME] [--voice-id ID]
 """
-import argparse, json, os, re, subprocess, sys, tempfile, urllib.request
+import argparse, json, os, re, subprocess, sys, tempfile, urllib.parse, urllib.request
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "rom")
 API = "https://api.elevenlabs.io"
@@ -21,15 +22,48 @@ def req(path, body=None, key=None):
         return resp.read()
 
 
-def find_james(key):
+# Deep male ElevenLabs premade voices that work well in German via eleven_multilingual_v2
+DEEP_MALE = {
+    "brian": "nPczCjzI2devNBz1zQrb",   # deep, resonant narrator
+    "daniel": "onwK4e9ZLuTAKqWW03F9",  # deep, authoritative news voice
+    "adam": "pNInz6obpgDQGcFmaJgB",    # deep, documentary style
+}
+SAMPLE = "Was wäre, wenn das Römische Reich heute noch existieren würde?"
+
+
+def find_voice(key, name):
+    if name.lower() in DEEP_MALE:
+        return DEEP_MALE[name.lower()], name
     voices = json.loads(req("/v1/voices", key=key))["voices"]
-    mine = [v for v in voices if v["name"].lower().startswith("james")]
+    mine = [v for v in voices if v["name"].lower().startswith(name.lower())]
     if mine:
         return mine[0]["voice_id"], mine[0]["name"]
-    shared = json.loads(req("/v1/shared-voices?search=James&gender=male&page_size=20", key=key))["voices"]
+    shared = json.loads(req(f"/v1/shared-voices?search={urllib.parse.quote(name)}&gender=male&page_size=20", key=key))["voices"]
     if not shared:
-        sys.exit("Keine Stimme 'James' gefunden – bitte --voice-id angeben.")
+        sys.exit(f"Keine Stimme '{name}' gefunden – bitte --voice-id angeben.")
     return shared[0]["voice_id"], shared[0]["name"]
+
+
+def tts(key, vid, text, model, out):
+    audio = req(f"/v1/text-to-speech/{vid}?output_format=mp3_44100_128",
+                {"text": text, "model_id": model, "language_code": "de",
+                 "voice_settings": {"stability": 0.5, "similarity_boost": 0.8, "style": 0.3}}, key)
+    open(out, "wb").write(audio)
+
+
+def samples(key, model):
+    """Write one short German sample per deep male candidate (premade + German library voices)."""
+    cands = list(DEEP_MALE.items())
+    try:
+        lib = json.loads(req("/v1/shared-voices?gender=male&language=de&use_cases=narrative_story&page_size=5", key=key))["voices"]
+        cands += [(v["name"], v["voice_id"]) for v in lib]
+    except Exception as e:  # library search is optional
+        print("Voice-Library-Suche fehlgeschlagen:", e)
+    out = os.path.join(ROOT, "..", "voice_samples"); os.makedirs(out, exist_ok=True)
+    for nm, vid in cands:
+        f = os.path.join(out, re.sub(r"\W+", "_", nm.lower()) + ".mp3")
+        tts(key, vid, SAMPLE, model, f)
+        print(f"{nm:30s} {vid}  ->  {f}")
 
 
 def duration(f):
@@ -38,11 +72,15 @@ def duration(f):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--voice", default="brian", help="brian | daniel | adam | Name aus deinem Konto/der Library")
     ap.add_argument("--voice-id")
+    ap.add_argument("--samples", action="store_true", help="nur Hörproben erzeugen")
     ap.add_argument("--model", default="eleven_multilingual_v2")
     a = ap.parse_args()
     key = os.environ.get("ELEVENLABS_API_KEY") or sys.exit("ELEVENLABS_API_KEY fehlt.")
-    vid, name = (a.voice_id, a.voice_id) if a.voice_id else find_james(key)
+    if a.samples:
+        return samples(key, a.model)
+    vid, name = (a.voice_id, a.voice_id) if a.voice_id else find_voice(key, a.voice)
     print("Stimme:", name, vid)
 
     data_path = os.path.join(ROOT, "assets", "data.js")
@@ -53,10 +91,7 @@ def main():
     t, parts = LEAD, []
     for i, ln in enumerate(data["lines"]):
         f = os.path.join(tmp, f"l{i:02d}.mp3")
-        audio = req(f"/v1/text-to-speech/{vid}?output_format=mp3_44100_128",
-                    {"text": ln["text"], "model_id": a.model, "language_code": "de",
-                     "voice_settings": {"stability": 0.45, "similarity_boost": 0.8, "style": 0.35}}, key)
-        open(f, "wb").write(audio)
+        tts(key, vid, ln["text"], a.model, f)
         d = duration(f)
         ln["t0"], ln["t1"] = round(t, 3), round(t + d, 3)
         parts.append((f, t))
