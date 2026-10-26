@@ -26,8 +26,26 @@
       .gold { background: var(--gold); color: var(--blau-tief); }
       .weiss { background: var(--weiss); color: var(--blau-tief); }
 
-      /* Inhalt 260–1120 px, Untertitel 1150–1310 px, rechts 160 px frei für die TikTok-Leiste */
-      .band { position: absolute; left: 80px; right: 160px; top: 260px; height: 860px; display: flex; flex-direction: column; justify-content: center; }
+      /* Hintergründe im Stil des Logos: Verlauf mit Lichteinfall oben links, feine Diagonaltextur,
+         Schwarz-Rot-Gold-Band unten (unterhalb des Textbands, nur Dekoration) */
+      .hg { position: absolute; inset: 0; overflow: hidden; }
+      .blau .hg { background: radial-gradient(130% 85% at 12% 6%, #2a6ddc 0%, #0e48b6 32%, #0a3a9e 58%, #052464 100%); }
+      .gold .hg { background: radial-gradient(130% 85% at 12% 6%, #ffe68a 0%, #f8ca3e 38%, #f1b91f 68%, #d79b08 100%); }
+      .weiss .hg { background: radial-gradient(130% 85% at 12% 6%, #ffffff 0%, #f4f7fd 45%, #d9e3f5 100%); }
+      .hg-licht { position: absolute; left: -260px; top: -320px; width: 1100px; height: 1100px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0) 70%); }
+      .gold .hg-licht { background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0) 70%); }
+      .weiss .hg-licht { background: radial-gradient(circle, rgba(42,109,220,0.10) 0%, rgba(42,109,220,0.04) 40%, rgba(42,109,220,0) 70%); left: 500px; top: 900px; }
+      .hg-raster { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 2px, rgba(255,255,255,0) 2px 24px); }
+      .gold .hg-raster { background: repeating-linear-gradient(135deg, rgba(255,255,255,0.12) 0 2px, rgba(255,255,255,0) 2px 24px); }
+      .weiss .hg-raster { background: repeating-linear-gradient(135deg, rgba(10,58,158,0.035) 0 2px, rgba(10,58,158,0) 2px 24px); }
+      .hg-band { position: absolute; left: 0; top: 1330px; width: 1080px; height: 600px; overflow: visible; }
+      .hg-band path { fill: none; stroke-linecap: butt; }
+      .hg-band .rand { stroke: #062a75; stroke-width: 118; }
+      .hg-band .st { stroke-width: 30; }
+
+      /* Inhalt 270–1270 px, rechts 160 px frei für die TikTok-Leiste; darunter nur Dekoration */
+      .band { position: absolute; left: 80px; right: 160px; top: 270px; height: 1000px; display: flex; flex-direction: column; justify-content: center; }
       .band.mitte { align-items: center; }
       .zentriert { text-align: center; }
       .d { font-family: var(--display); text-transform: uppercase; letter-spacing: -0.015em; line-height: 1.02; }
@@ -107,10 +125,6 @@
       .plakat-rahmen { position: absolute; left: 0; top: 130px; width: 1080px; height: 1350px; }
       .plakat { width: 100%; height: 100%; display: block; }
 
-      /* Dunkles Band hinter den Untertiteln, wenn darunter ein Bild liegt */
-      .ut-verlauf { position: absolute; left: 0; top: 1090px; width: 1080px; height: 280px;
-        background: linear-gradient(180deg, rgba(6, 24, 70, 0) 0%, rgba(6, 24, 70, 0.82) 28%, rgba(6, 24, 70, 0.82) 72%, rgba(6, 24, 70, 0) 100%); }
-
       /* Outro */
       .folgen { margin-top: 44px; background: var(--gold); color: var(--blau-tief); font-family: var(--display); text-transform: uppercase; font-size: 50px; padding: 18px 44px; }
       .schwung { position: absolute; left: 0; top: 1320px; width: 1080px; height: 600px; overflow: visible; }
@@ -134,8 +148,6 @@
   <body>
     <div id="root" data-composition-id="main" data-start="0" data-duration="%%ENDE%%" data-width="1080" data-height="1920">
 %%SZENEN%%
-
-      <div id="untertitel" class="clip" data-composition-id="untertitel" data-composition-src="compositions/untertitel.html" data-start="0" data-duration="%%ENDE%%" data-track-index="3" data-track-kind="captions" style="position:absolute; inset:0; z-index:250"></div>
 
       <div id="wischer" class="clip" data-start="0" data-duration="%%ENDE%%" data-track-index="1" data-layout-allow-overflow data-layout-allow-overlap style="position:absolute; inset:0; z-index:200; pointer-events:none">
         <div id="band-wrap"><div id="band-zug">
@@ -186,6 +198,12 @@
           tl.fromTo("#band-zug", { x: -2500 }, { x: 0, duration: 0.3, ease: "power2.in" }, t - 0.3);
           tl.to("#band-zug", { x: 2500, duration: 0.34, ease: "power2.out" }, t);
         }
+      });
+
+      // Hintergründe leben: Licht wandert langsam, Band hebt sich leicht.
+      IDS.forEach((id) => {
+        if (q(`#hg-${id}-licht`)) tl.fromTo(`#hg-${id}-licht`, { x: -70, y: -40 }, { x: 90, y: 50, duration: SLOT[id], ease: "none" }, S[id]);
+        if (q(`#hg-${id}-band`)) tl.fromTo(`#hg-${id}-band`, { y: 40 }, { y: -12, duration: SLOT[id], ease: "power1.out" }, S[id]);
       });
 
       // 1 Hook: Satz + Kontostand stehen ab Frame 0; bei „Und am Ende…“ rauscht er auf 0 €, bei „nichts“ ist er leer.

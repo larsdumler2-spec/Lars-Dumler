@@ -31,4 +31,4 @@
 ## Video-Log
 | Nr. | Titel | Format | Status | Datei |
 |---|---|---|---|---|
-| 001 | Wer ist die CSB? | Vorstellung mit Stimme + Untertiteln (77 s, v3) | fertig, nicht gepostet | `videos/001-csb-vorstellung` |
+| 001 | Wer ist die CSB? | Vorstellung mit Stimme (77 s, v4) | fertig, nicht gepostet | `videos/001-csb-vorstellung` |

@@ -1,10 +1,10 @@
-"""Baut index.html und compositions/untertitel.html aus dem Sprechertext-Timing.
+"""Baut index.html aus dem Sprechertext-Timing.
 
   python3 build.py
 
 Die Szenen folgen der Stimme: Jede Zeile in assets/stimme/<id>.wav bekommt ihren
-Startpunkt aus assets/stimme/dauern.json plus Pausen. Wortzeiten für Untertitel
-und Einsätze kommen aus assets/stimme/woerter.json (tools/sprecher.py).
+Startpunkt aus assets/stimme/dauern.json plus Pausen. Wortzeiten für Einsätze
+kommen aus assets/stimme/woerter.json (tools/sprecher.py).
 """
 import json
 import math
@@ -61,11 +61,23 @@ def w(text):
     return " ".join(out)
 
 
+def hintergrund(sid):
+    """Verlauf + wanderndes Licht + Textur + Schwarz-Rot-Gold-Band (nicht bei Endkarte und EU-Sternen)."""
+    band = "" if sid in ("ende", "europa") else (
+        f'<svg id="hg-{sid}-band" class="hg-band" viewBox="0 0 1080 600">'
+        '<path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/>'
+        '<path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/>'
+        '<path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/>'
+        '<path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg>'
+    )
+    return f'<div class="hg"><div id="hg-{sid}-licht" class="hg-licht"></div><div class="hg-raster"></div>{band}</div>'
+
+
 def szene(sid, klasse, inhalt, z):
     return (
         f'<div id="s-{sid}" class="szene clip" data-start="{START[sid]}" data-duration="{SLOT[sid]}" '
         f'data-track-index="0" style="z-index:{z}">\n'
-        f'  <div id="b-{sid}" class="buehne {klasse}">\n{inhalt}\n  </div>\n</div>'
+        f'  <div id="b-{sid}" class="buehne {klasse}">\n    {hintergrund(sid)}\n{inhalt}\n  </div>\n</div>'
     )
 
 
@@ -116,8 +128,7 @@ teile.append(szene("logo", "blau", f"""
       <p id="logo-name" class="s fs52 zentriert" style="margin-top:40px">{w("Christlich-Soziale *Bürgerunion*")}</p>
     </div>""", next(z)))
 teile.append(szene("steckbrief", "blau", """
-    <div id="sb-rahmen" class="bild-rahmen"><img id="sb-bild" class="bild" src="assets/steckbrief.jpg" alt="Parteisteckbrief der CSB" /></div>
-    <div class="ut-verlauf"></div>""", next(z)))
+    <div id="sb-rahmen" class="bild-rahmen"><img id="sb-bild" class="bild" src="assets/steckbrief.jpg" alt="Parteisteckbrief der CSB" /></div>""", next(z)))
 for sid, akt, wort, satz in [
     ("c", 0, "Christlich", "Nächstenliebe und Familie als *Fundament.*"),
     ("s", 1, "Sozial", "Wer arbeitet, muss *mehr* haben als wer nicht arbeitet."),
@@ -183,8 +194,7 @@ teile.append(szene("warum", "gold", f"""
       <div class="gruende">{reihen}</div>
     </div>""", next(z)))
 teile.append(szene("plakat", "blau", """
-    <div id="pl-rahmen" class="plakat-rahmen"><img id="pl-bild" class="plakat" src="assets/plakat.jpg" alt="CSB-Plakat: Freiheit bewahren. Verantwortung tragen. Zukunft gestalten." /></div>
-    <div class="ut-verlauf"></div>""", next(z)))
+    <div id="pl-rahmen" class="plakat-rahmen"><img id="pl-bild" class="plakat" src="assets/plakat.jpg" alt="CSB-Plakat: Freiheit bewahren. Verantwortung tragen. Zukunft gestalten." /></div>""", next(z)))
 teile.append(szene("ende", "blau", """
     <div class="band mitte">
       <div id="logo2-r" class="logo-rahmen klein-logo"><img id="logo2" class="logo" src="assets/csb-logo.png" alt="CSB Logo" /><div id="glanz2" class="glanz"></div></div>
@@ -196,42 +206,6 @@ teile.append(szene("ende", "blau", """
       <path id="sw2" d="M-60 612 C 400 590 790 470 1160 130" stroke="#dd0a1a" pathLength="1"/>
       <path id="sw3" d="M-60 664 C 420 640 820 520 1180 180" stroke="#f5c22b" pathLength="1"/>
     </svg>""", next(z)))
-
-# --- Untertitel -------------------------------------------------------------
-ANZEIGE = {"E-U": "EU"}
-gruppen, akt = [], []
-for lid in sorted(WOERTER):
-    if lid == "l21":  # Endkarte zeigt „Folge der CSB“ schon als Button
-        continue
-    for i, wd in enumerate(WOERTER[lid]):
-        roh = wd["text"]
-        kern = roh.rstrip(".,?!:")
-        text = ANZEIGE.get(kern, kern) + roh[len(kern):]
-        if text != "–":
-            akt.append({"t": text, "s": round(L[lid]["s"] + wd["start"], 3), "e": round(L[lid]["s"] + wd["end"], 3)})
-        zeichen = sum(len(x["t"]) + 1 for x in akt)
-        letztes = i == len(WOERTER[lid]) - 1
-        if akt and (letztes or len(akt) >= 3 or zeichen >= 16 or re.search(r"[.,?!:]$", roh)):
-            gruppen.append(akt)
-            akt = []
-for i, g in enumerate(gruppen):
-    naechste = gruppen[i + 1][0]["s"] if i + 1 < len(gruppen) else ENDE
-    g_ende = min(naechste - 0.04, g[-1]["e"] + 0.35)
-    gruppen[i] = {"s": round(max(0.1, g[0]["s"] - 0.04), 3), "e": round(g_ende, 3), "w": g}
-
-ut_html = "\n".join(
-    f'    <div id="ut-g{i}" class="ug">'
-    + " ".join(f'<span id="ut-g{i}-w{j}" class="uw">{x["t"]}</span>' for j, x in enumerate(g["w"]))
-    + "</div>"
-    for i, g in enumerate(gruppen)
-)
-ut_daten = [{"s": g["s"], "e": g["e"], "w": [[x["s"], x["e"]] for x in g["w"]]} for g in gruppen]
-ut = (
-    (HIER / "untertitel.html.tpl").read_text()
-    .replace("%%GRUPPEN%%", ut_html).replace("%%DATEN%%", json.dumps(ut_daten)).replace("%%ENDE%%", str(ENDE))
-)
-(HIER / "compositions").mkdir(exist_ok=True)
-(HIER / "compositions/untertitel.html").write_text(ut)
 
 # --- Ton ------------------------------------------------------------------
 audio = [f'<audio id="v-{lid}" src="assets/stimme/{lid}.wav" data-start="{v["s"]}" data-volume="1"></audio>' for lid, v in L.items()]
@@ -269,4 +243,4 @@ html = (
     .replace("%%IDS%%", json.dumps([s for s, _, _ in SZENEN]))
 )
 (HIER / "index.html").write_text(html)
-print(f"index.html: {ENDE} s, {len(SZENEN)} Szenen, {len(gruppen)} Untertitel-Gruppen")
+print(f"index.html: {ENDE} s, {len(SZENEN)} Szenen")
