@@ -1,0 +1,171 @@
+<!doctype html>
+<html
+  lang="de"
+  data-resolution="portrait"
+  data-composition-variables='[
+    {"id":"partei","type":"string","label":"Parteiname","default":"PARTEINAME"},
+    {"id":"kuerzel","type":"string","label":"Kürzel","default":"XYZ"},
+    {"id":"hinweis","type":"string","label":"Kennzeichnung","default":"Fiktive Partei"},
+    {"id":"hook","type":"string","label":"Hook (Frame 0)","default":"Das hier traut sich sonst keiner."},
+    {"id":"punkt1","type":"string","label":"Punkt 1","default":"Erster Punkt"},
+    {"id":"punkt2","type":"string","label":"Punkt 2","default":"Zweiter Punkt"},
+    {"id":"punkt3","type":"string","label":"Punkt 3","default":"Dritter Punkt"},
+    {"id":"claim","type":"string","label":"Claim","default":"Unser Slogan."},
+    {"id":"handle","type":"string","label":"TikTok-Handle","default":"@handle"},
+    {"id":"farbe","type":"color","label":"Parteifarbe","default":"#E4002B"},
+    {"id":"farbe2","type":"color","label":"Zweitfarbe","default":"#FFD400"},
+    {"id":"tinte","type":"color","label":"Schrift","default":"#111111"}
+  ]'
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      /* Farben kommen aus den Variablen (siehe Script unten). */
+      :root {
+        --farbe: #e4002b;
+        --farbe2: #ffd400;
+        --tinte: #111111;
+        --papier: #ffffff;
+        --display: "Archivo Black", sans-serif;
+        --body: "Inter", sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--papier);
+      }
+      #root { width: 100%; height: 100%; position: relative; font-family: var(--body); }
+
+      /* Szenen: vollflächig. Text nur im Band 168–1330 px, rechts 160 px frei (TikTok-Leiste). */
+      .szene { position: absolute; inset: 0; overflow: hidden; }
+      .band {
+        position: absolute;
+        left: 80px;
+        right: 160px;
+        top: 220px;
+        height: 1080px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .gross {
+        font-family: var(--display);
+        font-size: 132px;
+        line-height: 0.98;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
+      }
+      .mittel {
+        font-family: var(--display);
+        font-size: 104px;
+        line-height: 1.02;
+        letter-spacing: -0.015em;
+        text-transform: uppercase;
+      }
+
+      #s-hook { background: var(--farbe); color: var(--papier); }
+      #s-hook .balken { position: absolute; left: 0; top: 1360px; width: 1080px; height: 560px; background: var(--tinte); }
+
+      .punkt { background: var(--papier); color: var(--tinte); }
+      .punkt.alt { background: var(--farbe2); }
+      .punkt .strich { width: 220px; height: 28px; background: var(--farbe); margin-bottom: 56px; }
+
+      #s-claim { background: var(--tinte); color: var(--papier); }
+      #s-claim .kuerzel {
+        font-family: var(--display);
+        font-size: 300px;
+        line-height: 0.9;
+        color: var(--farbe);
+        letter-spacing: -0.04em;
+      }
+      #s-claim .partei { font-family: var(--display); font-size: 56px; text-transform: uppercase; margin-top: 24px; }
+      #s-claim .claim { font-family: var(--display); font-size: 92px; line-height: 1.02; text-transform: uppercase; margin-top: 72px; color: var(--farbe2); }
+      #s-claim .handle { font-family: var(--body); font-weight: 700; font-size: 48px; margin-top: 56px; }
+
+      /* Kennzeichnung: liegt über allen Szenen, ganzes Video sichtbar. */
+      #hinweis {
+        position: absolute;
+        left: 80px;
+        top: 190px;
+        z-index: 10;
+        padding: 10px 20px;
+        background: var(--tinte);
+        color: var(--papier);
+        outline: 3px solid var(--papier);
+        font-family: var(--body);
+        font-weight: 700;
+        font-size: 30px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="15" data-width="1080" data-height="1920">
+      <!-- 0–3 s: Hook, steht ab Frame 0 (= Thumbnail) -->
+      <div id="s-hook" class="szene clip" data-start="0" data-duration="3" data-track-index="0">
+        <div class="balken"></div>
+        <div class="band"><h1 id="hook" class="gross" data-var-text="hook"></h1></div>
+      </div>
+
+      <!-- 3–9.6 s: drei Punkte, je 2.2 s -->
+      <div id="s-p1" class="szene punkt clip" data-start="3" data-duration="2.2" data-track-index="0">
+        <div class="band"><div class="strich" id="st1"></div><h2 id="p1" class="mittel" data-var-text="punkt1"></h2></div>
+      </div>
+      <div id="s-p2" class="szene punkt alt clip" data-start="5.2" data-duration="2.2" data-track-index="0">
+        <div class="band"><div class="strich" id="st2"></div><h2 id="p2" class="mittel" data-var-text="punkt2"></h2></div>
+      </div>
+      <div id="s-p3" class="szene punkt clip" data-start="7.4" data-duration="2.2" data-track-index="0">
+        <div class="band"><div class="strich" id="st3"></div><h2 id="p3" class="mittel" data-var-text="punkt3"></h2></div>
+      </div>
+
+      <!-- 9.6–15 s: Absender + Claim + Handle -->
+      <div id="s-claim" class="szene clip" data-start="9.6" data-duration="5.4" data-track-index="0">
+        <div class="band">
+          <div id="kuerzel" class="kuerzel" data-var-text="kuerzel"></div>
+          <div id="partei" class="partei" data-var-text="partei"></div>
+          <div id="claim" class="claim" data-var-text="claim"></div>
+          <div id="handle" class="handle" data-var-text="handle"></div>
+        </div>
+      </div>
+
+      <div id="hinweis" class="clip" data-start="0" data-duration="15" data-track-index="1" data-var-text="hinweis"></div>
+    </div>
+
+    <script>
+      const v = window.__hyperframes.getVariables();
+      const root = document.documentElement;
+      root.style.setProperty("--farbe", v.farbe);
+      root.style.setProperty("--farbe2", v.farbe2);
+      root.style.setProperty("--tinte", v.tinte);
+      document.querySelectorAll("[data-var-text]").forEach((el) => {
+        el.textContent = v[el.dataset.varText] ?? "";
+      });
+
+      const tl = gsap.timeline({ paused: true });
+
+      // Hook: steht ab Frame 0, kleiner Punch-in bis 0.4 s, dann ruhig.
+      tl.fromTo("#hook", { scale: 1.06 }, { scale: 1, duration: 0.4, ease: "power3.out", transformOrigin: "0% 50%" }, 0);
+      tl.fromTo("#s-hook .balken", { y: 560 }, { y: 0, duration: 0.5, ease: "power4.out" }, 0.1);
+
+      // Punkte: Strich schießt rein, Text schlägt 4 Frames später ein.
+      [["#st1", "#p1", 3], ["#st2", "#p2", 5.2], ["#st3", "#p3", 7.4]].forEach(([st, p, t]) => {
+        tl.fromTo(st, { scaleX: 0 }, { scaleX: 1, duration: 0.25, ease: "power4.out", transformOrigin: "0% 50%" }, t);
+        tl.fromTo(p, { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "power4.out" }, t + 0.13);
+      });
+
+      // Claim-Szene: Kürzel knallt rein, Rest folgt gestaffelt.
+      tl.fromTo("#kuerzel", { scale: 1.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(1.6)", transformOrigin: "0% 100%" }, 9.6);
+      tl.fromTo("#partei", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "power3.out" }, 9.8);
+      tl.fromTo("#claim", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power4.out" }, 10.3);
+      tl.fromTo("#handle", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 11.2);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
