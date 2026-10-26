@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Vorlage für build.py – nicht direkt rendern. index.html wird daraus erzeugt. -->
 <html lang="de" data-resolution="portrait">
   <head>
     <meta charset="UTF-8" />
@@ -6,9 +7,9 @@
     <script src="assets/vendor/gsap.min.js"></script>
     <style>
       :root {
-        --blau: #0a3a9e;      /* Königsblau */
+        --blau: #0a3a9e;
         --blau-tief: #062a75;
-        --gold: #f5c22b;      /* Warmes Gold */
+        --gold: #f5c22b;
         --weiss: #ffffff;
         --schwarz: #111111;
         --rot: #dd0a1a;
@@ -20,69 +21,94 @@
       #root { width: 100%; height: 100%; position: relative; font-family: var(--body); }
 
       .szene { position: absolute; inset: 0; overflow: hidden; }
+      .buehne { position: absolute; inset: 0; }
       .blau { background: var(--blau); color: var(--weiss); }
       .gold { background: var(--gold); color: var(--blau-tief); }
       .weiss { background: var(--weiss); color: var(--blau-tief); }
 
-      /* Lesbares Band: 280–1300 px Höhe, links 80, rechts 160 frei (TikTok-Leiste). */
-      .band {
-        position: absolute; left: 80px; right: 160px; top: 280px; height: 1020px;
-        display: flex; flex-direction: column; justify-content: center;
-      }
-      .d { font-family: var(--display); text-transform: uppercase; letter-spacing: -0.015em; line-height: 1; }
-      .s { font-family: var(--body); font-weight: 800; letter-spacing: -0.01em; line-height: 1.18; }
+      /* Lesbares Band 280–1300 px, rechts 160 px frei für die TikTok-Leiste */
+      .band { position: absolute; left: 80px; right: 160px; top: 280px; height: 1020px; display: flex; flex-direction: column; justify-content: center; }
+      .band.mitte { align-items: center; }
+      .zentriert { text-align: center; }
+      .d { font-family: var(--display); text-transform: uppercase; letter-spacing: -0.015em; line-height: 1.02; }
+      .s { font-family: var(--body); font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; }
+      .fs52 { font-size: 52px; } .fs64 { font-size: 64px; } .fs68 { font-size: 66px; } .fs80 { font-size: 80px; }
+      .fs88 { font-size: 86px; } .fs92 { font-size: 92px; } .fs104 { font-size: 100px; } .fs110 { font-size: 110px; }
+      .fs120 { font-size: 120px; } .fs124 { font-size: 124px; } .fs150 { font-size: 140px; }
+      .goldtext { color: var(--gold); }
+      .blau-t { color: var(--blau); }
+
+      /* Wort-Masken: jedes Wort steigt aus seiner Maske */
+      .m { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+      .w { display: inline-block; }
+      .blau .g { color: var(--gold); }
+      .gold .g, .weiss .g { background: var(--blau); color: var(--gold); padding: 0 0.12em; }
+      #hook1 .g { color: var(--gold); }
 
       /* Hook */
-      #hook1 { font-size: 112px; }
-      #hook1 .g { color: var(--gold); }
-      #hook-strich { height: 22px; width: 640px; background: var(--gold); margin: 40px 0 48px; }
-      #hook2 { font-size: 52px; color: var(--weiss); }
+      #hook1 { font-size: 108px; }
+      .konto { margin: 56px 0 44px; background: var(--weiss); color: var(--blau-tief); padding: 34px 44px 30px; box-shadow: 0 18px 0 var(--blau-tief); }
+      .konto-label { font-weight: 800; font-size: 36px; text-transform: uppercase; letter-spacing: 0.03em; }
+      .konto-zahl { font-family: var(--display); font-size: 156px; line-height: 1.05; letter-spacing: -0.03em; }
+
+      /* 60 Sekunden */
+      .ring-box { position: relative; width: 440px; height: 440px; margin: 36px 0; }
+      #ring { position: absolute; inset: 0; width: 440px; height: 440px; }
+      #ring circle { fill: none; stroke-width: 34; }
+      .ring-bg { stroke: rgba(6, 42, 117, 0.15); }
+      .ring-v { stroke: var(--blau); stroke-dasharray: 1; stroke-dashoffset: 1; stroke-linecap: butt; }
+      #ring-v { transform-origin: 220px 220px; }
+      .sechzig { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 210px; color: var(--blau); }
 
       /* Logo */
-      .logo { width: 840px; height: 840px; display: block; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); }
+      .logo-rahmen { position: relative; width: 760px; height: 760px; overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); }
+      .logo-rahmen.klein-logo { width: 640px; height: 640px; }
+      .logo { width: 100%; height: 100%; display: block; }
+      .glanz { position: absolute; top: -20%; left: 0; width: 40%; height: 140%; background: linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0) 100%); }
 
-      /* Name: Buchstabe + Wort + Satz */
-      .buchstabe { font-family: var(--display); font-size: 440px; line-height: 0.82; letter-spacing: -0.04em; }
-      .wort { font-size: 92px; margin-top: 36px; }
-      .satz { font-size: 50px; margin-top: 36px; max-width: 820px; }
-      #s-c .buchstabe { color: var(--blau); }
-      #s-s .buchstabe { color: var(--rot); }
-      #s-b .buchstabe { color: var(--gold); }
+      /* C – S – B */
+      .akronym { font-family: var(--display); font-size: 300px; line-height: 0.85; letter-spacing: -0.03em; display: flex; gap: 18px; }
+      .kb { display: inline-block; color: rgba(255, 255, 255, 0.22); }
+      .kb.an { color: var(--gold); }
+      .kb.weg { opacity: 0; }
+      .wort { margin: 40px 0 34px; }
 
       /* Projekt */
-      .klein { font-family: var(--body); font-weight: 800; font-size: 46px; text-transform: uppercase; letter-spacing: 0.04em; }
-      #proj-titel { font-size: 92px; margin: 28px 0 56px; }
-      .zeile { display: flex; align-items: center; gap: 28px; font-size: 52px; margin-top: 26px; }
-      .zeile .bk { width: 22px; height: 64px; background: var(--blau); flex: none; }
+      .klein { font-weight: 900; font-size: 46px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 30px; }
+      .strich-gold { width: 520px; height: 26px; background: var(--gold); margin-top: 44px; }
 
-      /* Grundwerte */
-      #gw-titel { font-size: 120px; }
-      #gw-titel .g { color: var(--gold); }
-      .wert { font-size: 128px; color: var(--gold); }
-      .wert-strich { width: 300px; height: 22px; background: var(--weiss); margin: 44px 0; }
-      .wert-satz { font-size: 56px; }
+      /* Werte */
+      .werte { margin-top: 46px; display: flex; flex-direction: column; gap: 22px; }
+      .wert-z { position: relative; display: flex; flex-direction: column; }
+      .wert { font-size: 132px; color: var(--gold); line-height: 1; }
+      .wert-b { display: block; width: 100%; height: 14px; background: var(--weiss); margin-top: 10px; }
 
-      /* Deutschland */
-      #de-titel { font-size: 104px; }
-      .thema {
-        align-self: flex-start; font-family: var(--body); font-weight: 900; font-size: 44px;
-        text-transform: uppercase; letter-spacing: 0.04em; padding: 10px 24px;
-        background: var(--blau); color: var(--gold); margin-bottom: 48px;
-      }
-      .forderung { font-size: 84px; line-height: 1.04; }
+      /* Forderungs-Karten */
+      .icon { width: 200px; height: 200px; margin-bottom: 36px; }
+      .icon * { fill: none; stroke: var(--blau); stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+      .thema { align-self: flex-start; font-weight: 900; font-size: 44px; text-transform: uppercase; letter-spacing: 0.04em; padding: 10px 24px; background: var(--blau); color: var(--gold); margin-bottom: 40px; }
 
       /* Europa */
-      #eu-titel { font-size: 124px; color: var(--gold); margin-bottom: 40px; }
-      .eu { display: flex; gap: 28px; font-size: 54px; margin-top: 34px; }
-      .eu .bk { width: 22px; background: var(--gold); flex: none; }
+      #eu-t { margin-bottom: 30px; }
+      .eu { display: flex; gap: 26px; font-size: 54px; margin-top: 30px; }
+      .eu .bk { width: 20px; background: var(--gold); flex: none; }
+      .sternkreis { position: absolute; inset: 0; }
+      .stern { position: absolute; width: 64px; height: 64px; }
+      .stern path { fill: var(--gold); }
+
+      /* Warum */
+      .gruende { margin-top: 56px; display: flex; flex-direction: column; gap: 40px; }
+      .grund { display: flex; align-items: flex-start; gap: 28px; }
+      .haken { width: 92px; height: 92px; flex: none; background: var(--blau); }
+      .haken path { fill: none; stroke: var(--gold); stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; }
 
       /* Outro */
-      #outro .logo { width: 700px; height: 700px; }
-      #slogan { font-size: 76px; color: var(--gold); margin-top: 56px; }
-      #folgen { font-size: 46px; margin-top: 36px; }
+      .folgen { margin-top: 44px; background: var(--gold); color: var(--blau-tief); font-family: var(--display); text-transform: uppercase; font-size: 50px; padding: 18px 44px; }
+      .schwung { position: absolute; left: 0; top: 1320px; width: 1080px; height: 600px; overflow: visible; }
+      .schwung path { fill: none; stroke-width: 46; stroke-dasharray: 1; stroke-linecap: butt; }
 
-      /* Schwarz-Rot-Gold-Band als Übergang (Element des Logos) */
-      #band-wrap { position: absolute; left: -400px; top: -300px; width: 1880px; height: 2520px; z-index: 20; transform: rotate(-14deg); pointer-events: none; }
+      /* Schwarz-Rot-Gold-Wischer */
+      #band-wrap { position: absolute; left: -400px; top: -300px; width: 1880px; height: 2520px; transform: rotate(-14deg); }
       #band-zug { position: absolute; inset: 0; }
       .streifen { position: absolute; left: 0; width: 1880px; height: 840px; }
       #st-schwarz { top: 0; background: var(--schwarz); }
@@ -90,229 +116,374 @@
       #st-gold { top: 1680px; background: var(--gold); }
 
       #hinweis {
-        position: absolute; left: 80px; top: 190px; z-index: 30;
-        padding: 10px 20px; background: var(--weiss); color: var(--blau-tief);
-        outline: 3px solid var(--blau-tief);
-        font-family: var(--body); font-weight: 800; font-size: 30px; letter-spacing: 0.03em; text-transform: uppercase;
+        position: absolute; left: 80px; top: 190px; z-index: 300;
+        padding: 10px 20px; background: var(--weiss); color: var(--blau-tief); outline: 3px solid var(--blau-tief);
+        font-weight: 800; font-size: 30px; letter-spacing: 0.03em; text-transform: uppercase;
       }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-start="0" data-duration="70" data-width="1080" data-height="1920">
+    <div id="root" data-composition-id="main" data-start="0" data-duration="68.99" data-width="1080" data-height="1920">
+<div id="s-hook" class="szene clip" data-start="0" data-duration="5.034" data-track-index="0" style="z-index:1">
+  <div id="b-hook" class="buehne blau">
 
-      <!-- 0–4.5 Hook (Frame 0 = Thumbnail) -->
-      <div id="s-hook" class="szene blau clip" data-start="0" data-duration="4.5" data-track-index="0">
-        <div class="band">
-          <h1 id="hook1" class="d">Deutschland braucht eine <span class="g">neue Mitte.</span></h1>
-          <div id="hook-strich"></div>
-          <p id="hook2" class="s">Und die hat jetzt einen Namen.</p>
-        </div>
+    <div class="band">
+      <h1 id="hook1" class="d">Du gehst jeden Tag <span class="g">arbeiten.</span></h1>
+      <div id="konto" class="konto">
+        <div class="konto-label">Kontostand am Monatsende</div>
+        <div id="konto-zahl" class="konto-zahl">2.480 €</div>
+      </div>
+      <p id="hook2" class="s fs52"><span class="m"><span class="w">Und</span></span> <span class="m"><span class="w">trotzdem</span></span> <span class="m"><span class="w">bleibt</span></span> <span class="m"><span class="w g">nichts</span></span> <span class="m"><span class="w">übrig?</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-sechzig" class="szene clip" data-start="4.584" data-duration="2.629" data-track-index="0" style="z-index:2">
+  <div id="b-sechzig" class="buehne gold">
+
+    <div class="band mitte">
+      <p id="sx-dann" class="s fs64">Dann gib uns</p>
+      <div class="ring-box">
+        <svg id="ring" viewBox="0 0 440 440"><circle class="ring-bg" cx="220" cy="220" r="190"/><circle id="ring-v" class="ring-v" cx="220" cy="220" r="190" pathLength="1"/></svg>
+        <div id="sx-60" class="d sechzig">60</div>
+      </div>
+      <div id="sx-sek" class="d fs110">Sekunden.</div>
+    </div>
+  </div>
+</div>
+<div id="s-logo" class="szene clip" data-start="6.763" data-duration="3.702" data-track-index="0" style="z-index:3">
+  <div id="b-logo" class="buehne blau">
+
+    <div class="band mitte">
+      <div id="logo1-r" class="logo-rahmen"><img id="logo1" class="logo" src="assets/csb-logo.png" alt="CSB Logo" /><div id="glanz1" class="glanz"></div></div>
+      <p id="logo-name" class="s fs52 zentriert" style="margin-top:48px"><span class="m"><span class="w">Christlich-Soziale</span></span> <span class="m"><span class="w g">Bürgerunion</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-c" class="szene clip" data-start="10.015" data-duration="4.468" data-track-index="0" style="z-index:4">
+  <div id="b-c" class="buehne blau">
+
+    <div class="band">
+      <div class="akronym"><span id="c-k0" class="kb an">C</span><span id="c-k1" class="kb weg">S</span><span id="c-k2" class="kb weg">B</span></div>
+      <div id="c-wort" class="d fs92 wort">Christlich</div>
+      <p id="c-satz" class="s fs52"><span class="m"><span class="w">Nächstenliebe</span></span> <span class="m"><span class="w">und</span></span> <span class="m"><span class="w">Familie</span></span> <span class="m"><span class="w">als</span></span> <span class="m"><span class="w g">Fundament.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-s" class="szene clip" data-start="14.033" data-duration="5.014" data-track-index="0" style="z-index:5">
+  <div id="b-s" class="buehne blau">
+
+    <div class="band">
+      <div class="akronym"><span id="s-k0" class="kb">C</span><span id="s-k1" class="kb an">S</span><span id="s-k2" class="kb weg">B</span></div>
+      <div id="s-wort" class="d fs92 wort">Sozial</div>
+      <p id="s-satz" class="s fs52"><span class="m"><span class="w">Wer</span></span> <span class="m"><span class="w">arbeitet,</span></span> <span class="m"><span class="w">muss</span></span> <span class="m"><span class="w g">mehr</span></span> <span class="m"><span class="w">haben</span></span> <span class="m"><span class="w">als</span></span> <span class="m"><span class="w">wer</span></span> <span class="m"><span class="w">nicht</span></span> <span class="m"><span class="w">arbeitet.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-b" class="szene clip" data-start="18.597" data-duration="4.08" data-track-index="0" style="z-index:6">
+  <div id="b-b" class="buehne blau">
+
+    <div class="band">
+      <div class="akronym"><span id="b-k0" class="kb">C</span><span id="b-k1" class="kb">S</span><span id="b-k2" class="kb an">B</span></div>
+      <div id="b-wort" class="d fs92 wort">Bürgerunion</div>
+      <p id="b-satz" class="s fs52"><span class="m"><span class="w">Eine</span></span> <span class="m"><span class="w">Partei</span></span> <span class="m"><span class="w">der</span></span> <span class="m"><span class="w g">Mitte.</span></span> <span class="m"><span class="w">Für</span></span> <span class="m"><span class="w">alle</span></span> <span class="m"><span class="w">Bürger.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-projekt" class="szene clip" data-start="22.227" data-duration="3.725" data-track-index="0" style="z-index:7">
+  <div id="b-projekt" class="buehne weiss">
+
+    <div class="band">
+      <div id="pr-k" class="klein">Unser Projekt</div>
+      <h2 id="pr-t" class="d fs104"><span class="m"><span class="w">Ein</span></span> <span class="m"><span class="w">Deutschland,</span></span> <span class="m"><span class="w">das</span></span> <span class="m"><span class="w">wieder</span></span> <span class="m"><span class="w g">funktioniert.</span></span></h2>
+      <div id="pr-strich" class="strich-gold"></div>
+    </div>
+  </div>
+</div>
+<div id="s-werte" class="szene clip" data-start="25.502" data-duration="4.394" data-track-index="0" style="z-index:8">
+  <div id="b-werte" class="buehne blau">
+
+    <div class="band">
+      <p id="we-k" class="s fs52">Drei Werte leiten uns.</p>
+      <div class="werte">
+        <div class="wert-z"><span id="we1" class="d wert">Freiheit</span><span id="we1b" class="wert-b"></span></div>
+        <div class="wert-z"><span id="we2" class="d wert">Sicherheit</span><span id="we2b" class="wert-b"></span></div>
+        <div class="wert-z"><span id="we3" class="d wert">Wohlstand</span><span id="we3b" class="wert-b"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="s-konkret" class="szene clip" data-start="29.446" data-duration="1.705" data-track-index="0" style="z-index:9">
+  <div id="b-konkret" class="buehne gold">
+
+    <div class="band"><h2 id="ko-t" class="d fs120"><span class="m"><span class="w">Konkret</span></span> <span class="m"><span class="w">heißt</span></span> <span class="m"><span class="w">das:</span></span></h2></div>
+  </div>
+</div>
+<div id="s-f1" class="szene clip" data-start="30.701" data-duration="3.482" data-track-index="0" style="z-index:10">
+  <div id="b-f1" class="buehne weiss">
+
+    <div class="band">
+      <svg id="f1-icon" class="icon" viewBox="0 0 220 220"><rect x="45" y="20" width="130" height="150" rx="26" pathLength="1"/><rect x="65" y="45" width="90" height="50" rx="8" pathLength="1"/><circle cx="80" cy="130" r="9" pathLength="1"/><circle cx="140" cy="130" r="9" pathLength="1"/><path d="M70 170 L50 205 M150 170 L170 205" pathLength="1"/></svg>
+      <div id="f1-th" class="thema">Bildung</div>
+      <p id="f1-sa" class="d fs88"><span class="m"><span class="w">Bahnfahren</span></span> <span class="m"><span class="w">und</span></span> <span class="m"><span class="w">Mittagessen</span></span> <span class="m"><span class="w g">gratis</span></span> <span class="m"><span class="w">für</span></span> <span class="m"><span class="w">alle</span></span> <span class="m"><span class="w">Schüler.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-f2" class="szene clip" data-start="33.733" data-duration="3.435" data-track-index="0" style="z-index:11">
+  <div id="b-f2" class="buehne gold">
+
+    <div class="band">
+      <svg id="f2-icon" class="icon" viewBox="0 0 220 220"><path d="M175 55 A75 75 0 1 0 175 165" pathLength="1"/><path d="M35 95 H140 M35 128 H140" pathLength="1"/></svg>
+      <div id="f2-th" class="thema">Familie &amp; Rente</div>
+      <p id="f2-sa" class="d fs88"><span class="m"><span class="w">Mehr</span></span> <span class="m"><span class="w">Geld</span></span> <span class="m"><span class="w">für</span></span> <span class="m"><span class="w">Familien,</span></span> <span class="m"><span class="w g">Pflegekräfte</span></span> <span class="m"><span class="w">und</span></span> <span class="m"><span class="w">Rentner.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-f3" class="szene clip" data-start="36.718" data-duration="2.274" data-track-index="0" style="z-index:12">
+  <div id="b-f3" class="buehne weiss">
+
+    <div class="band">
+      <svg id="f3-icon" class="icon" viewBox="0 0 220 220"><path d="M25 110 L110 35 L195 110" pathLength="1"/><path d="M50 90 V195 H170 V90" pathLength="1"/><path d="M93 195 V140 H127 V195" pathLength="1"/></svg>
+      <div id="f3-th" class="thema">Wohnen</div>
+      <p id="f3-sa" class="d fs88"><span class="m"><span class="w">Miet&shy;erhöhungen</span></span> <span class="m"><span class="w g">klar</span></span> <span class="m"><span class="w">begrenzen.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-f4" class="szene clip" data-start="38.542" data-duration="3.342" data-track-index="0" style="z-index:13">
+  <div id="b-f4" class="buehne gold">
+
+    <div class="band">
+      <svg id="f4-icon" class="icon" viewBox="0 0 220 220"><path d="M128 15 L55 120 H108 L88 205 L168 92 H115 Z" pathLength="1"/></svg>
+      <div id="f4-th" class="thema">Energie</div>
+      <p id="f4-sa" class="d fs88"><span class="m"><span class="w">Erneuerbare</span></span> <span class="m"><span class="w">Energie</span></span> <span class="m"><span class="w">–</span></span> <span class="m"><span class="w">ohne</span></span> <span class="m"><span class="w">dass</span></span> <span class="m"><span class="w g">du</span></span> <span class="m"><span class="w">draufzahlst.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-f5" class="szene clip" data-start="41.434" data-duration="3.923" data-track-index="0" style="z-index:14">
+  <div id="b-f5" class="buehne weiss">
+
+    <div class="band">
+      <svg id="f5-icon" class="icon" viewBox="0 0 220 220"><path d="M110 15 L185 45 V105 C185 160 150 190 110 207 C70 190 35 160 35 105 V45 Z" pathLength="1"/><path d="M72 108 L100 136 L150 82" pathLength="1"/></svg>
+      <div id="f5-th" class="thema">Migration</div>
+      <p id="f5-sa" class="d fs88"><span class="m"><span class="w">Integration</span></span> <span class="m"><span class="w">fördern.</span></span> <span class="m"><span class="w">Schwere</span></span> <span class="m"><span class="w">Straftäter</span></span> <span class="m"><span class="w g">abschieben.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-europa" class="szene clip" data-start="44.907" data-duration="8.376" data-track-index="0" style="z-index:15">
+  <div id="b-europa" class="buehne blau">
+
+    <div class="band">
+      <h2 id="eu-t" class="d fs124 goldtext">Und Europa?</h2>
+      <div id="eu1" class="eu s"><span class="bk"></span><span>Stark in EU und NATO.</span></div>
+      <div id="eu2" class="eu s"><span class="bk"></span><span>Unabhängiger von den USA.</span></div>
+      <div id="eu3" class="eu s"><span class="bk"></span><span>An der Seite der Ukraine – für einen gerechten Frieden.</span></div>
+    </div>
+    <div class="sternkreis"><svg id="stern0" class="stern" style="left:508px; top:1388px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern1" class="stern" style="left:603px; top:1413px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern2" class="stern" style="left:673px; top:1483px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern3" class="stern" style="left:698px; top:1578px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern4" class="stern" style="left:673px; top:1673px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern5" class="stern" style="left:603px; top:1743px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern6" class="stern" style="left:508px; top:1768px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern7" class="stern" style="left:413px; top:1743px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern8" class="stern" style="left:343px; top:1673px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern9" class="stern" style="left:318px; top:1578px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern10" class="stern" style="left:343px; top:1483px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern11" class="stern" style="left:413px; top:1413px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg></div>
+  </div>
+</div>
+<div id="s-warum" class="szene clip" data-start="52.833" data-duration="11.538" data-track-index="0" style="z-index:16">
+  <div id="b-warum" class="buehne gold">
+
+    <div class="band">
+      <h2 id="wa-t" class="d fs150">Warum <span class="blau-t">CSB?</span></h2>
+      <div class="gruende"><div id="wa1" class="grund"><svg id="wa1-h" class="haken" viewBox="0 0 100 100"><path d="M18 52 L42 76 L84 26" pathLength="1"/></svg><p class="d fs68"><span class="m"><span class="w">Sozial</span></span> <span class="m"><span class="w g">und</span></span> <span class="m"><span class="w">vernünftig</span></span> <span class="m"><span class="w">–</span></span> <span class="m"><span class="w">kein</span></span> <span class="m"><span class="w">Entweder-oder.</span></span></p></div>
+<div id="wa2" class="grund"><svg id="wa2-h" class="haken" viewBox="0 0 100 100"><path d="M18 52 L42 76 L84 26" pathLength="1"/></svg><p class="d fs68"><span class="m"><span class="w">Leistung</span></span> <span class="m"><span class="w">lohnt</span></span> <span class="m"><span class="w">sich</span></span> <span class="m"><span class="w g">wieder.</span></span></p></div>
+<div id="wa3" class="grund"><svg id="wa3-h" class="haken" viewBox="0 0 100 100"><path d="M18 52 L42 76 L84 26" pathLength="1"/></svg><p class="d fs68"><span class="m"><span class="w">Eine</span></span> <span class="m"><span class="w">Mitte,</span></span> <span class="m"><span class="w">die</span></span> <span class="m"><span class="w g">anpackt.</span></span></p></div></div>
+    </div>
+  </div>
+</div>
+<div id="s-outro" class="szene clip" data-start="63.921" data-duration="5.069" data-track-index="0" style="z-index:17">
+  <div id="b-outro" class="buehne blau">
+
+    <div class="band mitte">
+      <div id="logo2-r" class="logo-rahmen klein-logo"><img id="logo2" class="logo" src="assets/csb-logo.png" alt="CSB Logo" /><div id="glanz2" class="glanz"></div></div>
+      <div id="slogan" class="d fs80 goldtext zentriert" style="margin-top:52px">Mit Herz.<br />Mit Haltung.</div>
+      <div id="folgen" class="folgen">Folge der CSB</div>
+    </div>
+    <svg class="schwung" viewBox="0 0 1080 600">
+      <path id="sw1" d="M-60 560 C 380 540 760 420 1140 80" stroke="#111111" pathLength="1"/>
+      <path id="sw2" d="M-60 612 C 400 590 790 470 1160 130" stroke="#dd0a1a" pathLength="1"/>
+      <path id="sw3" d="M-60 664 C 420 640 820 520 1180 180" stroke="#f5c22b" pathLength="1"/>
+    </svg>
+  </div>
+</div>
+
+      <div id="wischer" class="clip" data-start="0" data-duration="68.99" data-track-index="1" data-layout-allow-overflow data-layout-allow-overlap style="position:absolute; inset:0; z-index:200; pointer-events:none">
+        <div id="band-wrap"><div id="band-zug">
+          <div id="st-schwarz" class="streifen"></div><div id="st-rot" class="streifen"></div><div id="st-gold" class="streifen"></div>
+        </div></div>
       </div>
 
-      <!-- 4.5–7.5 Logo -->
-      <div id="s-logo" class="szene blau clip" data-start="4.5" data-duration="3" data-track-index="0">
-        <div class="band" style="align-items:center"><img id="logo1" class="logo" src="assets/csb-logo.png" alt="CSB Logo" /></div>
-      </div>
+      <div id="hinweis" class="clip" data-start="0" data-duration="68.99" data-track-index="2">Fiktive Partei</div>
 
-      <!-- 7.5–16.5 Der Name -->
-      <div id="s-c" class="szene gold clip" data-start="7.5" data-duration="3" data-track-index="0">
-        <div class="band">
-          <div id="c-bu" class="buchstabe">C</div>
-          <div id="c-wo" class="d wort">Christlich</div>
-          <p id="c-sa" class="s satz">Nächstenliebe, Familie und Verantwortung als Fundament.</p>
-        </div>
-      </div>
-      <div id="s-s" class="szene weiss clip" data-start="10.5" data-duration="3" data-track-index="0">
-        <div class="band">
-          <div id="s-bu" class="buchstabe">S</div>
-          <div id="s-wo" class="d wort">Sozial</div>
-          <p id="s-sa" class="s satz">Wer Hilfe braucht, bekommt sie. Wer arbeitet, hat mehr.</p>
-        </div>
-      </div>
-      <div id="s-b" class="szene blau clip" data-start="13.5" data-duration="3" data-track-index="0">
-        <div class="band">
-          <div id="b-bu" class="buchstabe">B</div>
-          <div id="b-wo" class="d wort">Bürgerunion</div>
-          <p id="b-sa" class="s satz">Eine Partei der Mitte – für alle Bürger.</p>
-        </div>
-      </div>
-
-      <!-- 16.5–24 Das Projekt -->
-      <div id="s-projekt" class="szene gold clip" data-start="16.5" data-duration="7.5" data-track-index="0">
-        <div class="band">
-          <div id="proj-klein" class="klein">Unser Projekt</div>
-          <h2 id="proj-titel" class="d">Ein Deutschland, das wieder funktioniert.</h2>
-          <div id="z1" class="zeile s"><span class="bk"></span>Soziale Marktwirtschaft</div>
-          <div id="z2" class="zeile s"><span class="bk"></span>Fest auf dem Grundgesetz</div>
-          <div id="z3" class="zeile s"><span class="bk"></span>Pünktliche Züge, moderne Schulen</div>
-        </div>
-      </div>
-
-      <!-- 24–36 Drei Grundwerte -->
-      <div id="s-gw" class="szene blau clip" data-start="24" data-duration="1.5" data-track-index="0">
-        <div class="band"><h2 id="gw-titel" class="d">Drei <span class="g">Grund&shy;werte.</span></h2></div>
-      </div>
-      <div id="s-w1" class="szene blau clip" data-start="25.5" data-duration="3.5" data-track-index="0">
-        <div class="band">
-          <div id="w1" class="d wert">Freiheit</div><div id="w1s" class="wert-strich"></div>
-          <p id="w1t" class="s wert-satz">Freie Bürger. Freier Markt. Freies Wort.</p>
-        </div>
-      </div>
-      <div id="s-w2" class="szene blau clip" data-start="29" data-duration="3.5" data-track-index="0">
-        <div class="band">
-          <div id="w2" class="d wert">Sicherheit</div><div id="w2s" class="wert-strich"></div>
-          <p id="w2t" class="s wert-satz">Eine starke Bundeswehr. Klare Regeln im Inneren.</p>
-        </div>
-      </div>
-      <div id="s-w3" class="szene blau clip" data-start="32.5" data-duration="3.5" data-track-index="0">
-        <div class="band">
-          <div id="w3" class="d wert">Wohlstand</div><div id="w3s" class="wert-strich"></div>
-          <p id="w3t" class="s wert-satz">Leistung muss sich lohnen – für jeden.</p>
-        </div>
-      </div>
-
-      <!-- 36–56.1 So gestalten wir Deutschland -->
-      <div id="s-de" class="szene gold clip" data-start="36" data-duration="1.5" data-track-index="0">
-        <div class="band"><h2 id="de-titel" class="d">So gestalten wir Deutschland.</h2></div>
-      </div>
-      <div id="s-f1" class="szene weiss clip" data-start="37.5" data-duration="3.1" data-track-index="0">
-        <div class="band"><div id="f1t" class="thema">Bildung</div><p id="f1" class="d forderung">Bahn&shy;fahren und Mittag&shy;essen gratis für alle Schüler.</p></div>
-      </div>
-      <div id="s-f2" class="szene gold clip" data-start="40.6" data-duration="3.1" data-track-index="0">
-        <div class="band"><div id="f2t" class="thema">Familie</div><p id="f2" class="d forderung">Mehr Geld für Familien und Allein&shy;erziehende.</p></div>
-      </div>
-      <div id="s-f3" class="szene weiss clip" data-start="43.7" data-duration="3.1" data-track-index="0">
-        <div class="band"><div id="f3t" class="thema">Pflege &amp; Rente</div><p id="f3" class="d forderung">Mehr Geld für Pflege&shy;kräfte und Rentner.</p></div>
-      </div>
-      <div id="s-f4" class="szene gold clip" data-start="46.8" data-duration="3.1" data-track-index="0">
-        <div class="band"><div id="f4t" class="thema">Wohnen</div><p id="f4" class="d forderung">Miet&shy;erhöhungen klar begrenzen.</p></div>
-      </div>
-      <div id="s-f5" class="szene weiss clip" data-start="49.9" data-duration="3.1" data-track-index="0">
-        <div class="band"><div id="f5t" class="thema">Energie</div><p id="f5" class="d forderung">Erneuer&shy;bare Energie – ohne dass der Bürger zahlt.</p></div>
-      </div>
-      <div id="s-f6" class="szene gold clip" data-start="53" data-duration="3.1" data-track-index="0">
-        <div class="band"><div id="f6t" class="thema">Migration</div><p id="f6" class="d forderung">Integration fördern. Schwere Straf&shy;täter abschieben.</p></div>
-      </div>
-
-      <!-- 56.1–64 Europa -->
-      <div id="s-eu" class="szene blau clip" data-start="56.1" data-duration="7.9" data-track-index="0">
-        <div class="band">
-          <h2 id="eu-titel" class="d">Und Europa?</h2>
-          <div id="e1" class="eu s"><span class="bk"></span><span>Ein starkes Europa – fest in EU und NATO.</span></div>
-          <div id="e2" class="eu s"><span class="bk"></span><span>Unabhängiger von den USA.</span></div>
-          <div id="e3" class="eu s"><span class="bk"></span><span>An der Seite der Ukraine – für einen gerechten Frieden.</span></div>
-          <div id="e4" class="d" style="font-size:64px; color: var(--gold); margin-top: 64px">Für Deutschland.<br />Für Europa.</div>
-        </div>
-      </div>
-
-      <!-- 64–70 Outro -->
-      <div id="outro" class="szene blau clip" data-start="64" data-duration="6" data-track-index="0">
-        <div class="band" style="align-items:center; text-align:center">
-          <img id="logo2" class="logo" src="assets/csb-logo.png" alt="CSB Logo" />
-          <div id="slogan" class="d">Mit Herz.<br />Mit Haltung.</div>
-          <div id="folgen" class="s">Folge der CSB.</div>
-        </div>
-      </div>
-
-      <!-- Übergangsband, liegt über allem -->
-      <div id="band-ueber" class="clip" data-start="0" data-duration="70" data-track-index="1" data-layout-allow-overflow data-layout-allow-overlap style="position:absolute; inset:0; z-index:20; pointer-events:none">
-        <div id="band-wrap">
-          <div id="band-zug">
-            <div id="st-schwarz" class="streifen"></div>
-            <div id="st-rot" class="streifen"></div>
-            <div id="st-gold" class="streifen"></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="hinweis" class="clip" data-start="0" data-duration="70" data-track-index="2">Fiktive Partei</div>
-
-      <!-- Sound -->
-      <audio id="sx-w1" src="assets/sfx/whoosh-short.mp3" data-start="4.2" data-volume="0.7"></audio>
-      <audio id="sx-i1" src="assets/sfx/impact-bass-1.mp3" data-start="4.55" data-volume="0.8"></audio>
-      <audio id="sx-w2" src="assets/sfx/whoosh-short.mp3" data-start="7.2" data-volume="0.7"></audio>
-      <audio id="sx-c1" src="assets/sfx/click-soft.mp3" data-start="10.5" data-volume="0.6"></audio>
-      <audio id="sx-c2" src="assets/sfx/click-soft.mp3" data-start="13.5" data-volume="0.6"></audio>
-      <audio id="sx-w3" src="assets/sfx/whoosh-short.mp3" data-start="16.2" data-volume="0.7"></audio>
-      <audio id="sx-w4" src="assets/sfx/whoosh-short.mp3" data-start="23.7" data-volume="0.7"></audio>
-      <audio id="sx-c3" src="assets/sfx/click-soft.mp3" data-start="25.5" data-volume="0.6"></audio>
-      <audio id="sx-c4" src="assets/sfx/click-soft.mp3" data-start="29" data-volume="0.6"></audio>
-      <audio id="sx-c5" src="assets/sfx/click-soft.mp3" data-start="32.5" data-volume="0.6"></audio>
-      <audio id="sx-w5" src="assets/sfx/whoosh-short.mp3" data-start="35.7" data-volume="0.7"></audio>
-      <audio id="sx-c6" src="assets/sfx/click-soft.mp3" data-start="37.5" data-volume="0.6"></audio>
-      <audio id="sx-c7" src="assets/sfx/click-soft.mp3" data-start="40.6" data-volume="0.6"></audio>
-      <audio id="sx-c8" src="assets/sfx/click-soft.mp3" data-start="43.7" data-volume="0.6"></audio>
-      <audio id="sx-c9" src="assets/sfx/click-soft.mp3" data-start="46.8" data-volume="0.6"></audio>
-      <audio id="sx-c10" src="assets/sfx/click-soft.mp3" data-start="49.9" data-volume="0.6"></audio>
-      <audio id="sx-c11" src="assets/sfx/click-soft.mp3" data-start="53" data-volume="0.6"></audio>
-      <audio id="sx-w6" src="assets/sfx/whoosh-short.mp3" data-start="55.8" data-volume="0.7"></audio>
-      <audio id="sx-w7" src="assets/sfx/whoosh-short.mp3" data-start="63.7" data-volume="0.7"></audio>
-      <audio id="sx-i2" src="assets/sfx/impact-bass-2.mp3" data-start="64.05" data-volume="0.8"></audio>
+      <audio id="v-l01" src="assets/stimme/l01.wav" data-start="0.25" data-volume="1"></audio>
+      <audio id="v-l02" src="assets/stimme/l02.wav" data-start="4.884" data-volume="1"></audio>
+      <audio id="v-l03" src="assets/stimme/l03.wav" data-start="7.063" data-volume="1"></audio>
+      <audio id="v-l04" src="assets/stimme/l04.wav" data-start="10.315" data-volume="1"></audio>
+      <audio id="v-l05" src="assets/stimme/l05.wav" data-start="14.333" data-volume="1"></audio>
+      <audio id="v-l06" src="assets/stimme/l06.wav" data-start="18.897" data-volume="1"></audio>
+      <audio id="v-l07" src="assets/stimme/l07.wav" data-start="22.527" data-volume="1"></audio>
+      <audio id="v-l08" src="assets/stimme/l08.wav" data-start="25.802" data-volume="1"></audio>
+      <audio id="v-l09" src="assets/stimme/l09.wav" data-start="29.746" data-volume="1"></audio>
+      <audio id="v-l10" src="assets/stimme/l10.wav" data-start="31.001" data-volume="1"></audio>
+      <audio id="v-l11" src="assets/stimme/l11.wav" data-start="34.033" data-volume="1"></audio>
+      <audio id="v-l12" src="assets/stimme/l12.wav" data-start="37.018" data-volume="1"></audio>
+      <audio id="v-l13" src="assets/stimme/l13.wav" data-start="38.842" data-volume="1"></audio>
+      <audio id="v-l14" src="assets/stimme/l14.wav" data-start="41.734" data-volume="1"></audio>
+      <audio id="v-l15" src="assets/stimme/l15.wav" data-start="45.207" data-volume="1"></audio>
+      <audio id="v-l16" src="assets/stimme/l16.wav" data-start="53.133" data-volume="1"></audio>
+      <audio id="v-l17" src="assets/stimme/l17.wav" data-start="54.481" data-volume="1"></audio>
+      <audio id="v-l18" src="assets/stimme/l18.wav" data-start="57.872" data-volume="1"></audio>
+      <audio id="v-l19" src="assets/stimme/l19.wav" data-start="60.068" data-volume="1"></audio>
+      <audio id="v-l20" src="assets/stimme/l20.wav" data-start="64.221" data-volume="1"></audio>
+      <audio id="fx0" src="assets/sfx/whoosh-short.mp3" data-start="4.484" data-volume="0.35"></audio>
+      <audio id="fx1" src="assets/sfx/whoosh.mp3" data-start="6.713" data-volume="0.45"></audio>
+      <audio id="fx2" src="assets/sfx/whoosh-short.mp3" data-start="9.915" data-volume="0.35"></audio>
+      <audio id="fx3" src="assets/sfx/whoosh-short.mp3" data-start="13.933" data-volume="0.35"></audio>
+      <audio id="fx4" src="assets/sfx/whoosh-short.mp3" data-start="18.497" data-volume="0.35"></audio>
+      <audio id="fx5" src="assets/sfx/whoosh.mp3" data-start="22.177" data-volume="0.45"></audio>
+      <audio id="fx6" src="assets/sfx/whoosh-short.mp3" data-start="25.402" data-volume="0.35"></audio>
+      <audio id="fx7" src="assets/sfx/whoosh.mp3" data-start="29.396" data-volume="0.45"></audio>
+      <audio id="fx8" src="assets/sfx/whoosh-short.mp3" data-start="30.601" data-volume="0.35"></audio>
+      <audio id="fx9" src="assets/sfx/whoosh-short.mp3" data-start="33.633" data-volume="0.35"></audio>
+      <audio id="fx10" src="assets/sfx/whoosh-short.mp3" data-start="36.618" data-volume="0.35"></audio>
+      <audio id="fx11" src="assets/sfx/whoosh-short.mp3" data-start="38.442" data-volume="0.35"></audio>
+      <audio id="fx12" src="assets/sfx/whoosh-short.mp3" data-start="41.334" data-volume="0.35"></audio>
+      <audio id="fx13" src="assets/sfx/whoosh-short.mp3" data-start="44.807" data-volume="0.35"></audio>
+      <audio id="fx14" src="assets/sfx/whoosh.mp3" data-start="52.783" data-volume="0.45"></audio>
+      <audio id="fx15" src="assets/sfx/whoosh.mp3" data-start="63.871" data-volume="0.45"></audio>
+      <audio id="fx16" src="assets/sfx/impact-bass-2.mp3" data-start="3.55" data-volume="0.55"></audio>
+      <audio id="fx17" src="assets/sfx/riser.mp3" data-start="4.684" data-volume="0.25" data-duration="2.4" data-fade-out="0.4"></audio>
+      <audio id="fx18" src="assets/sfx/impact-bass-1.mp3" data-start="6.813" data-volume="0.6"></audio>
+      <audio id="fx19" src="assets/sfx/impact-bass-1.mp3" data-start="63.971" data-volume="0.6"></audio>
+      <audio id="fx20" src="assets/sfx/click-soft.mp3" data-start="27.152" data-volume="0.5"></audio>
+      <audio id="fx21" src="assets/sfx/pop.mp3" data-start="54.481" data-volume="0.4"></audio>
+      <audio id="fx22" src="assets/sfx/click-soft.mp3" data-start="27.802" data-volume="0.5"></audio>
+      <audio id="fx23" src="assets/sfx/pop.mp3" data-start="57.872" data-volume="0.4"></audio>
+      <audio id="fx24" src="assets/sfx/click-soft.mp3" data-start="28.452" data-volume="0.5"></audio>
+      <audio id="fx25" src="assets/sfx/pop.mp3" data-start="60.068" data-volume="0.4"></audio>
     </div>
 
     <script>
+      const L = {"l01": {"s": 0.25, "d": 4.354}, "l02": {"s": 4.884, "d": 1.579}, "l03": {"s": 7.063, "d": 2.972}, "l04": {"s": 10.315, "d": 3.738}, "l05": {"s": 14.333, "d": 4.284}, "l06": {"s": 18.897, "d": 3.03}, "l07": {"s": 22.527, "d": 2.995}, "l08": {"s": 25.802, "d": 3.344}, "l09": {"s": 29.746, "d": 0.975}, "l10": {"s": 31.001, "d": 2.752}, "l11": {"s": 34.033, "d": 2.705}, "l12": {"s": 37.018, "d": 1.544}, "l13": {"s": 38.842, "d": 2.612}, "l14": {"s": 41.734, "d": 3.193}, "l15": {"s": 45.207, "d": 7.326}, "l16": {"s": 53.133, "d": 1.068}, "l17": {"s": 54.481, "d": 3.111}, "l18": {"s": 57.872, "d": 1.916}, "l19": {"s": 60.068, "d": 3.553}, "l20": {"s": 64.221, "d": 2.171}};
+      const S = {"hook": 0, "sechzig": 4.584, "logo": 6.763, "c": 10.015, "s": 14.033, "b": 18.597, "projekt": 22.227, "werte": 25.502, "konkret": 29.446, "f1": 30.701, "f2": 33.733, "f3": 36.718, "f4": 38.542, "f5": 41.434, "europa": 44.907, "warum": 52.833, "outro": 63.921};
+      const UE = [[4.584, "push"], [6.763, "wisch"], [10.015, "push"], [14.033, "push"], [18.597, "push"], [22.227, "wisch"], [25.502, "push"], [29.446, "wisch"], [30.701, "push"], [33.733, "push"], [36.718, "push"], [38.542, "push"], [41.434, "push"], [44.907, "push"], [52.833, "wisch"], [63.921, "wisch"]];
+      const IDS = ["hook", "sechzig", "logo", "c", "s", "b", "projekt", "werte", "konkret", "f1", "f2", "f3", "f4", "f5", "europa", "warum", "outro"];
       const tl = gsap.timeline({ paused: true });
-      const E_IN = "power4.out";
+      const EIN = "power4.out";
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
 
-      // Hook: steht ab Frame 0; Strich wächst, Zweitzeile kommt.
-      tl.fromTo("#hook1", { scale: 1.05 }, { scale: 1, duration: 0.45, ease: "power3.out", transformOrigin: "0% 50%" }, 0);
-      tl.fromTo("#hook-strich", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: E_IN, transformOrigin: "0% 50%" }, 0.3);
-      tl.fromTo("#hook2", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: E_IN }, 1.9);
-
-      // Schwarz-Rot-Gold-Wischer: deckt das Bild genau beim Schnitt t.
-      function wisch(t) {
-        tl.fromTo("#band-zug", { x: -2500 }, { x: 0, duration: 0.3, ease: "power2.in" }, t - 0.3);
-        tl.to("#band-zug", { x: 2500, duration: 0.32, ease: "power2.out" }, t);
+      // Wörter steigen im Sprechtempo aus ihren Masken (Abstand nach Zeichenzahl).
+      function woerter(sel, t, d) {
+        const ws = qa(sel + " .w");
+        const laengen = ws.map((w) => w.textContent.length + 1);
+        const summe = laengen.reduce((a, b) => a + b, 0);
+        let bisher = 0;
+        ws.forEach((w, i) => {
+          tl.fromTo(w, { yPercent: 115 }, { yPercent: 0, duration: 0.34, ease: EIN }, t + (d * 0.88 * bisher) / summe);
+          bisher += laengen[i];
+        });
       }
-      [4.5, 7.5, 16.5, 24, 36, 56.1, 64].forEach(wisch);
+      function zeichnen(sel, t, dauer, stagger = 0) {
+        qa(sel).forEach((el, i) => tl.fromTo(el, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: dauer, ease: "power2.inOut" }, t + i * stagger));
+      }
 
-      // Logo
-      tl.fromTo("#logo1", { scale: 1.18 }, { scale: 1, duration: 0.6, ease: "power3.out" }, 4.5);
-
-      // Name: Buchstabe schlägt ein, Wort, dann Satz.
-      [["c", 7.5], ["s", 10.5], ["b", 13.5]].forEach(([k, t]) => {
-        tl.fromTo(`#${k}-bu`, { x: -260, opacity: 0 }, { x: 0, opacity: 1, duration: 0.35, ease: E_IN }, t);
-        tl.fromTo(`#${k}-wo`, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: E_IN }, t + 0.18);
-        tl.fromTo(`#${k}-sa`, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: E_IN }, t + 0.45);
-      });
-
-      // Projekt
-      tl.fromTo("#proj-klein", { opacity: 0 }, { opacity: 1, duration: 0.25 }, 16.5);
-      tl.fromTo("#proj-titel", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: E_IN }, 16.65);
-      [["#z1", 18.7], ["#z2", 19.5], ["#z3", 20.3]].forEach(([id, t]) => {
-        tl.fromTo(id, { x: -80, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: E_IN }, t);
-      });
-
-      // Grundwerte
-      tl.fromTo("#gw-titel", { scale: 1.25, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: E_IN, transformOrigin: "0% 50%" }, 24.05);
-      [["1", 25.5], ["2", 29], ["3", 32.5]].forEach(([n, t]) => {
-        tl.fromTo(`#w${n}`, { scale: 1.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: E_IN, transformOrigin: "0% 50%" }, t);
-        tl.fromTo(`#w${n}s`, { scaleX: 0 }, { scaleX: 1, duration: 0.35, ease: E_IN, transformOrigin: "0% 50%" }, t + 0.15);
-        tl.fromTo(`#w${n}t`, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: E_IN }, t + 0.35);
-      });
-
-      // Deutschland
-      tl.fromTo("#de-titel", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: E_IN }, 36.05);
-      [37.5, 40.6, 43.7, 46.8, 49.9, 53].forEach((t, i) => {
-        const n = i + 1;
-        tl.fromTo(`#f${n}t`, { x: -120, opacity: 0 }, { x: 0, opacity: 1, duration: 0.28, ease: E_IN }, t);
-        tl.fromTo(`#f${n}`, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: E_IN }, t + 0.12);
-      });
-
-      // Europa
-      tl.fromTo("#eu-titel", { scale: 1.25, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: E_IN, transformOrigin: "0% 50%" }, 56.15);
-      [["#e1", 57.0], ["#e2", 58.4], ["#e3", 59.6]].forEach(([id, t]) => {
-        tl.fromTo(id, { x: -80, opacity: 0 }, { x: 0, opacity: 1, duration: 0.32, ease: E_IN }, t);
-      });
-
-      tl.fromTo("#e4", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: E_IN }, 61.6);
-
-      // Outro
-      tl.fromTo("#logo2", { scale: 1.2 }, { scale: 1, duration: 0.6, ease: "power3.out" }, 64);
-      tl.fromTo("#slogan", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: E_IN }, 64.8);
-      tl.fromTo("#folgen", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 65.6);
-
+      // Übergänge: Push (neue Szene schiebt von rechts, alte weicht mit Parallaxe) oder Schwarz-Rot-Gold-Wischer.
       tl.set("#band-zug", { x: -2500 }, 0);
+      UE.forEach(([t, art], i) => {
+        const neu = "#b-" + IDS[i + 1], alt = "#b-" + IDS[i];
+        if (art === "push") {
+          tl.fromTo(neu, { xPercent: 100 }, { xPercent: 0, duration: 0.45, ease: "power3.inOut" }, t);
+          tl.fromTo(alt, { xPercent: 0 }, { xPercent: -35, duration: 0.45, ease: "power3.inOut" }, t);
+        } else {
+          tl.fromTo("#band-zug", { x: -2500 }, { x: 0, duration: 0.3, ease: "power2.in" }, t - 0.3);
+          tl.to("#band-zug", { x: 2500, duration: 0.34, ease: "power2.out" }, t);
+        }
+      });
+
+      // 1 Hook: Satz + Kontostand stehen ab Frame 0; der Kontostand rauscht auf 0 €.
+      tl.fromTo("#hook1", { scale: 1.05 }, { scale: 1, duration: 0.45, ease: "power3.out", transformOrigin: "0% 50%" }, 0);
+      const konto = { v: 2480 };
+      const kz = q("#konto-zahl");
+      tl.fromTo(konto, { v: 2480 }, {
+        v: 0, duration: 1.9, ease: "power2.in",
+        onUpdate: () => { kz.textContent = Math.round(konto.v).toLocaleString("de-DE") + " €"; },
+      }, L.l01.s + 1.4);
+      tl.fromTo("#konto-zahl", { color: "#062a75" }, { color: "#dd0a1a", duration: 0.15 }, L.l01.s + 3.25);
+      [-14, 12, -9, 7, -4, 0].forEach((x, i) => tl.to("#konto", { x, duration: 0.045, ease: "none" }, L.l01.s + 3.3 + i * 0.045));
+      woerter("#hook2", L.l01.s + 2.0, L.l01.d - 2.0);
+
+      // 2 Sechzig Sekunden: Ring zieht sich zu.
+      tl.fromTo("#sx-dann", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: EIN }, S.sechzig + 0.35);
+      tl.fromTo("#ring-v", { strokeDashoffset: 1, rotation: -90 }, { strokeDashoffset: 0, rotation: -90, duration: 1.5, ease: "power1.inOut" }, L.l02.s);
+      tl.fromTo("#sx-60", { scale: 1.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2)" }, L.l02.s + 0.35);
+      tl.fromTo("#sx-sek", { scaleX: 1.4, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.35, ease: EIN }, L.l02.s + 0.75);
+
+      // 3 Logo mit Glanz
+      tl.fromTo("#logo1-r", { scale: 1.3, rotation: -5 }, { scale: 1, rotation: 0, duration: 0.7, ease: "power3.out" }, S.logo);
+      tl.fromTo("#glanz1", { xPercent: -150 }, { xPercent: 300, duration: 0.9, ease: "power2.inOut" }, S.logo + 0.6);
+      woerter("#logo-name", L.l03.s + 1.0, L.l03.d - 1.0);
+
+      // 4–6 Das Akronym baut sich auf: C, CS, CSB
+      [["c", 0, "l04"], ["s", 1, "l05"], ["b", 2, "l06"]].forEach(([k, i, lid]) => {
+        tl.fromTo(`#${k}-k${i}`, { y: -460, rotation: -16, opacity: 0 }, { y: 0, rotation: 0, opacity: 1, duration: 0.55, ease: "back.out(1.8)" }, S[k] + 0.3);
+        tl.fromTo(`#${k}-wort`, { scaleX: 1.5, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.4, ease: EIN, transformOrigin: "0% 50%" }, L[lid].s);
+        woerter(`#${k}-satz`, L[lid].s + 0.75, L[lid].d - 0.75);
+      });
+
+      // 7 Projekt
+      tl.fromTo("#pr-k", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: EIN }, S.projekt + 0.3);
+      woerter("#pr-t", L.l07.s + 0.5, L.l07.d - 0.5);
+      tl.fromTo("#pr-strich", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: EIN, transformOrigin: "0% 50%" }, L.l07.s + L.l07.d - 0.3);
+
+      // 8 Werte: jedes Wort knallt rein, wenn es gesprochen wird.
+      tl.fromTo("#we-k", { opacity: 0 }, { opacity: 1, duration: 0.3 }, S.werte + 0.35);
+      [1.35, 2.0, 2.65].forEach((dt, i) => {
+        const n = i + 1;
+        tl.fromTo(`#we${n}`, { scale: 1.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: EIN, transformOrigin: "0% 50%" }, L.l08.s + dt);
+        tl.fromTo(`#we${n}b`, { scaleX: 0 }, { scaleX: 1, duration: 0.35, ease: EIN, transformOrigin: "0% 50%" }, L.l08.s + dt + 0.1);
+      });
+
+      // 9 Konkret
+      woerter("#ko-t", L.l09.s - 0.15, L.l09.d + 0.1);
+
+      // 10–14 Karten: Icon zeichnet sich, Thema, Forderung im Sprechtempo
+      ["f1", "f2", "f3", "f4", "f5"].forEach((k, i) => {
+        const lid = "l" + (10 + i);
+        tl.fromTo(`#${k}-icon`, { scale: 0.5, rotation: -12 }, { scale: 1, rotation: 0, duration: 0.5, ease: "back.out(2)", transformOrigin: "50% 50%" }, S[k] + 0.3);
+        zeichnen(`#${k}-icon *`, S[k] + 0.3, 0.6, 0.07);
+        tl.fromTo(`#${k}-th`, { x: -120, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: EIN }, S[k] + 0.4);
+        woerter(`#${k}-sa`, L[lid].s, L[lid].d);
+      });
+
+      // 15 Europa: zwölf Sterne, drei Aussagen
+      tl.fromTo("#eu-t", { scale: 1.35, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: EIN, transformOrigin: "0% 50%" }, S.europa + 0.35);
+      for (let i = 0; i < 12; i++) {
+        tl.fromTo(`#stern${i}`, { scale: 0, rotation: -120 }, { scale: 1, rotation: 0, duration: 0.4, ease: "back.out(2.5)" }, L.l15.s + 0.2 + i * 0.07);
+      }
+      [["#eu1", 1.0], ["#eu2", 2.55], ["#eu3", 4.1]].forEach(([id, dt]) => {
+        tl.fromTo(id, { x: -90, opacity: 0 }, { x: 0, opacity: 1, duration: 0.32, ease: EIN }, L.l15.s + dt);
+      });
+
+      // 16–19 Warum CSB? Haken zeichnen sich, Gründe im Sprechtempo
+      tl.fromTo("#wa-t", { scale: 1.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.6)", transformOrigin: "0% 50%" }, L.l16.s - 0.05);
+      [["wa1", "l17"], ["wa2", "l18"], ["wa3", "l19"]].forEach(([g, lid]) => {
+        tl.fromTo(`#${g}-h`, { scale: 0 }, { scale: 1, duration: 0.3, ease: "back.out(2)" }, L[lid].s - 0.1);
+        zeichnen(`#${g}-h path`, L[lid].s + 0.1, 0.35);
+        woerter(`#${g}`, L[lid].s + 0.1, L[lid].d - 0.1);
+      });
+
+      // 20 Outro: Logo, Slogan, Folgen, Schwarz-Rot-Gold-Schwung
+      tl.fromTo("#logo2-r", { scale: 1.3 }, { scale: 1, duration: 0.7, ease: "power3.out" }, S.outro);
+      tl.fromTo("#glanz2", { xPercent: -150 }, { xPercent: 300, duration: 0.9, ease: "power2.inOut" }, S.outro + 0.7);
+      zeichnen(".schwung path", S.outro + 0.25, 1.0, 0.12);
+      tl.fromTo("#slogan", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: EIN }, L.l20.s + 0.5);
+      tl.fromTo("#folgen", { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2.2)" }, L.l20.s + 1.5);
+      [0, 0.8].forEach((dt) => {
+        tl.to("#folgen", { scale: 1.08, duration: 0.18, ease: "power2.out" }, L.l20.s + 2.4 + dt);
+        tl.to("#folgen", { scale: 1, duration: 0.3, ease: "power2.inOut" }, L.l20.s + 2.58 + dt);
+      });
+
       window.__timelines["main"] = tl;
       tl.seek(0);
     </script>

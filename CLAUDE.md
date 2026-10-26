@@ -17,6 +17,13 @@ Antworte auf Deutsch.
 4. `HYPERFRAMES_SKIP_SKILLS=1 npx hyperframes@0.8.204 check` → `snapshot` ansehen → `render -o renders/NNN-slug.mp4`.
 5. Eintrag im Video-Log in `kanal/KANAL.md` ergänzen.
 
+## Stimme (deutsch, männlich)
+- Piper-Stimme „Thorsten“ (CC0), Skript `tools/sprecher.py` (Einrichtung steht im Kopf der Datei).
+- Modell kommt von GitHub-Releases (k2-fsa/sherpa-onnx, `vits-piper-de_DE-thorsten-high`); Hugging Face ist hier gesperrt.
+- Sprechertext in `sprechertext.json`, Abkürzungen für die Aussprache ausschreiben (`EU` → `E-U`).
+- Danach je Zeile `loudnorm=I=-14:TP=-1.5` → `assets/stimme/`, dann `python3 build.py` (Beispiel: `videos/001-csb-vorstellung`).
+- Musik gibt es hier keine: in der TikTok-App einen Sound leise unterlegen.
+
 ## Wichtig
 - GSAP liegt lokal in `assets/vendor/gsap.min.js` – der Render-Browser erreicht hier kein CDN. Keine CDN-Skripte verwenden.
 - Text nur im Band 168–1330 px Höhe, rechts 160 px frei (TikTok-UI).
