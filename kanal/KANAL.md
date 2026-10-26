@@ -3,10 +3,10 @@
 > Profilangaben werden nach dem Ausfüllen von `partei/PARTEI.md` finalisiert.
 
 ## Profil
-- **Handle:** @…
-- **Anzeigename:** …
-- **Bio (max. 80 Zeichen):** … · Fiktive Partei
-- **Profilbild:** Kürzel/Logo auf Parteifarbe (wird mit HyperFrames als Standbild erzeugt)
+- **Handle (Vorschlag):** @csb.buergerunion
+- **Anzeigename:** CSB – Christlich-Soziale Bürgerunion
+- **Bio:** Freiheit. Sicherheit. Wohlstand. 🇪🇺 Fiktive Partei
+- **Profilbild:** CSB-Logo (`videos/001-csb-vorstellung/assets/csb-logo.png`)
 
 ## Formate (Content-Säulen)
 | Format | Länge | Idee | Vorlage |
@@ -31,3 +31,4 @@
 ## Video-Log
 | Nr. | Titel | Format | Status | Datei |
 |---|---|---|---|---|
+| 001 | Wer ist die CSB? | Vorstellung (70 s) | fertig, nicht gepostet | `videos/001-csb-vorstellung` |

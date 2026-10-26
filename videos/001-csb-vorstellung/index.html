@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="de" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      :root {
+        --blau: #0a3a9e;      /* Königsblau */
+        --blau-tief: #062a75;
+        --gold: #f5c22b;      /* Warmes Gold */
+        --weiss: #ffffff;
+        --schwarz: #111111;
+        --rot: #dd0a1a;
+        --display: "Archivo Black", sans-serif;
+        --body: "Inter", sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--blau); }
+      #root { width: 100%; height: 100%; position: relative; font-family: var(--body); }
+
+      .szene { position: absolute; inset: 0; overflow: hidden; }
+      .blau { background: var(--blau); color: var(--weiss); }
+      .gold { background: var(--gold); color: var(--blau-tief); }
+      .weiss { background: var(--weiss); color: var(--blau-tief); }
+
+      /* Lesbares Band: 280–1300 px Höhe, links 80, rechts 160 frei (TikTok-Leiste). */
+      .band {
+        position: absolute; left: 80px; right: 160px; top: 280px; height: 1020px;
+        display: flex; flex-direction: column; justify-content: center;
+      }
+      .d { font-family: var(--display); text-transform: uppercase; letter-spacing: -0.015em; line-height: 1; }
+      .s { font-family: var(--body); font-weight: 800; letter-spacing: -0.01em; line-height: 1.18; }
+
+      /* Hook */
+      #hook1 { font-size: 112px; }
+      #hook1 .g { color: var(--gold); }
+      #hook-strich { height: 22px; width: 640px; background: var(--gold); margin: 40px 0 48px; }
+      #hook2 { font-size: 52px; color: var(--weiss); }
+
+      /* Logo */
+      .logo { width: 840px; height: 840px; display: block; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); }
+
+      /* Name: Buchstabe + Wort + Satz */
+      .buchstabe { font-family: var(--display); font-size: 440px; line-height: 0.82; letter-spacing: -0.04em; }
+      .wort { font-size: 92px; margin-top: 36px; }
+      .satz { font-size: 50px; margin-top: 36px; max-width: 820px; }
+      #s-c .buchstabe { color: var(--blau); }
+      #s-s .buchstabe { color: var(--rot); }
+      #s-b .buchstabe { color: var(--gold); }
+
+      /* Projekt */
+      .klein { font-family: var(--body); font-weight: 800; font-size: 46px; text-transform: uppercase; letter-spacing: 0.04em; }
+      #proj-titel { font-size: 92px; margin: 28px 0 56px; }
+      .zeile { display: flex; align-items: center; gap: 28px; font-size: 52px; margin-top: 26px; }
+      .zeile .bk { width: 22px; height: 64px; background: var(--blau); flex: none; }
+
+      /* Grundwerte */
+      #gw-titel { font-size: 120px; }
+      #gw-titel .g { color: var(--gold); }
+      .wert { font-size: 128px; color: var(--gold); }
+      .wert-strich { width: 300px; height: 22px; background: var(--weiss); margin: 44px 0; }
+      .wert-satz { font-size: 56px; }
+
+      /* Deutschland */
+      #de-titel { font-size: 104px; }
+      .thema {
+        align-self: flex-start; font-family: var(--body); font-weight: 900; font-size: 44px;
+        text-transform: uppercase; letter-spacing: 0.04em; padding: 10px 24px;
+        background: var(--blau); color: var(--gold); margin-bottom: 48px;
+      }
+      .forderung { font-size: 84px; line-height: 1.04; }
+
+      /* Europa */
+      #eu-titel { font-size: 124px; color: var(--gold); margin-bottom: 40px; }
+      .eu { display: flex; gap: 28px; font-size: 54px; margin-top: 34px; }
+      .eu .bk { width: 22px; background: var(--gold); flex: none; }
+
+      /* Outro */
+      #outro .logo { width: 700px; height: 700px; }
+      #slogan { font-size: 76px; color: var(--gold); margin-top: 56px; }
+      #folgen { font-size: 46px; margin-top: 36px; }
+
+      /* Schwarz-Rot-Gold-Band als Übergang (Element des Logos) */
+      #band-wrap { position: absolute; left: -400px; top: -300px; width: 1880px; height: 2520px; z-index: 20; transform: rotate(-14deg); pointer-events: none; }
+      #band-zug { position: absolute; inset: 0; }
+      .streifen { position: absolute; left: 0; width: 1880px; height: 840px; }
+      #st-schwarz { top: 0; background: var(--schwarz); }
+      #st-rot { top: 840px; background: var(--rot); }
+      #st-gold { top: 1680px; background: var(--gold); }
+
+      #hinweis {
+        position: absolute; left: 80px; top: 190px; z-index: 30;
+        padding: 10px 20px; background: var(--weiss); color: var(--blau-tief);
+        outline: 3px solid var(--blau-tief);
+        font-family: var(--body); font-weight: 800; font-size: 30px; letter-spacing: 0.03em; text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="70" data-width="1080" data-height="1920">
+
+      <!-- 0–4.5 Hook (Frame 0 = Thumbnail) -->
+      <div id="s-hook" class="szene blau clip" data-start="0" data-duration="4.5" data-track-index="0">
+        <div class="band">
+          <h1 id="hook1" class="d">Deutschland braucht eine <span class="g">neue Mitte.</span></h1>
+          <div id="hook-strich"></div>
+          <p id="hook2" class="s">Und die hat jetzt einen Namen.</p>
+        </div>
+      </div>
+
+      <!-- 4.5–7.5 Logo -->
+      <div id="s-logo" class="szene blau clip" data-start="4.5" data-duration="3" data-track-index="0">
+        <div class="band" style="align-items:center"><img id="logo1" class="logo" src="assets/csb-logo.png" alt="CSB Logo" /></div>
+      </div>
+
+      <!-- 7.5–16.5 Der Name -->
+      <div id="s-c" class="szene gold clip" data-start="7.5" data-duration="3" data-track-index="0">
+        <div class="band">
+          <div id="c-bu" class="buchstabe">C</div>
+          <div id="c-wo" class="d wort">Christlich</div>
+          <p id="c-sa" class="s satz">Nächstenliebe, Familie und Verantwortung als Fundament.</p>
+        </div>
+      </div>
+      <div id="s-s" class="szene weiss clip" data-start="10.5" data-duration="3" data-track-index="0">
+        <div class="band">
+          <div id="s-bu" class="buchstabe">S</div>
+          <div id="s-wo" class="d wort">Sozial</div>
+          <p id="s-sa" class="s satz">Wer Hilfe braucht, bekommt sie. Wer arbeitet, hat mehr.</p>
+        </div>
+      </div>
+      <div id="s-b" class="szene blau clip" data-start="13.5" data-duration="3" data-track-index="0">
+        <div class="band">
+          <div id="b-bu" class="buchstabe">B</div>
+          <div id="b-wo" class="d wort">Bürgerunion</div>
+          <p id="b-sa" class="s satz">Eine Partei der Mitte – für alle Bürger.</p>
+        </div>
+      </div>
+
+      <!-- 16.5–24 Das Projekt -->
+      <div id="s-projekt" class="szene gold clip" data-start="16.5" data-duration="7.5" data-track-index="0">
+        <div class="band">
+          <div id="proj-klein" class="klein">Unser Projekt</div>
+          <h2 id="proj-titel" class="d">Ein Deutschland, das wieder funktioniert.</h2>
+          <div id="z1" class="zeile s"><span class="bk"></span>Soziale Marktwirtschaft</div>
+          <div id="z2" class="zeile s"><span class="bk"></span>Fest auf dem Grundgesetz</div>
+          <div id="z3" class="zeile s"><span class="bk"></span>Pünktliche Züge, moderne Schulen</div>
+        </div>
+      </div>
+
+      <!-- 24–36 Drei Grundwerte -->
+      <div id="s-gw" class="szene blau clip" data-start="24" data-duration="1.5" data-track-index="0">
+        <div class="band"><h2 id="gw-titel" class="d">Drei <span class="g">Grund&shy;werte.</span></h2></div>
+      </div>
+      <div id="s-w1" class="szene blau clip" data-start="25.5" data-duration="3.5" data-track-index="0">
+        <div class="band">
+          <div id="w1" class="d wert">Freiheit</div><div id="w1s" class="wert-strich"></div>
+          <p id="w1t" class="s wert-satz">Freie Bürger. Freier Markt. Freies Wort.</p>
+        </div>
+      </div>
+      <div id="s-w2" class="szene blau clip" data-start="29" data-duration="3.5" data-track-index="0">
+        <div class="band">
+          <div id="w2" class="d wert">Sicherheit</div><div id="w2s" class="wert-strich"></div>
+          <p id="w2t" class="s wert-satz">Eine starke Bundeswehr. Klare Regeln im Inneren.</p>
+        </div>
+      </div>
+      <div id="s-w3" class="szene blau clip" data-start="32.5" data-duration="3.5" data-track-index="0">
+        <div class="band">
+          <div id="w3" class="d wert">Wohlstand</div><div id="w3s" class="wert-strich"></div>
+          <p id="w3t" class="s wert-satz">Leistung muss sich lohnen – für jeden.</p>
+        </div>
+      </div>
+
+      <!-- 36–56.1 So gestalten wir Deutschland -->
+      <div id="s-de" class="szene gold clip" data-start="36" data-duration="1.5" data-track-index="0">
+        <div class="band"><h2 id="de-titel" class="d">So gestalten wir Deutschland.</h2></div>
+      </div>
+      <div id="s-f1" class="szene weiss clip" data-start="37.5" data-duration="3.1" data-track-index="0">
+        <div class="band"><div id="f1t" class="thema">Bildung</div><p id="f1" class="d forderung">Bahn&shy;fahren und Mittag&shy;essen gratis für alle Schüler.</p></div>
+      </div>
+      <div id="s-f2" class="szene gold clip" data-start="40.6" data-duration="3.1" data-track-index="0">
+        <div class="band"><div id="f2t" class="thema">Familie</div><p id="f2" class="d forderung">Mehr Geld für Familien und Allein&shy;erziehende.</p></div>
+      </div>
+      <div id="s-f3" class="szene weiss clip" data-start="43.7" data-duration="3.1" data-track-index="0">
+        <div class="band"><div id="f3t" class="thema">Pflege &amp; Rente</div><p id="f3" class="d forderung">Mehr Geld für Pflege&shy;kräfte und Rentner.</p></div>
+      </div>
+      <div id="s-f4" class="szene gold clip" data-start="46.8" data-duration="3.1" data-track-index="0">
+        <div class="band"><div id="f4t" class="thema">Wohnen</div><p id="f4" class="d forderung">Miet&shy;erhöhungen klar begrenzen.</p></div>
+      </div>
+      <div id="s-f5" class="szene weiss clip" data-start="49.9" data-duration="3.1" data-track-index="0">
+        <div class="band"><div id="f5t" class="thema">Energie</div><p id="f5" class="d forderung">Erneuer&shy;bare Energie – ohne dass der Bürger zahlt.</p></div>
+      </div>
+      <div id="s-f6" class="szene gold clip" data-start="53" data-duration="3.1" data-track-index="0">
+        <div class="band"><div id="f6t" class="thema">Migration</div><p id="f6" class="d forderung">Integration fördern. Schwere Straf&shy;täter abschieben.</p></div>
+      </div>
+
+      <!-- 56.1–64 Europa -->
+      <div id="s-eu" class="szene blau clip" data-start="56.1" data-duration="7.9" data-track-index="0">
+        <div class="band">
+          <h2 id="eu-titel" class="d">Und Europa?</h2>
+          <div id="e1" class="eu s"><span class="bk"></span><span>Ein starkes Europa – fest in EU und NATO.</span></div>
+          <div id="e2" class="eu s"><span class="bk"></span><span>Unabhängiger von den USA.</span></div>
+          <div id="e3" class="eu s"><span class="bk"></span><span>An der Seite der Ukraine – für einen gerechten Frieden.</span></div>
+          <div id="e4" class="d" style="font-size:64px; color: var(--gold); margin-top: 64px">Für Deutschland.<br />Für Europa.</div>
+        </div>
+      </div>
+
+      <!-- 64–70 Outro -->
+      <div id="outro" class="szene blau clip" data-start="64" data-duration="6" data-track-index="0">
+        <div class="band" style="align-items:center; text-align:center">
+          <img id="logo2" class="logo" src="assets/csb-logo.png" alt="CSB Logo" />
+          <div id="slogan" class="d">Mit Herz.<br />Mit Haltung.</div>
+          <div id="folgen" class="s">Folge der CSB.</div>
+        </div>
+      </div>
+
+      <!-- Übergangsband, liegt über allem -->
+      <div id="band-ueber" class="clip" data-start="0" data-duration="70" data-track-index="1" data-layout-allow-overflow data-layout-allow-overlap style="position:absolute; inset:0; z-index:20; pointer-events:none">
+        <div id="band-wrap">
+          <div id="band-zug">
+            <div id="st-schwarz" class="streifen"></div>
+            <div id="st-rot" class="streifen"></div>
+            <div id="st-gold" class="streifen"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="hinweis" class="clip" data-start="0" data-duration="70" data-track-index="2">Fiktive Partei</div>
+
+      <!-- Sound -->
+      <audio id="sx-w1" src="assets/sfx/whoosh-short.mp3" data-start="4.2" data-volume="0.7"></audio>
+      <audio id="sx-i1" src="assets/sfx/impact-bass-1.mp3" data-start="4.55" data-volume="0.8"></audio>
+      <audio id="sx-w2" src="assets/sfx/whoosh-short.mp3" data-start="7.2" data-volume="0.7"></audio>
+      <audio id="sx-c1" src="assets/sfx/click-soft.mp3" data-start="10.5" data-volume="0.6"></audio>
+      <audio id="sx-c2" src="assets/sfx/click-soft.mp3" data-start="13.5" data-volume="0.6"></audio>
+      <audio id="sx-w3" src="assets/sfx/whoosh-short.mp3" data-start="16.2" data-volume="0.7"></audio>
+      <audio id="sx-w4" src="assets/sfx/whoosh-short.mp3" data-start="23.7" data-volume="0.7"></audio>
+      <audio id="sx-c3" src="assets/sfx/click-soft.mp3" data-start="25.5" data-volume="0.6"></audio>
+      <audio id="sx-c4" src="assets/sfx/click-soft.mp3" data-start="29" data-volume="0.6"></audio>
+      <audio id="sx-c5" src="assets/sfx/click-soft.mp3" data-start="32.5" data-volume="0.6"></audio>
+      <audio id="sx-w5" src="assets/sfx/whoosh-short.mp3" data-start="35.7" data-volume="0.7"></audio>
+      <audio id="sx-c6" src="assets/sfx/click-soft.mp3" data-start="37.5" data-volume="0.6"></audio>
+      <audio id="sx-c7" src="assets/sfx/click-soft.mp3" data-start="40.6" data-volume="0.6"></audio>
+      <audio id="sx-c8" src="assets/sfx/click-soft.mp3" data-start="43.7" data-volume="0.6"></audio>
+      <audio id="sx-c9" src="assets/sfx/click-soft.mp3" data-start="46.8" data-volume="0.6"></audio>
+      <audio id="sx-c10" src="assets/sfx/click-soft.mp3" data-start="49.9" data-volume="0.6"></audio>
+      <audio id="sx-c11" src="assets/sfx/click-soft.mp3" data-start="53" data-volume="0.6"></audio>
+      <audio id="sx-w6" src="assets/sfx/whoosh-short.mp3" data-start="55.8" data-volume="0.7"></audio>
+      <audio id="sx-w7" src="assets/sfx/whoosh-short.mp3" data-start="63.7" data-volume="0.7"></audio>
+      <audio id="sx-i2" src="assets/sfx/impact-bass-2.mp3" data-start="64.05" data-volume="0.8"></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const E_IN = "power4.out";
+
+      // Hook: steht ab Frame 0; Strich wächst, Zweitzeile kommt.
+      tl.fromTo("#hook1", { scale: 1.05 }, { scale: 1, duration: 0.45, ease: "power3.out", transformOrigin: "0% 50%" }, 0);
+      tl.fromTo("#hook-strich", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: E_IN, transformOrigin: "0% 50%" }, 0.3);
+      tl.fromTo("#hook2", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: E_IN }, 1.9);
+
+      // Schwarz-Rot-Gold-Wischer: deckt das Bild genau beim Schnitt t.
+      function wisch(t) {
+        tl.fromTo("#band-zug", { x: -2500 }, { x: 0, duration: 0.3, ease: "power2.in" }, t - 0.3);
+        tl.to("#band-zug", { x: 2500, duration: 0.32, ease: "power2.out" }, t);
+      }
+      [4.5, 7.5, 16.5, 24, 36, 56.1, 64].forEach(wisch);
+
+      // Logo
+      tl.fromTo("#logo1", { scale: 1.18 }, { scale: 1, duration: 0.6, ease: "power3.out" }, 4.5);
+
+      // Name: Buchstabe schlägt ein, Wort, dann Satz.
+      [["c", 7.5], ["s", 10.5], ["b", 13.5]].forEach(([k, t]) => {
+        tl.fromTo(`#${k}-bu`, { x: -260, opacity: 0 }, { x: 0, opacity: 1, duration: 0.35, ease: E_IN }, t);
+        tl.fromTo(`#${k}-wo`, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: E_IN }, t + 0.18);
+        tl.fromTo(`#${k}-sa`, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: E_IN }, t + 0.45);
+      });
+
+      // Projekt
+      tl.fromTo("#proj-klein", { opacity: 0 }, { opacity: 1, duration: 0.25 }, 16.5);
+      tl.fromTo("#proj-titel", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: E_IN }, 16.65);
+      [["#z1", 18.7], ["#z2", 19.5], ["#z3", 20.3]].forEach(([id, t]) => {
+        tl.fromTo(id, { x: -80, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: E_IN }, t);
+      });
+
+      // Grundwerte
+      tl.fromTo("#gw-titel", { scale: 1.25, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: E_IN, transformOrigin: "0% 50%" }, 24.05);
+      [["1", 25.5], ["2", 29], ["3", 32.5]].forEach(([n, t]) => {
+        tl.fromTo(`#w${n}`, { scale: 1.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: E_IN, transformOrigin: "0% 50%" }, t);
+        tl.fromTo(`#w${n}s`, { scaleX: 0 }, { scaleX: 1, duration: 0.35, ease: E_IN, transformOrigin: "0% 50%" }, t + 0.15);
+        tl.fromTo(`#w${n}t`, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: E_IN }, t + 0.35);
+      });
+
+      // Deutschland
+      tl.fromTo("#de-titel", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: E_IN }, 36.05);
+      [37.5, 40.6, 43.7, 46.8, 49.9, 53].forEach((t, i) => {
+        const n = i + 1;
+        tl.fromTo(`#f${n}t`, { x: -120, opacity: 0 }, { x: 0, opacity: 1, duration: 0.28, ease: E_IN }, t);
+        tl.fromTo(`#f${n}`, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: E_IN }, t + 0.12);
+      });
+
+      // Europa
+      tl.fromTo("#eu-titel", { scale: 1.25, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: E_IN, transformOrigin: "0% 50%" }, 56.15);
+      [["#e1", 57.0], ["#e2", 58.4], ["#e3", 59.6]].forEach(([id, t]) => {
+        tl.fromTo(id, { x: -80, opacity: 0 }, { x: 0, opacity: 1, duration: 0.32, ease: E_IN }, t);
+      });
+
+      tl.fromTo("#e4", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: E_IN }, 61.6);
+
+      // Outro
+      tl.fromTo("#logo2", { scale: 1.2 }, { scale: 1, duration: 0.6, ease: "power3.out" }, 64);
+      tl.fromTo("#slogan", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: E_IN }, 64.8);
+      tl.fromTo("#folgen", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 65.6);
+
+      tl.set("#band-zug", { x: -2500 }, 0);
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
