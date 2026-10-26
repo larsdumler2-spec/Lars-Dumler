@@ -1,16 +1,19 @@
-"""Baut index.html aus dem Sprechertext-Timing.
+"""Baut index.html und compositions/untertitel.html aus dem Sprechertext-Timing.
 
   python3 build.py
 
 Die Szenen folgen der Stimme: Jede Zeile in assets/stimme/<id>.wav bekommt ihren
-Startpunkt aus den Dauern in assets/stimme/dauern.json plus Pausen.
+Startpunkt aus assets/stimme/dauern.json plus Pausen. Wortzeiten für Untertitel
+und Einsätze kommen aus assets/stimme/woerter.json (tools/sprecher.py).
 """
 import json
+import math
 import re
 from pathlib import Path
 
 HIER = Path(__file__).parent
 DAUER = json.loads((HIER / "assets/stimme/dauern.json").read_text())
+WOERTER = json.loads((HIER / "assets/stimme/woerter.json").read_text())
 
 # --- Zeitplan -------------------------------------------------------------
 PAUSE = 0.28
@@ -18,7 +21,7 @@ PAUSE_ABSCHNITT = 0.6           # vor einem Schwarz-Rot-Gold-Wischer
 ABSCHNITT = {"l03", "l07", "l09", "l16", "l20"}
 VORLAUF = 0.3                   # Szene beginnt so viel vor ihrer Stimme
 UEBERLAPP = 0.45                # Push-Übergang
-NACHLAUF = 2.6                  # Outro hält nach der letzten Zeile
+NACHLAUF = 2.2                  # Endkarte hält nach der letzten Zeile
 
 L, t = {}, 0.25
 for lid in sorted(DAUER):
@@ -26,16 +29,18 @@ for lid in sorted(DAUER):
         t += PAUSE_ABSCHNITT - PAUSE
     L[lid] = {"s": round(t, 3), "d": DAUER[lid]}
     t += DAUER[lid] + PAUSE
-ENDE = round(L["l20"]["s"] + L["l20"]["d"] + NACHLAUF, 2)
+ENDE = round(L["l21"]["s"] + L["l21"]["d"] + NACHLAUF, 2)
+# Absolute Wortanfänge je Zeile
+WT = {lid: [round(L[lid]["s"] + w["start"], 3) for w in ws] for lid, ws in WOERTER.items()}
 
-# Szenen: (id, erste Zeile, Übergang hinein)
 SZENEN = [
-    ("hook", "l01", None), ("sechzig", "l02", "push"), ("logo", "l03", "wisch"),
+    ("hook", "l01", None), ("minute", "l02", "push"), ("logo", "l03", "wisch"),
+    ("steckbrief", "l03b", "push"),
     ("c", "l04", "push"), ("s", "l05", "push"), ("b", "l06", "push"),
     ("projekt", "l07", "wisch"), ("werte", "l08", "push"), ("konkret", "l09", "wisch"),
     ("f1", "l10", "push"), ("f2", "l11", "push"), ("f3", "l12", "push"),
     ("f4", "l13", "push"), ("f5", "l14", "push"), ("europa", "l15", "push"),
-    ("warum", "l16", "wisch"), ("outro", "l20", "wisch"),
+    ("warum", "l16", "wisch"), ("plakat", "l20", "wisch"), ("ende", "l21", "push"),
 ]
 START = {}
 for i, (sid, lid, _) in enumerate(SZENEN):
@@ -43,17 +48,16 @@ for i, (sid, lid, _) in enumerate(SZENEN):
 SLOT = {}
 for i, (sid, _, _) in enumerate(SZENEN):
     ende = ENDE if i == len(SZENEN) - 1 else START[SZENEN[i + 1][0]] + UEBERLAPP
-    SLOT[sid] = round(ende - START[sid], 3)
+    SLOT[sid] = round(min(ende, ENDE) - START[sid], 3)
 
 
 def w(text):
-    """Text -> maskierte Wörter; *wort* wird gold."""
+    """Text -> maskierte Wörter; *wort* wird hervorgehoben."""
     out = []
     for wort in text.split(" "):
         gold = bool(re.match(r"^\*.*\*[.,:?!]*$", wort))
         wort = wort.replace("*", "")
-        cls = "w g" if gold else "w"
-        out.append(f'<span class="m"><span class="{cls}">{wort}</span></span>')
+        out.append(f'<span class="m"><span class="w{" g" if gold else ""}">{wort}</span></span>')
     return " ".join(out)
 
 
@@ -89,29 +93,31 @@ KARTEN = [
 
 z = iter(range(1, 100))
 teile = []
-teile.append(szene("hook", "blau", f"""
+teile.append(szene("hook", "blau", """
     <div class="band">
-      <h1 id="hook1" class="d">Du gehst jeden Tag <span class="g">arbeiten.</span></h1>
+      <h1 id="hook1" class="d fs100">Du gehst jeden Tag <span class="g">arbeiten.</span></h1>
       <div id="konto" class="konto">
         <div class="konto-label">Kontostand am Monatsende</div>
         <div id="konto-zahl" class="konto-zahl">2.480 €</div>
       </div>
-      <p id="hook2" class="s fs52">{w("Und trotzdem bleibt *nichts* übrig?")}</p>
     </div>""", next(z)))
-teile.append(szene("sechzig", "gold", """
+teile.append(szene("minute", "gold", """
     <div class="band mitte">
-      <p id="sx-dann" class="s fs64">Dann gib uns</p>
+      <p id="mi-dann" class="s fs64">Dann gib uns</p>
       <div class="ring-box">
         <svg id="ring" viewBox="0 0 440 440"><circle class="ring-bg" cx="220" cy="220" r="190"/><circle id="ring-v" class="ring-v" cx="220" cy="220" r="190" pathLength="1"/></svg>
-        <div id="sx-60" class="d sechzig">60</div>
+        <div id="mi-1" class="d eins">1</div>
       </div>
-      <div id="sx-sek" class="d fs110">Sekunden.</div>
+      <div id="mi-min" class="d fs110">Minute.</div>
     </div>""", next(z)))
 teile.append(szene("logo", "blau", f"""
     <div class="band mitte">
       <div id="logo1-r" class="logo-rahmen"><img id="logo1" class="logo" src="assets/csb-logo.png" alt="CSB Logo" /><div id="glanz1" class="glanz"></div></div>
-      <p id="logo-name" class="s fs52 zentriert" style="margin-top:48px">{w("Christlich-Soziale *Bürgerunion*")}</p>
+      <p id="logo-name" class="s fs52 zentriert" style="margin-top:40px">{w("Christlich-Soziale *Bürgerunion*")}</p>
     </div>""", next(z)))
+teile.append(szene("steckbrief", "blau", """
+    <div id="sb-rahmen" class="bild-rahmen"><img id="sb-bild" class="bild" src="assets/steckbrief.jpg" alt="Parteisteckbrief der CSB" /></div>
+    <div class="ut-verlauf"></div>""", next(z)))
 for sid, akt, wort, satz in [
     ("c", 0, "Christlich", "Nächstenliebe und Familie als *Fundament.*"),
     ("s", 1, "Sozial", "Wer arbeitet, muss *mehr* haben als wer nicht arbeitet."),
@@ -130,16 +136,16 @@ for sid, akt, wort, satz in [
 teile.append(szene("projekt", "weiss", f"""
     <div class="band">
       <div id="pr-k" class="klein">Unser Projekt</div>
-      <h2 id="pr-t" class="d fs104">{w("Ein Deutschland, das wieder *funktioniert.*")}</h2>
+      <h2 id="pr-t" class="d fs100">{w("Ein Deutschland, das wieder *funktioniert.*")}</h2>
       <div id="pr-strich" class="strich-gold"></div>
     </div>""", next(z)))
 teile.append(szene("werte", "blau", """
     <div class="band">
       <p id="we-k" class="s fs52">Drei Werte leiten uns.</p>
       <div class="werte">
-        <div class="wert-z"><span id="we1" class="d wert">Freiheit</span><span id="we1b" class="wert-b"></span></div>
-        <div class="wert-z"><span id="we2" class="d wert">Sicherheit</span><span id="we2b" class="wert-b"></span></div>
-        <div class="wert-z"><span id="we3" class="d wert">Wohlstand</span><span id="we3b" class="wert-b"></span></div>
+        <div class="wert-z"><span id="we1" class="wert">Freiheit</span><span id="we1b" class="wert-b"></span></div>
+        <div class="wert-z"><span id="we2" class="wert">Sicherheit</span><span id="we2b" class="wert-b"></span></div>
+        <div class="wert-z"><span id="we3" class="wert">Verantwortung</span><span id="we3b" class="wert-b"></span></div>
       </div>
     </div>""", next(z)))
 teile.append(szene("konkret", "gold", f"""
@@ -149,37 +155,40 @@ for sid, bg, ic, thema, satz in KARTEN:
     <div class="band">
       {icon(ic, sid + "-icon")}
       <div id="{sid}-th" class="thema">{thema}</div>
-      <p id="{sid}-sa" class="d fs88">{w(satz)}</p>
+      <p id="{sid}-sa" class="d fs84">{w(satz)}</p>
     </div>""", next(z)))
-import math
-sterne = "".join(f'<svg id="stern{i}" class="stern" style="left:{540 + 190 * math.sin(i * math.pi / 6) - 32:.0f}px; top:{1610 - 190 * math.cos(i * math.pi / 6) - 32:.0f}px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg>' for i in range(12))
+sterne = "".join(
+    f'<svg id="stern{i}" class="stern" style="left:{540 + 170 * math.sin(i * math.pi / 6) - 30:.0f}px; '
+    f'top:{1620 - 170 * math.cos(i * math.pi / 6) - 30:.0f}px" viewBox="0 0 100 100">'
+    '<path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg>'
+    for i in range(12)
+)
 teile.append(szene("europa", "blau", f"""
     <div class="band">
-      <h2 id="eu-t" class="d fs124 goldtext">Und Europa?</h2>
+      <h2 id="eu-t" class="d fs120 goldtext">Und Europa?</h2>
       <div id="eu1" class="eu s"><span class="bk"></span><span>Stark in EU und NATO.</span></div>
       <div id="eu2" class="eu s"><span class="bk"></span><span>Unabhängiger von den USA.</span></div>
       <div id="eu3" class="eu s"><span class="bk"></span><span>An der Seite der Ukraine – für einen gerechten Frieden.</span></div>
     </div>
     <div class="sternkreis">{sterne}</div>""", next(z)))
-gruende = [
-    ("wa1", "Sozial *und* vernünftig – kein Entweder-oder."),
-    ("wa2", "Leistung lohnt sich *wieder.*"),
-    ("wa3", "Eine Mitte, die *anpackt.*"),
-]
+gruende = [("wa1", "Sozial *und* vernünftig."), ("wa2", "Leistung lohnt sich *wieder.*"), ("wa3", "Eine Mitte, die *anpackt.*")]
 reihen = "\n".join(
     f'<div id="{gid}" class="grund"><svg id="{gid}-h" class="haken" viewBox="0 0 100 100"><path d="M18 52 L42 76 L84 26" pathLength="1"/></svg>'
-    f'<p class="d fs68">{w(txt)}</p></div>'
+    f'<p class="d fs60">{w(txt)}</p></div>'
     for gid, txt in gruende
 )
 teile.append(szene("warum", "gold", f"""
     <div class="band">
-      <h2 id="wa-t" class="d fs150">Warum <span class="blau-t">CSB?</span></h2>
+      <h2 id="wa-t" class="d fs130">Warum <span class="blau-t">CSB?</span></h2>
       <div class="gruende">{reihen}</div>
     </div>""", next(z)))
-teile.append(szene("outro", "blau", """
+teile.append(szene("plakat", "blau", """
+    <div id="pl-rahmen" class="plakat-rahmen"><img id="pl-bild" class="plakat" src="assets/plakat.jpg" alt="CSB-Plakat: Freiheit bewahren. Verantwortung tragen. Zukunft gestalten." /></div>
+    <div class="ut-verlauf"></div>""", next(z)))
+teile.append(szene("ende", "blau", """
     <div class="band mitte">
       <div id="logo2-r" class="logo-rahmen klein-logo"><img id="logo2" class="logo" src="assets/csb-logo.png" alt="CSB Logo" /><div id="glanz2" class="glanz"></div></div>
-      <div id="slogan" class="d fs80 goldtext zentriert" style="margin-top:52px">Mit Herz.<br />Mit Haltung.</div>
+      <div id="ende-werte" class="d fs60 goldtext zentriert" style="margin-top:44px">Freiheit. Sicherheit.<br />Verantwortung.</div>
       <div id="folgen" class="folgen">Folge der CSB</div>
     </div>
     <svg class="schwung" viewBox="0 0 1080 600">
@@ -188,34 +197,76 @@ teile.append(szene("outro", "blau", """
       <path id="sw3" d="M-60 664 C 420 640 820 520 1180 180" stroke="#f5c22b" pathLength="1"/>
     </svg>""", next(z)))
 
+# --- Untertitel -------------------------------------------------------------
+ANZEIGE = {"E-U": "EU"}
+gruppen, akt = [], []
+for lid in sorted(WOERTER):
+    if lid == "l21":  # Endkarte zeigt „Folge der CSB“ schon als Button
+        continue
+    for i, wd in enumerate(WOERTER[lid]):
+        roh = wd["text"]
+        kern = roh.rstrip(".,?!:")
+        text = ANZEIGE.get(kern, kern) + roh[len(kern):]
+        if text != "–":
+            akt.append({"t": text, "s": round(L[lid]["s"] + wd["start"], 3), "e": round(L[lid]["s"] + wd["end"], 3)})
+        zeichen = sum(len(x["t"]) + 1 for x in akt)
+        letztes = i == len(WOERTER[lid]) - 1
+        if akt and (letztes or len(akt) >= 3 or zeichen >= 16 or re.search(r"[.,?!:]$", roh)):
+            gruppen.append(akt)
+            akt = []
+for i, g in enumerate(gruppen):
+    naechste = gruppen[i + 1][0]["s"] if i + 1 < len(gruppen) else ENDE
+    g_ende = min(naechste - 0.04, g[-1]["e"] + 0.35)
+    gruppen[i] = {"s": round(max(0.1, g[0]["s"] - 0.04), 3), "e": round(g_ende, 3), "w": g}
+
+ut_html = "\n".join(
+    f'    <div id="ut-g{i}" class="ug">'
+    + " ".join(f'<span id="ut-g{i}-w{j}" class="uw">{x["t"]}</span>' for j, x in enumerate(g["w"]))
+    + "</div>"
+    for i, g in enumerate(gruppen)
+)
+ut_daten = [{"s": g["s"], "e": g["e"], "w": [[x["s"], x["e"]] for x in g["w"]]} for g in gruppen]
+ut = (
+    (HIER / "untertitel.html.tpl").read_text()
+    .replace("%%GRUPPEN%%", ut_html).replace("%%DATEN%%", json.dumps(ut_daten)).replace("%%ENDE%%", str(ENDE))
+)
+(HIER / "compositions").mkdir(exist_ok=True)
+(HIER / "compositions/untertitel.html").write_text(ut)
+
 # --- Ton ------------------------------------------------------------------
 audio = [f'<audio id="v-{lid}" src="assets/stimme/{lid}.wav" data-start="{v["s"]}" data-volume="1"></audio>' for lid, v in L.items()]
 fx = []
+
+
 def sfx(name, t, vol=0.5, extra=""):
     fx.append(f'<audio id="fx{len(fx)}" src="assets/sfx/{name}.mp3" data-start="{round(t, 3)}" data-volume="{vol}"{extra}></audio>')
+
+
 for sid, lid, art in SZENEN[1:]:
     if art == "wisch":
-        sfx("whoosh", START[sid] - 0.05, 0.45)
+        sfx("whoosh", START[sid] - 0.05, 0.4)
     else:
-        sfx("whoosh-short", START[sid] - 0.1, 0.35)
-sfx("impact-bass-2", L["l01"]["s"] + 3.3, 0.55)
-sfx("riser", L["l02"]["s"] - 0.2, 0.25, ' data-duration="2.4" data-fade-out="0.4"')
-sfx("impact-bass-1", START["logo"] + 0.05, 0.6)
-sfx("impact-bass-1", START["outro"] + 0.05, 0.6)
+        sfx("whoosh-short", START[sid] - 0.1, 0.3)
+sfx("impact-bass-2", WT["l01"][12], 0.5)                    # „nichts“: Konto auf 0
+sfx("riser", L["l02"]["s"] - 0.2, 0.22, ' data-duration="2.2" data-fade-out="0.4"')
+sfx("impact-bass-1", START["logo"] + 0.05, 0.55)
+sfx("impact-bass-1", START["ende"] + 0.05, 0.5)
 for i in range(3):
-    sfx("click-soft", L["l08"]["s"] + [1.35, 2.0, 2.65][i], 0.5)
-    sfx("pop", L[f"l{17 + i}"]["s"], 0.4)
+    sfx("click-soft", WT["l08"][4 + i], 0.45)                # Freiheit, Sicherheit, Verantwortung
+    sfx("pop", L[f"l{17 + i}"]["s"], 0.35)
 
 # --- Seite ----------------------------------------------------------------
-vorlage = (HIER / "vorlage.html.tpl").read_text()
 html = (
-    vorlage.replace("%%SZENEN%%", "\n".join(teile))
+    (HIER / "vorlage.html.tpl").read_text()
+    .replace("%%SZENEN%%", "\n".join(teile))
     .replace("%%AUDIO%%", "\n      ".join(audio + fx))
     .replace("%%ENDE%%", str(ENDE))
     .replace("%%L%%", json.dumps(L))
+    .replace("%%WT%%", json.dumps(WT))
     .replace("%%S%%", json.dumps(START))
+    .replace("%%SLOT%%", json.dumps(SLOT))
     .replace("%%UEBERGAENGE%%", json.dumps([[START[s], a] for s, _, a in SZENEN[1:]]))
     .replace("%%IDS%%", json.dumps([s for s, _, _ in SZENEN]))
 )
 (HIER / "index.html").write_text(html)
-print(f"index.html: {ENDE} s, {len(SZENEN)} Szenen")
+print(f"index.html: {ENDE} s, {len(SZENEN)} Szenen, {len(gruppen)} Untertitel-Gruppen")

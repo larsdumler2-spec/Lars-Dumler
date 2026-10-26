@@ -5,7 +5,7 @@
 ## Profil
 - **Handle (Vorschlag):** @csb.buergerunion
 - **Anzeigename:** CSB – Christlich-Soziale Bürgerunion
-- **Bio:** Freiheit. Sicherheit. Wohlstand. 🇪🇺 Fiktive Partei
+- **Bio:** Freiheit. Sicherheit. Verantwortung. 🇪🇺 Fiktive Partei
 - **Profilbild:** CSB-Logo (`videos/001-csb-vorstellung/assets/csb-logo.png`)
 
 ## Formate (Content-Säulen)
@@ -31,4 +31,4 @@
 ## Video-Log
 | Nr. | Titel | Format | Status | Datei |
 |---|---|---|---|---|
-| 001 | Wer ist die CSB? | Vorstellung mit Stimme (69 s, v2) | fertig, nicht gepostet | `videos/001-csb-vorstellung` |
+| 001 | Wer ist die CSB? | Vorstellung mit Stimme + Untertiteln (77 s, v3) | fertig, nicht gepostet | `videos/001-csb-vorstellung` |

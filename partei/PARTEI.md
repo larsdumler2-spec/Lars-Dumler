@@ -5,10 +5,12 @@
 ## Grunddaten
 - **Name:** Christlich-Soziale Bürgerunion
 - **Kürzel:** CSB
-- **Ausrichtung:** bürgerliche Mitte, christlich-sozial, patriotisch, pro Europa
-- **Drei Grundwerte:** Freiheit · Sicherheit · Wohlstand
-- **Slogan (Vorschlag):** „Mit Herz. Mit Haltung.“
+- **Gründung (fiktiv):** 24. Oktober 2026
+- **Ausrichtung:** christdemokratisch, sozialkonservativ; bürgerliche Mitte, pro Europa
+- **Drei Grundwerte:** Freiheit · Sicherheit · Verantwortung
+- **Slogan:** „Freiheit bewahren. Verantwortung tragen. Zukunft gestalten.“
 - **Logo:** `videos/001-csb-vorstellung/assets/csb-logo.png`
+- **Steckbrief / Plakat:** `videos/001-csb-vorstellung/assets/steckbrief.jpg`, `plakat.jpg`
 
 ## Markenauftritt
 - **Königsblau** `#0A3A9E` (Verlässlichkeit, konservatives Fundament, Europa), tief `#062A75`

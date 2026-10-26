@@ -5,11 +5,15 @@
  },
  {
   "id": "l02",
-  "text": "Dann gib uns sechzig Sekunden."
+  "text": "Dann gib uns eine Minute."
  },
  {
   "id": "l03",
   "text": "Wir sind die CSB. Die Christlich Soziale Bürgerunion."
+ },
+ {
+  "id": "l03b",
+  "text": "Gegründet im Oktober 2026. Christdemokratisch und sozialkonservativ."
  },
  {
   "id": "l04",
@@ -29,7 +33,7 @@
  },
  {
   "id": "l08",
-  "text": "Drei Werte leiten uns. Freiheit. Sicherheit. Wohlstand."
+  "text": "Drei Werte leiten uns. Freiheit. Sicherheit. Verantwortung."
  },
  {
   "id": "l09",
@@ -77,6 +81,10 @@
  },
  {
   "id": "l20",
-  "text": "CSB. Mit Herz. Mit Haltung."
+  "text": "CSB. Freiheit bewahren. Verantwortung tragen. Zukunft gestalten."
+ },
+ {
+  "id": "l21",
+  "text": "Folge der CSB."
  }
 ]
