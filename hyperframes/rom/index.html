@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="de" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/gsap.min.js"></script>
+    <script src="assets/data.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #060a16; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: "DejaVu Serif", Georgia, serif; }
+      .clip { position: absolute; inset: 0; }
+      #world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+      #world img, #world svg { position: absolute; left: 0; top: 0; display: block; }
+      #pins, #hud, #caps { position: absolute; inset: 0; pointer-events: none; }
+      .pin { position: absolute; transform: translate(-50%, -100%); opacity: 0; }
+      .pin .lab { background: #fff; color: #111; font: 700 34px Inter, sans-serif; padding: 8px 18px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.45); white-space: nowrap; }
+      .pin .tip { width: 0; height: 0; margin: 0 auto; border: 14px solid transparent; border-top-color: #fff; border-bottom: 0; }
+      .npin { position: absolute; width: 74px; height: 96px; transform: translate(-50%, -100%) scale(0); transform-origin: 50% 100%; }
+      .npin svg { width: 100%; height: 100%; overflow: visible; }
+      .npin span { position: absolute; left: 0; right: 0; top: 10px; text-align: center; font: 800 38px Inter, sans-serif; color: #111; }
+      .npin.hot span { color: #c3121c; }
+      .cap { position: absolute; left: 60px; right: 60px; top: 1170px; text-align: center; color: #fff; font-size: 74px; font-weight: 700; line-height: 1.15;
+             -webkit-text-stroke: 14px #000; paint-order: stroke fill; opacity: 0; text-shadow: 0 6px 18px rgba(0,0,0,.5); }
+      .cap .hl { color: #f6c445; }
+      .big { position: absolute; left: 0; right: 0; text-align: center; color: #fff; font-weight: 700; -webkit-text-stroke: 16px #000; paint-order: stroke fill; opacity: 0; line-height: 1.1; }
+      .card { position: absolute; background: rgba(8, 12, 28, .82); border: 2px solid rgba(255,255,255,.18); border-radius: 26px; box-shadow: 0 20px 60px rgba(0,0,0,.5); opacity: 0; }
+      .bar-row { display: flex; align-items: center; gap: 18px; height: 54px; margin: 10px 0; font: 700 30px Inter, sans-serif; color: #fff; }
+      .bar-row .nm { width: 230px; text-align: right; }
+      .bar-row .bar { height: 38px; border-radius: 8px; background: linear-gradient(90deg, #6d7a99, #aeb9d6); transform-origin: 0 50%; transform: scaleX(0); }
+      .bar-row.rom .bar { background: linear-gradient(90deg, #8a0f17, #e0353d); }
+      .bar-row.rom .nm { color: #f6c445; }
+      .bar-row .val { font-size: 26px; color: #cfd6ea; opacity: 0; }
+      .rank { position: absolute; left: 120px; display: flex; align-items: center; gap: 46px; opacity: 0; }
+      .rank b { font-size: 150px; color: #fff; -webkit-text-stroke: 12px #000; paint-order: stroke fill; width: 150px; text-align: right; }
+      .rank svg { width: 330px; height: 220px; border-radius: 10px; box-shadow: 0 14px 40px rgba(0,0,0,.6); }
+      .rank i { font: 700 italic 40px Inter, sans-serif; color: #fff; font-style: normal; }
+      #flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
+      #vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%); }
+      #grain { position: absolute; inset: -200px; background: url(assets/grain.png); opacity: .06; mix-blend-mode: overlay; }
+      #sweep { position: absolute; top: -400px; left: -900px; width: 500px; height: 2800px; background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.28), rgba(255,255,255,0)); transform: rotate(18deg); opacity: 0; }
+      #credit { position: absolute; left: 24px; bottom: 22px; font: 500 20px Inter, sans-serif; color: #f6f6f6; text-shadow: 0 1px 4px #000; }
+      #dim { position: absolute; inset: 0; background: #0a1330; opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="55.34" data-width="1080" data-height="1920">
+      <div id="stage" class="clip" data-start="0" data-duration="55.34" data-track-index="0">
+        <div id="world">
+          <img id="wimg" src="assets/world.jpg" alt="" />
+          <img id="eimg" src="assets/europe.jpg" alt="" />
+          <svg id="wsvg" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="tex" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+                <rect width="24" height="24" fill="#a3121d" />
+                <rect width="10" height="24" fill="#b81824" />
+              </pattern>
+              <clipPath id="reveal"><circle id="revealC" cx="0" cy="0" r="0" /></clipPath>
+              <filter id="soft" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="6" /></filter>
+            </defs>
+            <g id="bigG" opacity="0"></g>
+            <path id="romeShadow" fill="none" stroke="#000" stroke-opacity=".55" stroke-linejoin="round" filter="url(#soft)" clip-path="url(#reveal)" />
+            <path id="romeFill" fill="url(#tex)" fill-opacity=".9" fill-rule="evenodd" clip-path="url(#reveal)" />
+            <g id="hlG"></g>
+            <path id="borders" fill="none" stroke="#fff" stroke-opacity=".75" />
+            <path id="romeStroke" fill="none" stroke="#fff" stroke-linejoin="round" />
+            <g id="arrows" fill="none" stroke="#f6c445" stroke-linecap="round"></g>
+            <g id="pulse" fill="none" stroke="#fff"></g>
+            <text id="spqr" text-anchor="middle" dominant-baseline="middle" fill="#f6c445" stroke="#000" paint-order="stroke" font-family="DejaVu Serif" font-weight="700">SPQR</text>
+          </svg>
+        </div>
+        <div id="dim"></div>
+        <div id="pins"></div>
+        <div id="hud">
+          <div id="hook1" class="big" style="top: 150px; font-size: 92px">WAS WÄRE,<br />WENN…</div>
+          <div id="year" class="big" style="top: 170px; font-size: 130px">0 n. Chr.</div>
+          <div id="trajan" class="big" style="top: 330px; font-size: 52px; color: #f6c445; -webkit-text-stroke: 10px #000">Kaiser Trajan</div>
+          <div id="area" class="big" style="top: 190px; font-size: 120px">0 km²</div>
+          <div class="card" id="areaCard" style="left: 70px; right: 70px; top: 120px; padding: 30px 40px">
+            <div style="font: 800 34px Inter, sans-serif; color: #f6c445; margin-bottom: 6px; letter-spacing: .04em">GRÖSSTE LÄNDER (Mio. km²)</div>
+            <div id="bars"></div>
+          </div>
+          <div id="pop" class="big" style="top: 160px; font-size: 128px">0</div>
+          <div id="popSub" class="big" style="top: 310px; font-size: 64px; color: #f6c445; -webkit-text-stroke: 12px #000">Einwohner</div>
+          <div id="ranks"></div>
+          <div class="card" id="gdpCard" style="left: 110px; right: 110px; top: 110px; padding: 28px 40px 34px">
+            <div style="font: 800 34px Inter, sans-serif; color: #f6c445; letter-spacing: .04em; text-align: center">GRÖSSTE VOLKSWIRTSCHAFTEN</div>
+            <div id="podium" style="display: flex; align-items: flex-end; justify-content: center; gap: 34px; height: 360px; margin-top: 20px"></div>
+            <div style="font: 500 22px Inter, sans-serif; color: #aab3c9; text-align: center; margin-top: 10px">grobe Schätzung, BIP 2025</div>
+          </div>
+          <div id="qmark" class="big" style="top: 120px; font-size: 300px">?</div>
+          <div id="bubble" class="card" style="left: 250px; right: 250px; top: 520px; padding: 22px 30px; text-align: center; font: 800 40px Inter, sans-serif; color: #fff; background: #e0353d; border-color: #fff">Schreib's in die Kommentare!</div>
+        </div>
+        <div id="caps"></div>
+        <div id="sweep" data-layout-allow-overflow></div>
+        <div id="flash"></div>
+        <div id="vignette"></div>
+        <div id="grain"></div>
+        <div id="credit">Karte: NASA Blue Marble · Grenzen: Natural Earth · Ausdehnung 117 n. Chr. vereinfacht</div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        const D = window.ROMDATA, L = D.lines;
+        const T = (i) => L[i].t0, E = (i) => L[i].t1;
+        const SVGNS = "http://www.w3.org/2000/svg";
+        const $ = (s) => document.querySelector(s);
+        const W = D.W, H = D.H, K = W / (2 * Math.PI);
+        const YMAX = K * Math.log(Math.tan(Math.PI / 4 + (80 * Math.PI) / 180 / 2));
+        const merc = (lon, lat) => [((lon + 180) / 360) * W, YMAX - K * Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360))];
+
+        // ---------- build world layers ----------
+        const world = $("#world"), svg = $("#wsvg");
+        world.style.width = W + "px"; world.style.height = H + "px";
+        $("#wimg").style.width = W + "px"; $("#wimg").style.height = H + "px";
+        const [ex, ey, ew, eh] = D.europe;
+        Object.assign($("#eimg").style, { left: ex + "px", top: ey + "px", width: ew + "px", height: eh + "px" });
+        svg.setAttribute("width", W); svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+        ["#romeShadow", "#romeFill", "#romeStroke"].forEach((s) => $(s).setAttribute("d", D.rome));
+        $("#borders").setAttribute("d", D.borders);
+        const [rx, ry] = D.pts.rome;
+        $("#revealC").setAttribute("cx", rx); $("#revealC").setAttribute("cy", ry);
+        $("#spqr").setAttribute("x", D.pts.spqr[0]); $("#spqr").setAttribute("y", D.pts.spqr[1]);
+        $("#spqr").setAttribute("font-size", 34); $("#spqr").setAttribute("stroke-width", 3);
+        for (const k in D.big) {
+          const p = document.createElementNS(SVGNS, "path");
+          p.setAttribute("d", D.big[k]); p.setAttribute("fill", "#eef1ff"); p.setAttribute("fill-opacity", ".35");
+          p.setAttribute("stroke", "#fff"); p.setAttribute("stroke-width", "2"); $("#bigG").appendChild(p);
+        }
+        const hlOrder = ["Italy", "France", "Spain", "United Kingdom"];
+        const hlEls = hlOrder.map((k) => {
+          const p = document.createElementNS(SVGNS, "path");
+          p.setAttribute("d", D.hl[k]); p.setAttribute("fill", "#f6c445"); p.setAttribute("fill-opacity", "0");
+          $("#hlG").appendChild(p); return p;
+        });
+        // arrows from Rome to the four extremes
+        const arrowEls = ["brit", "egy", "hisp", "meso"].map((k) => {
+          const [x, y] = D.pts[k], mx = (rx + x) / 2, my = (ry + y) / 2 - Math.hypot(x - rx, y - ry) * 0.25;
+          const p = document.createElementNS(SVGNS, "path");
+          p.setAttribute("d", `M${rx},${ry}Q${mx},${my} ${x},${y}`); $("#arrows").appendChild(p); return p;
+        });
+        const rings = [0, 1, 2].map(() => {
+          const c = document.createElementNS(SVGNS, "circle");
+          c.setAttribute("cx", rx); c.setAttribute("cy", ry); c.setAttribute("r", 0); c.setAttribute("stroke-opacity", 0);
+          $("#pulse").appendChild(c); return c;
+        });
+
+        // ---------- screen-space pins ----------
+        const pinsLayer = $("#pins"), pinEls = [];
+        function addPin(key, label) {
+          const d = document.createElement("div"); d.className = "pin";
+          d.innerHTML = `<div class="lab">${label}</div><div class="tip"></div>`;
+          d.dataset.key = key; pinsLayer.appendChild(d); pinEls.push(d); return d;
+        }
+        function addNumPin(key, n, hot) {
+          const d = document.createElement("div"); d.className = "npin" + (hot ? " hot" : "");
+          d.innerHTML = `<svg viewBox="0 0 74 96"><path d="M37 94 C30 74 4 62 4 37 A33 33 0 1 1 70 37 C70 62 44 74 37 94Z" fill="#fff" stroke="#000" stroke-width="3"/></svg><span>${n}</span>`;
+          d.dataset.key = key; pinsLayer.appendChild(d); pinEls.push(d); return d;
+        }
+        const pBrit = addPin("brit", "Britannien"), pEgy = addPin("egy", "Ägypten"), pHisp = addPin("hisp", "Hispania"), pMeso = addPin("meso", "Mesopotamien");
+        const pRoma = addPin("rome", "ROMA");
+        const numPins = [1, 2, 3, 4, 5, 6, 7].map((n) => addNumPin("r" + n, n, n === 7));
+
+        // ---------- camera ----------
+        const cam = { x: 0, y: 0, lw: 0 };
+        function setCam(lon, lat, wd) { const [x, y] = merc(lon, lat); cam.x = x; cam.y = y; cam.lw = Math.log(wd); }
+        function applyCam() {
+          const ww = (Math.exp(cam.lw) / 360) * W, s = 1080 / ww;
+          const tx = 540 - cam.x * s, ty = 960 - cam.y * s;
+          world.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`;
+          $("#romeStroke").setAttribute("stroke-width", 4 / s);
+          $("#romeShadow").setAttribute("stroke-width", 22 / s);
+          $("#borders").setAttribute("stroke-width", 1.6 / s);
+          $("#arrows").setAttribute("stroke-width", 6 / s);
+          $("#pulse").setAttribute("stroke-width", 4 / s);
+          for (const p of pinEls) {
+            const [px, py] = D.pts[p.dataset.key];
+            p.style.left = px * s + tx + "px"; p.style.top = py * s + ty + "px";
+          }
+        }
+        const camKey = (lon, lat, wd) => { const [x, y] = merc(lon, lat); return { x, y, lw: Math.log(wd) }; };
+
+        const tl = gsap.timeline({ paused: true });
+        setCam(13, 39, 34); applyCam();
+        const camMoves = [
+          [0, 3.6, 13, 38, 52],
+          [T(1), 6.0, 17, 37, 58],
+          [T(2) - 0.2, 1.4, 18, 36.5, 70],
+          [T(3) + 0.1, 2.2, 22, 34, 150],
+          [T(4) - 0.1, 1.4, 12, 24, 250],
+          [E(4) + 0.3, 1.4, 17, 37, 58],
+          [T(6), 4.8, 17, 37.5, 50],
+          [T(8) - 0.5, 1.2, 12.8, 42.0, 15],
+          [T(8) + 0.7, 1.2, 12.5, 41.9, 12],
+          [T(9) + 0.2, 1.6, 8, 44, 46],
+          [T(9) + 1.8, 6.4, 8, 43.5, 40],
+          [T(10) - 0.1, 2.0, 20, 36, 60],
+          [T(11), 5.6, 17, 37, 48],
+        ];
+        for (const [t0, dur, lon, lat, wd] of camMoves)
+          tl.to(cam, { ...camKey(lon, lat, wd), duration: dur, ease: "power2.inOut", onUpdate: applyCam }, t0);
+        tl.eventCallback("onUpdate", applyCam);
+
+        // ---------- helpers ----------
+        const pop = (el, t, opts = {}) => tl.fromTo(el, { opacity: 0, scale: opts.from ?? 0.4, y: opts.y ?? 0 }, { opacity: 1, scale: 1, y: 0, duration: opts.d ?? 0.45, ease: opts.ease ?? "back.out(2.2)" }, t);
+        const out = (el, t, d = 0.25) => tl.to(el, { opacity: 0, duration: d, ease: "power1.in" }, t);
+        const flash = (t) => tl.fromTo("#flash", { opacity: 0.55 }, { opacity: 0, duration: 0.35, ease: "power2.out" }, t);
+        const dashDraw = (el, t, d, ease = "power1.inOut") => {
+          const len = el.getTotalLength();
+          tl.set(el, { attr: { "stroke-dasharray": `${len} ${len}`, "stroke-dashoffset": len } }, 0);
+          tl.to(el, { attr: { "stroke-dashoffset": 0 }, duration: d, ease }, t);
+        };
+        const counter = (el, t, d, to, fmt) => {
+          const o = { v: 0 };
+          tl.fromTo(o, { v: 0 }, { v: to, duration: d, ease: "power2.out", onUpdate: () => (el.textContent = fmt(o.v)) }, t);
+        };
+        const de = (n, f = 0) => n.toLocaleString("de-DE", { minimumFractionDigits: f, maximumFractionDigits: f });
+
+        // grain flicker + subtle constant drift
+        tl.fromTo("#grain", { x: 0, y: 0 }, { x: 180, y: -140, duration: D.total, ease: "steps(" + Math.round(D.total * 12) + ")" }, 0);
+
+        // ---------- scene 0: hook, empire grows out of Rome ----------
+        tl.fromTo("#revealC", { attr: { r: 0 } }, { attr: { r: 1100 }, duration: 3.4, ease: "power2.in" }, 0.2);
+        dashDraw($("#romeStroke"), 0.3, 3.3);
+        pop("#hook1", 0.15, { y: -60 });
+        tl.to("#hook1", { scale: 1.06, duration: 0.18, yoyo: true, repeat: 1, ease: "power1.inOut" }, 1.6);
+        out("#hook1", E(0) - 0.1);
+        tl.fromTo("#spqr", { opacity: 0, attr: { "font-size": 140 } }, { opacity: 1, attr: { "font-size": 34 }, duration: 0.5, ease: "bounce.out" }, 2.9);
+        rings.forEach((c, i) =>
+          tl.fromTo(c, { attr: { r: 0, "stroke-opacity": 0.9 } }, { attr: { r: 140, "stroke-opacity": 0 }, duration: 1.2, ease: "power1.out", repeat: 1 }, 0.2 + i * 0.4)
+        );
+
+        // ---------- scene 1: 117 n. Chr. ----------
+        pop("#year", T(1), { from: 0.6 });
+        counter($("#year"), T(1), 1.6, 117, (v) => Math.round(v) + " n. Chr.");
+        tl.fromTo("#year", { color: "#fff" }, { color: "#f6c445", duration: 0.2 }, T(1) + 1.6);
+        tl.to("#year", { scale: 1.12, duration: 0.15, yoyo: true, repeat: 1 }, T(1) + 1.6);
+        pop("#trajan", T(1) + 1.9, { y: 40 });
+        tl.fromTo("#romeFill", { attr: { "fill-opacity": 0.9 } }, { attr: { "fill-opacity": 0.6 }, duration: 0.6, yoyo: true, repeat: 3, ease: "sine.inOut" }, T(1) + 2.6);
+        out(["#year", "#trajan"], E(1));
+
+        // ---------- scene 2: extremes ----------
+        const d2 = E(2) - T(2);
+        [[pBrit, arrowEls[0], 0], [pEgy, arrowEls[1], 0.27], [pHisp, arrowEls[2], 0.5], [pMeso, arrowEls[3], 0.72]].forEach(([p, a, f]) => {
+          const t = T(2) + f * d2;
+          dashDraw(a, t - 0.15, 0.6, "power2.out");
+          tl.fromTo(p, { opacity: 0, y: -80 }, { opacity: 1, y: 0, duration: 0.5, ease: "bounce.out" }, t + 0.35);
+          out(p, E(2) + 0.2);
+        });
+        out("#arrows", E(2) + 0.2);
+
+        // ---------- scene 3: area ----------
+        flash(T(3) + 0.1);
+        pop("#area", T(3) + 0.6, { from: 0.5 });
+        counter($("#area"), T(3) + 0.6, 2.4, 5, (v) => (v < 4.99 ? de(v, 1) : "≈ 5") + " Mio. km²");
+        tl.to("#area", { scale: 1.12, duration: 0.15, yoyo: true, repeat: 1 }, T(3) + 3.0);
+        tl.fromTo("#romeStroke", { attr: { stroke: "#fff" } }, { attr: { stroke: "#f6c445" }, duration: 0.3, yoyo: true, repeat: 3 }, T(3) + 3.0);
+        out("#area", E(3) + 0.1);
+
+        // ---------- scene 4: size ranking ----------
+        tl.to("#bigG", { opacity: 1, duration: 0.5 }, T(4));
+        const sizes = [["Russland", 17.1], ["Kanada", 10.0], ["USA", 9.8], ["China", 9.6], ["Brasilien", 8.5], ["Australien", 7.7], ["Röm. Reich", 5.0]];
+        const bars = $("#bars");
+        sizes.forEach(([n, v], i) => {
+          const row = document.createElement("div"); row.className = "bar-row" + (i === 6 ? " rom" : "");
+          row.innerHTML = `<div class="nm">${i + 1}. ${n}</div><div class="bar" style="width:${(v / 17.1) * 520}px"></div><div class="val">${de(v, 1)}</div>`;
+          bars.appendChild(row);
+          const t = T(4) + 0.2 + i * 0.22;
+          tl.to(row.querySelector(".bar"), { scaleX: 1, duration: 0.5, ease: "power3.out" }, t);
+          tl.to(row.querySelector(".val"), { opacity: 1, duration: 0.2 }, t + 0.35);
+          tl.fromTo(numPins[i], { scale: 0 }, { scale: 1, duration: 0.45, ease: "back.out(3)" }, t);
+          tl.to(numPins[i], { scale: 0, duration: 0.25 }, E(4) + 0.25);
+        });
+        pop("#areaCard", T(4), { from: 0.9, y: -40, d: 0.4, ease: "power3.out" });
+        tl.to(numPins[6], { rotation: 10, duration: 0.08, yoyo: true, repeat: 5 }, T(4) + 1.9);
+        tl.to(bars.lastChild, { x: 12, duration: 0.07, yoyo: true, repeat: 5 }, T(4) + 1.9);
+        out("#areaCard", E(4) + 0.2);
+        tl.to("#bigG", { opacity: 0, duration: 0.4 }, E(4) + 0.2);
+
+        // ---------- scene 5/6: population ----------
+        tl.fromTo("#romeFill", { attr: { fill: "url(#tex)" } }, { attr: { "fill-opacity": 1 }, duration: 0.3 }, T(5));
+        rings.forEach((c, i) =>
+          tl.fromTo(c, { attr: { r: 0, "stroke-opacity": 0.9 } }, { attr: { r: 520, "stroke-opacity": 0 }, duration: 1.6, ease: "power1.out" }, T(5) + i * 0.5)
+        );
+        pop("#pop", T(6), { from: 0.5 });
+        counter($("#pop"), T(6), 2.6, 700, (v) => (v >= 699.5 ? "> 700 Mio." : de(Math.round(v)) + " Mio."));
+        pop("#popSub", T(6) + 0.4, { y: 30 });
+        tl.to("#pop", { scale: 1.12, color: "#f6c445", duration: 0.18, yoyo: true, repeat: 1 }, T(6) + 2.6);
+        out(["#pop", "#popSub"], E(6) + 0.1);
+
+        // ---------- scene 7: ranking card ----------
+        const flagSVG = {
+          in: `<svg viewBox="0 0 300 200"><rect width="300" height="67" fill="#f93"/><rect y="67" width="300" height="66" fill="#fff"/><rect y="133" width="300" height="67" fill="#138808"/><circle cx="150" cy="100" r="26" fill="none" stroke="#000080" stroke-width="5"/>${Array.from({ length: 12 }, (_, k) => `<line x1="150" y1="100" x2="${150 + 26 * Math.cos((k * Math.PI) / 6)}" y2="${100 + 26 * Math.sin((k * Math.PI) / 6)}" stroke="#000080" stroke-width="2"/>`).join("")}</svg>`,
+          cn: `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#de2910"/><g fill="#ffde00"><polygon points="5,2 5.9,4.3 8.3,4.3 6.4,5.8 7.1,8.1 5,6.7 2.9,8.1 3.6,5.8 1.7,4.3 4.1,4.3"/><circle cx="10" cy="2" r=".8"/><circle cx="12" cy="4" r=".8"/><circle cx="12" cy="7" r=".8"/><circle cx="10" cy="9" r=".8"/></g></svg>`,
+          ro: `<svg viewBox="0 0 300 200"><rect width="300" height="200" fill="#8c0c14"/><rect x="10" y="10" width="280" height="180" fill="none" stroke="#f4c430" stroke-width="8"/><text x="150" y="122" text-anchor="middle" font-family="DejaVu Serif" font-weight="700" font-size="74" fill="#f4c430">SPQR</text></svg>`,
+        };
+        tl.to("#dim", { opacity: 0.78, duration: 0.3 }, T(7) - 0.2);
+        [["1.", "in", "Indien"], ["2.", "cn", "China"], ["3.", "ro", "Röm. Reich"]].forEach(([n, f, nm], i) => {
+          const r = document.createElement("div"); r.className = "rank"; r.style.top = 130 + i * 300 + "px";
+          r.innerHTML = `<b>${n}</b>${flagSVG[f]}`; $("#ranks").appendChild(r);
+          tl.fromTo(r, { opacity: 0, x: -700 }, { opacity: 1, x: 0, duration: 0.45, ease: "power3.out" }, T(7) - 0.1 + i * 0.3);
+          out(r, E(7) + 0.2);
+        });
+        tl.to("#ranks .rank:last-child svg", { scale: 1.1, duration: 0.2, yoyo: true, repeat: 1 }, T(7) + 1.2);
+        tl.to("#dim", { opacity: 0, duration: 0.3 }, E(7) + 0.2);
+
+        // ---------- scene 8: capital ----------
+        flash(T(8) - 0.5);
+        tl.to("#spqr", { opacity: 0, duration: 0.2 }, T(8) - 0.5);
+        tl.fromTo(pRoma, { opacity: 0, y: -120 }, { opacity: 1, y: 0, duration: 0.6, ease: "bounce.out" }, T(8) + 0.1);
+        rings.forEach((c, i) =>
+          tl.fromTo(c, { attr: { r: 0, "stroke-opacity": 1 } }, { attr: { r: 35, "stroke-opacity": 0 }, duration: 0.9, ease: "power1.out", repeat: 1 }, T(8) + 0.2 + i * 0.3)
+        );
+        out(pRoma, E(8) + 0.3);
+        tl.to("#spqr", { opacity: 1, duration: 0.3 }, T(9) + 0.6);
+
+        // ---------- scene 9: economy ----------
+        dashDraw($("#borders"), T(9) + 0.1, 2.2);
+        tl.set("#borders", { attr: { "stroke-dasharray": "none" } }, T(9) + 2.35);
+        const d9 = E(9) - T(9);
+        hlEls.forEach((p, i) => {
+          const t = T(9) + d9 * (0.42 + i * 0.09);
+          tl.fromTo(p, { attr: { "fill-opacity": 0 } }, { attr: { "fill-opacity": 0.85 }, duration: 0.25, ease: "power2.out" }, t);
+        });
+        pop("#gdpCard", T(9) + 0.3, { from: 0.9, y: -40, d: 0.4, ease: "power3.out" });
+        [["USA", 30, "#6d7a99", 2], ["China", 19.5, "#6d7a99", 1], ["Röm. Reich", 19, "#c3121c", 3]].forEach(([nm, v, c, rank], i) => {
+          const col = document.createElement("div");
+          col.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:10px;font:700 28px Inter,sans-serif;color:#fff";
+          const h = (v / 30) * 250;
+          col.innerHTML = `<div style="font-size:44px;font-weight:800;color:${rank === 3 ? "#f6c445" : "#fff"}">${rank === 2 ? 2 : rank === 1 ? 1 : 3}.</div><div class="pb" style="width:170px;height:${h}px;background:${c};border-radius:12px 12px 4px 4px;transform-origin:50% 100%;transform:scaleY(0)"></div><div>${nm}</div>`;
+          $("#podium").appendChild(col);
+          tl.to(col.querySelector(".pb"), { scaleY: 1, duration: 0.6, ease: "back.out(1.6)" }, T(9) + 0.8 + i * 0.35);
+        });
+        // reorder podium visually: 2 - 1 - 3
+        tl.to($("#podium").children[1], { y: -10, duration: 0.01 }, 0);
+        tl.to("#podium > div:last-child", { scale: 1.08, duration: 0.18, yoyo: true, repeat: 3 }, T(9) + 2.4);
+        out("#gdpCard", E(9) + 0.1);
+        tl.to("#borders", { attr: { "stroke-opacity": 0 }, duration: 0.5 }, E(9) + 0.1);
+        hlEls.forEach((p) => tl.to(p, { attr: { "fill-opacity": 0 }, duration: 0.5 }, E(9) + 0.1));
+
+        // ---------- scene 10: thought experiment ----------
+        tl.fromTo("#sweep", { x: 0, opacity: 1 }, { x: 2400, duration: 1.4, ease: "power1.inOut" }, T(10) + 0.2);
+        tl.to("#sweep", { opacity: 0, duration: 0.1 }, T(10) + 1.6);
+
+        // ---------- scene 11: outro ----------
+        pop("#qmark", T(11) - 0.1, { from: 0.2 });
+        tl.to("#qmark", { rotation: 8, duration: 0.5, yoyo: true, repeat: 6, ease: "sine.inOut" }, T(11) + 0.4);
+        pop("#bubble", T(11) + 1.0, { from: 0.3, y: 40 });
+        tl.to("#bubble", { scale: 1.06, duration: 0.3, yoyo: true, repeat: 5, ease: "sine.inOut" }, T(11) + 1.6);
+        tl.to("#romeFill", { attr: { "fill-opacity": 0.6 }, duration: 0.6, yoyo: true, repeat: 5, ease: "sine.inOut" }, T(11));
+
+        // ---------- captions ----------
+        const KEY = /\d|Römische|Rom\b|Trajan|Supermacht|siebtgrößte|drittgrößte|Gedankenexperiment|Indien|China|Kommentare|Britannien|Ägypten|Spanien|Mesopotamien|Millionen|fünf|siebenhundert/;
+        const capsLayer = $("#caps");
+        L.forEach((ln) => {
+          const words = ln.text.split(" "), chunks = [];
+          let cur = [];
+          for (const w of words) { cur.push(w); if (cur.length >= 3 || /[,.?!:]$/.test(w)) { chunks.push(cur); cur = []; } }
+          if (cur.length) chunks.push(cur);
+          const tot = chunks.reduce((a, c) => a + c.join(" ").length + 4, 0);
+          let t = ln.t0;
+          chunks.forEach((c) => {
+            const d = ((ln.t1 - ln.t0) * (c.join(" ").length + 4)) / tot;
+            const el = document.createElement("div"); el.className = "cap";
+            const txt = c.join(" ");
+            let html = c.map((w) => (KEY.test(w) ? `<span class="hl">${w}</span>` : w));
+            if (txt.length > 16 && c.length > 1) {
+              let best = 1, bd = 1e9;
+              for (let k = 1; k < c.length; k++) { const dd = Math.abs(c.slice(0, k).join(" ").length - c.slice(k).join(" ").length); if (dd < bd) { bd = dd; best = k; } }
+              html = html.slice(0, best).join(" ") + "<br>" + html.slice(best).join(" ");
+            } else html = html.join(" ");
+            el.innerHTML = html; capsLayer.appendChild(el);
+            tl.fromTo(el, { opacity: 0, scale: 0.7, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.16, ease: "back.out(2.5)" }, t);
+            tl.set(el, { opacity: 0 }, t + d);
+            t += d;
+          });
+        });
+
+        tl.to({}, { duration: 0.01 }, D.total - 0.01);
+        window.__timelines = window.__timelines || {};
+        window.__timelines["main"] = tl;
+        tl.seek(0);
+      })();
+    </script>
+  </body>
+</html>
