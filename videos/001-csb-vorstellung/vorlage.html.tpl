@@ -141,11 +141,6 @@
       #st-rot { top: 840px; background: var(--rot); }
       #st-gold { top: 1680px; background: var(--gold); }
 
-      #hinweis {
-        position: absolute; left: 80px; top: 190px; z-index: 300;
-        padding: 10px 20px; background: var(--weiss); color: var(--blau-tief); outline: 3px solid var(--blau-tief);
-        font-weight: 800; font-size: 30px; letter-spacing: 0.03em; text-transform: uppercase;
-      }
     </style>
   </head>
   <body>
@@ -158,7 +153,6 @@
         </div></div>
       </div>
 
-      <div id="hinweis" class="clip" data-start="0" data-duration="%%ENDE%%" data-track-index="2">Fiktive Partei</div>
 
       %%AUDIO%%
     </div>

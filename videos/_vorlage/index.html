@@ -5,7 +5,6 @@
   data-composition-variables='[
     {"id":"partei","type":"string","label":"Parteiname","default":"PARTEINAME"},
     {"id":"kuerzel","type":"string","label":"Kürzel","default":"XYZ"},
-    {"id":"hinweis","type":"string","label":"Kennzeichnung","default":"Fiktive Partei"},
     {"id":"hook","type":"string","label":"Hook (Frame 0)","default":"Das hier traut sich sonst keiner."},
     {"id":"punkt1","type":"string","label":"Punkt 1","default":"Erster Punkt"},
     {"id":"punkt2","type":"string","label":"Punkt 2","default":"Zweiter Punkt"},
@@ -86,22 +85,6 @@
       #s-claim .claim { font-family: var(--display); font-size: 92px; line-height: 1.02; text-transform: uppercase; margin-top: 72px; color: var(--farbe2); }
       #s-claim .handle { font-family: var(--body); font-weight: 700; font-size: 48px; margin-top: 56px; }
 
-      /* Kennzeichnung: liegt über allen Szenen, ganzes Video sichtbar. */
-      #hinweis {
-        position: absolute;
-        left: 80px;
-        top: 190px;
-        z-index: 10;
-        padding: 10px 20px;
-        background: var(--tinte);
-        color: var(--papier);
-        outline: 3px solid var(--papier);
-        font-family: var(--body);
-        font-weight: 700;
-        font-size: 30px;
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
-      }
     </style>
   </head>
   <body>
@@ -133,7 +116,6 @@
         </div>
       </div>
 
-      <div id="hinweis" class="clip" data-start="0" data-duration="15" data-track-index="1" data-var-text="hinweis"></div>
     </div>
 
     <script>

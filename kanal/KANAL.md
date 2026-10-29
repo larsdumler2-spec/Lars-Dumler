@@ -22,7 +22,7 @@
 - Jede Serie wiedererkennbar: gleiche Farben, gleicher Einstieg
 
 ## Regeln (ehrlich & plattformsicher)
-- **Als fiktiv kennzeichnen:** Hinweis „Fiktive Partei“ im Video, in der Bio und in der Beschreibung.
+- **Als fiktiv kennzeichnen:** in der Bio und in der Videobeschreibung (im Video selbst seit v7 nicht mehr).
 - **KI-Inhalte labeln:** TikToks Schalter „KI-generierter Inhalt“ setzen, wenn KI-Stimme/-Bilder verwendet werden.
 - **Keine bezahlte Bewerbung:** TikTok verbietet politische Werbung (Promote/Ads) – nur organische Reichweite.
 - **Keine Täuschung:** keine echten Parteien, Politiker*innen, Logos oder Wahltermine imitieren; keine falschen Aussagen über echte Personen.
@@ -31,4 +31,4 @@
 ## Video-Log
 | Nr. | Titel | Format | Status | Datei |
 |---|---|---|---|---|
-| 001 | Wer ist die CSB? | Vorstellung, ElevenLabs-Stimme, Pausen gekürzt (65 s, v6) | fertig, nicht gepostet | `videos/001-csb-vorstellung` |
+| 001 | Wer ist die CSB? | Vorstellung, ElevenLabs-Stimme, ohne Hinweis im Bild (65 s, v7) | fertig, nicht gepostet | `videos/001-csb-vorstellung` |

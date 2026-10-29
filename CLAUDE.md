@@ -30,5 +30,5 @@ Antworte auf Deutsch.
 ## Wichtig
 - GSAP liegt lokal in `assets/vendor/gsap.min.js` – der Render-Browser erreicht hier kein CDN. Keine CDN-Skripte verwenden.
 - Text nur im Band 168–1330 px Höhe, rechts 160 px frei (TikTok-UI).
-- Jedes Video trägt den Hinweis „Fiktive Partei“.
+- Kein „Fiktive Partei“-Hinweis im Video (Wunsch von Lars). Stattdessen in Bio/Beschreibung kennzeichnen und bei KI-Stimme/-Bildern TikToks KI-Label setzen.
 - MP4s werden nicht committet (`.gitignore`); fertige Videos dem Nutzer per Datei schicken.
