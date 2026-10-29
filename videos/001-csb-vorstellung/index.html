@@ -1,0 +1,551 @@
+<!doctype html>
+<!-- Vorlage für build.py – nicht direkt rendern. index.html wird daraus erzeugt. -->
+<html lang="de" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      :root {
+        --blau: #0a3a9e;
+        --blau-tief: #062a75;
+        --gold: #f5c22b;
+        --weiss: #ffffff;
+        --schwarz: #111111;
+        --rot: #dd0a1a;
+        --display: "Archivo Black", sans-serif;
+        --body: "Inter", sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--blau); }
+      #root { width: 100%; height: 100%; position: relative; font-family: var(--body); }
+
+      .szene { position: absolute; inset: 0; overflow: hidden; }
+      .buehne { position: absolute; inset: 0; }
+      .blau { background: var(--blau); color: var(--weiss); }
+      .gold { background: var(--gold); color: var(--blau-tief); }
+      .weiss { background: var(--weiss); color: var(--blau-tief); }
+
+      /* Hintergründe im Stil des Logos: Verlauf mit Lichteinfall oben links, feine Diagonaltextur,
+         Schwarz-Rot-Gold-Band unten (unterhalb des Textbands, nur Dekoration) */
+      .hg { position: absolute; inset: 0; overflow: hidden; }
+      .blau .hg { background: radial-gradient(130% 85% at 12% 6%, #2a6ddc 0%, #0e48b6 32%, #0a3a9e 58%, #052464 100%); }
+      .gold .hg { background: radial-gradient(130% 85% at 12% 6%, #ffe68a 0%, #f8ca3e 38%, #f1b91f 68%, #d79b08 100%); }
+      .weiss .hg { background: radial-gradient(130% 85% at 12% 6%, #ffffff 0%, #f4f7fd 45%, #d9e3f5 100%); }
+      .hg-licht { position: absolute; left: -260px; top: -320px; width: 1100px; height: 1100px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0) 70%); }
+      .gold .hg-licht { background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0) 70%); }
+      .weiss .hg-licht { background: radial-gradient(circle, rgba(42,109,220,0.10) 0%, rgba(42,109,220,0.04) 40%, rgba(42,109,220,0) 70%); left: 500px; top: 900px; }
+      .hg-raster { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 2px, rgba(255,255,255,0) 2px 24px); }
+      .gold .hg-raster { background: repeating-linear-gradient(135deg, rgba(255,255,255,0.12) 0 2px, rgba(255,255,255,0) 2px 24px); }
+      .weiss .hg-raster { background: repeating-linear-gradient(135deg, rgba(10,58,158,0.035) 0 2px, rgba(10,58,158,0) 2px 24px); }
+      /* Foto-Hintergründe: breites Bild schwenkt seitlich, Königsblau-Schleier hält den Text lesbar */
+      .hg-foto { position: absolute; top: 0; left: -1167px; width: 3414px; height: 1920px; }
+      .hg-scrim { position: absolute; inset: 0;
+        background: linear-gradient(180deg, rgba(5, 30, 90, 0.45) 0%, rgba(5, 30, 90, 0.64) 30%, rgba(5, 30, 90, 0.64) 68%, rgba(5, 30, 90, 0.25) 100%); }
+      .hg-band { position: absolute; left: 0; top: 1330px; width: 1080px; height: 600px; overflow: visible; }
+      .hg-band path { fill: none; stroke-linecap: butt; }
+      .hg-band .rand { stroke: #062a75; stroke-width: 118; }
+      .hg-band .st { stroke-width: 30; }
+
+      /* Inhalt 270–1270 px, rechts 160 px frei für die TikTok-Leiste; darunter nur Dekoration */
+      .band { position: absolute; left: 80px; right: 160px; top: 270px; height: 1000px; display: flex; flex-direction: column; justify-content: center; }
+      .band.mitte { align-items: center; }
+      .zentriert { text-align: center; }
+      .d { font-family: var(--display); text-transform: uppercase; letter-spacing: -0.015em; line-height: 1.02; }
+      .s { font-family: var(--body); font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; }
+      .fs52 { font-size: 52px; } .fs60 { font-size: 60px; } .fs64 { font-size: 64px; } .fs80 { font-size: 80px; } .fs84 { font-size: 80px; } .fs100 { font-size: 100px; } .fs130 { font-size: 130px; }
+      .fs88 { font-size: 86px; } .fs92 { font-size: 92px; } .fs104 { font-size: 100px; } .fs110 { font-size: 110px; }
+      .fs120 { font-size: 120px; } .fs124 { font-size: 124px; } .fs150 { font-size: 140px; }
+      .goldtext { color: var(--gold); }
+      .blau-t { color: var(--blau); }
+
+      /* Wort-Masken: jedes Wort steigt aus seiner Maske */
+      .m { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+      .w { display: inline-block; }
+      .blau .g { color: var(--gold); }
+      .mit-foto .d, .mit-foto .s { text-shadow: 0 4px 24px rgba(0, 0, 0, 0.35); }
+      .gold .g, .weiss .g { background: var(--blau); color: var(--gold); padding: 0 0.12em; }
+      #hook1 .g { color: var(--gold); }
+
+      /* Hook */
+      .konto { margin: 50px 0 0; transform-origin: 30% 50%; background: var(--weiss); color: var(--blau-tief); padding: 34px 44px 30px; box-shadow: 0 18px 0 var(--blau-tief); }
+      .konto-label { font-weight: 800; font-size: 36px; text-transform: uppercase; letter-spacing: 0.03em; }
+      .konto-zahl { font-family: var(--display); font-size: 170px; line-height: 1.05; letter-spacing: -0.03em; }
+
+      /* „Das ändern wir.“ */
+      .aendern { display: flex; flex-direction: column; font-size: 190px; line-height: 0.95; color: var(--blau-tief); letter-spacing: -0.03em; }
+      .ae { display: block; align-self: flex-start; }
+      .blau-block { background: var(--blau-tief); color: var(--gold); padding: 0 0.12em; margin-top: 12px; }
+
+      /* Logo */
+      .logo-rahmen { position: relative; width: 680px; height: 680px; overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); }
+      .logo-rahmen.klein-logo { width: 560px; height: 560px; }
+      .logo { width: 100%; height: 100%; display: block; }
+      .glanz { position: absolute; top: -20%; left: 0; width: 40%; height: 140%; background: linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0) 100%); }
+
+      /* C – S – B */
+      .akronym { font-family: var(--display); font-size: 280px; line-height: 0.85; letter-spacing: -0.03em; display: flex; gap: 18px; }
+      .kb { display: inline-block; color: rgba(255, 255, 255, 0.22); }
+      .kb.an { color: var(--gold); }
+      .kb.weg { opacity: 0; }
+      .gold .kb { color: rgba(6, 42, 117, 0.28); }
+      .gold .kb.an { color: var(--blau-tief); }
+      .wort { margin: 40px 0 34px; }
+
+      /* Projekt */
+      .klein { font-weight: 900; font-size: 46px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 30px; }
+      .strich-gold { width: 520px; height: 26px; background: var(--gold); margin-top: 44px; }
+
+      /* Werte */
+      .werte { margin-top: 36px; display: flex; flex-direction: column; gap: 18px; }
+      .wert-z { position: relative; display: flex; flex-direction: column; }
+      .wert { font-family: "League Gothic", sans-serif; text-transform: uppercase; font-size: 150px; color: var(--gold); line-height: 0.92; letter-spacing: 0.01em; }
+      .wert-b { display: block; width: 100%; height: 14px; background: var(--weiss); margin-top: 10px; }
+
+      /* Forderungs-Karten */
+      .icon { width: 180px; height: 180px; margin-bottom: 30px; }
+      .icon * { fill: none; stroke: var(--blau); stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+      .thema { align-self: flex-start; font-weight: 900; font-size: 44px; text-transform: uppercase; letter-spacing: 0.04em; padding: 10px 24px; background: var(--blau); color: var(--gold); margin-bottom: 40px; }
+
+      /* Europa */
+      #eu-t { margin-bottom: 30px; }
+      .eu { display: flex; gap: 26px; font-size: 54px; margin-top: 30px; }
+      .eu .bk { width: 20px; background: var(--gold); flex: none; }
+      .sternkreis { position: absolute; inset: 0; }
+      .stern { position: absolute; width: 60px; height: 60px; }
+      .stern path { fill: var(--gold); }
+
+      /* Warum */
+      .gruende { margin-top: 48px; display: flex; flex-direction: column; gap: 34px; }
+      .grund { display: flex; align-items: flex-start; gap: 28px; }
+      .haken { width: 80px; height: 80px; flex: none; background: var(--blau); }
+      .haken path { fill: none; stroke: var(--gold); stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; }
+
+      /* Bilder: Steckbrief und Plakat */
+      .bild-rahmen { position: absolute; left: 0; top: 150px; width: 1080px; height: 1350px; }
+      .bild { width: 100%; height: 100%; display: block; }
+      .plakat-rahmen { position: absolute; left: 0; top: 130px; width: 1080px; height: 1350px; }
+      .plakat { width: 100%; height: 100%; display: block; }
+
+      /* Outro */
+      .folgen { margin-top: 44px; background: var(--gold); color: var(--blau-tief); font-family: var(--display); text-transform: uppercase; font-size: 50px; padding: 18px 44px; }
+      .schwung { position: absolute; left: 0; top: 1320px; width: 1080px; height: 600px; overflow: visible; }
+      .schwung path { fill: none; stroke-width: 46; stroke-dasharray: 1; stroke-linecap: butt; }
+
+      /* Schwarz-Rot-Gold-Wischer */
+      #band-wrap { position: absolute; left: -400px; top: -300px; width: 1880px; height: 2520px; transform: rotate(-14deg); }
+      #band-zug { position: absolute; inset: 0; }
+      .streifen { position: absolute; left: 0; width: 1880px; height: 840px; }
+      #st-schwarz { top: 0; background: var(--schwarz); }
+      #st-rot { top: 840px; background: var(--rot); }
+      #st-gold { top: 1680px; background: var(--gold); }
+
+      #hinweis {
+        position: absolute; left: 80px; top: 190px; z-index: 300;
+        padding: 10px 20px; background: var(--weiss); color: var(--blau-tief); outline: 3px solid var(--blau-tief);
+        font-weight: 800; font-size: 30px; letter-spacing: 0.03em; text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="70.04" data-width="1080" data-height="1920">
+<div id="s-hook" class="szene clip" data-start="0" data-duration="3.77" data-track-index="0" style="z-index:1">
+  <div id="b-hook" class="buehne blau">
+    <div class="hg"><div id="hg-hook-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-hook-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <h1 id="hook1" class="d fs130">Vollzeit <span class="g">arbeiten.</span></h1>
+      <div id="konto" class="konto">
+        <div class="konto-label">Kontostand am Monatsende</div>
+        <div id="konto-zahl" class="konto-zahl">2.480 €</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="s-aendern" class="szene clip" data-start="3.42" data-duration="1.55" data-track-index="0" style="z-index:2">
+  <div id="b-aendern" class="buehne gold">
+    <div class="hg"><div id="hg-aendern-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-aendern-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <div class="d aendern"><span id="ae1" class="ae">Das</span><span id="ae2" class="ae">ändern</span><span id="ae3" class="ae blau-block">wir.</span></div>
+    </div>
+  </div>
+</div>
+<div id="s-logo" class="szene clip" data-start="4.62" data-duration="4.03" data-track-index="0" style="z-index:3">
+  <div id="b-logo" class="buehne blau">
+    <div class="hg"><div id="hg-logo-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-logo-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band mitte">
+      <div id="logo1-r" class="logo-rahmen"><img id="logo1" class="logo" src="assets/csb-logo.png" alt="CSB Logo" /><div id="glanz1" class="glanz"></div></div>
+      <p id="logo-name" class="s fs52 zentriert" style="margin-top:40px"><span class="m"><span class="w">Christlich-Soziale</span></span> <span class="m"><span class="w g">Bürgerunion</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-steckbrief" class="szene clip" data-start="8.3" data-duration="5.87" data-track-index="0" style="z-index:4">
+  <div id="b-steckbrief" class="buehne blau">
+    <div class="hg"><div id="hg-steckbrief-licht" class="hg-licht"></div><div class="hg-raster"></div></div>
+
+    <div id="sb-rahmen" class="bild-rahmen"><img id="sb-bild" class="bild" src="assets/steckbrief.jpg" alt="Parteisteckbrief der CSB" /></div>
+  </div>
+</div>
+<div id="s-c" class="szene clip" data-start="13.82" data-duration="4.11" data-track-index="0" style="z-index:5">
+  <div id="b-c" class="buehne blau mit-foto">
+    <div class="hg"><img id="hg-c-foto" class="hg-foto" src="assets/hg/kirche.jpg" alt="" /><div class="hg-scrim"></div><div class="hg-raster"></div><svg id="hg-c-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <div class="akronym"><span id="c-k0" class="kb an">C</span><span id="c-k1" class="kb weg">S</span><span id="c-k2" class="kb weg">B</span></div>
+      <div id="c-wort" class="d fs92 wort">Christlich</div>
+      <p id="c-satz" class="s fs52"><span class="m"><span class="w">Familie</span></span> <span class="m"><span class="w">und</span></span> <span class="m"><span class="w">Nächstenliebe</span></span> <span class="m"><span class="w">als</span></span> <span class="m"><span class="w g">Fundament.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-s" class="szene clip" data-start="17.58" data-duration="4.75" data-track-index="0" style="z-index:6">
+  <div id="b-s" class="buehne gold">
+    <div class="hg"><div id="hg-s-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-s-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <div class="akronym"><span id="s-k0" class="kb">C</span><span id="s-k1" class="kb an">S</span><span id="s-k2" class="kb weg">B</span></div>
+      <div id="s-wort" class="d fs92 wort">Sozial</div>
+      <p id="s-satz" class="s fs52"><span class="m"><span class="w">Wer</span></span> <span class="m"><span class="w">arbeitet,</span></span> <span class="m"><span class="w">muss</span></span> <span class="m"><span class="w g">mehr</span></span> <span class="m"><span class="w">haben</span></span> <span class="m"><span class="w">als</span></span> <span class="m"><span class="w">wer</span></span> <span class="m"><span class="w">nicht</span></span> <span class="m"><span class="w">arbeitet.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-b" class="szene clip" data-start="21.98" data-duration="3.39" data-track-index="0" style="z-index:7">
+  <div id="b-b" class="buehne blau">
+    <div class="hg"><div id="hg-b-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-b-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <div class="akronym"><span id="b-k0" class="kb">C</span><span id="b-k1" class="kb">S</span><span id="b-k2" class="kb an">B</span></div>
+      <div id="b-wort" class="d fs92 wort">Bürgerunion</div>
+      <p id="b-satz" class="s fs52"><span class="m"><span class="w">Die</span></span> <span class="m"><span class="w">Partei</span></span> <span class="m"><span class="w">der</span></span> <span class="m"><span class="w g">Mitte.</span></span> <span class="m"><span class="w">Für</span></span> <span class="m"><span class="w">alle.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-projekt" class="szene clip" data-start="25.02" data-duration="3.39" data-track-index="0" style="z-index:8">
+  <div id="b-projekt" class="buehne blau mit-foto">
+    <div class="hg"><img id="hg-projekt-foto" class="hg-foto" src="assets/hg/zug.jpg" alt="" /><div class="hg-scrim"></div><div class="hg-raster"></div><svg id="hg-projekt-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <div id="pr-k" class="klein goldtext">Unser Ziel</div>
+      <h2 id="pr-t" class="d fs100"><span class="m"><span class="w">Ein</span></span> <span class="m"><span class="w">Deutschland,</span></span> <span class="m"><span class="w">das</span></span> <span class="m"><span class="w">wieder</span></span> <span class="m"><span class="w g">funktioniert.</span></span></h2>
+      <div id="pr-strich" class="strich-gold"></div>
+    </div>
+  </div>
+</div>
+<div id="s-werte" class="szene clip" data-start="28.06" data-duration="4.11" data-track-index="0" style="z-index:9">
+  <div id="b-werte" class="buehne blau">
+    <div class="hg"><div id="hg-werte-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-werte-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <p id="we-k" class="klein goldtext">Unsere Werte</p>
+      <div class="werte">
+        <div class="wert-z"><span id="we1" class="wert">Freiheit</span><span id="we1b" class="wert-b"></span></div>
+        <div class="wert-z"><span id="we2" class="wert">Sicherheit</span><span id="we2b" class="wert-b"></span></div>
+        <div class="wert-z"><span id="we3" class="wert">Verantwortung</span><span id="we3b" class="wert-b"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="s-konkret" class="szene clip" data-start="31.82" data-duration="1.47" data-track-index="0" style="z-index:10">
+  <div id="b-konkret" class="buehne gold">
+    <div class="hg"><div id="hg-konkret-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-konkret-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band"><h2 id="ko-t" class="d fs130"><span class="m"><span class="w">Konkret</span></span> <span class="m"><span class="w">heißt</span></span> <span class="m"><span class="w">das:</span></span></h2></div>
+  </div>
+</div>
+<div id="s-f1" class="szene clip" data-start="32.94" data-duration="3.15" data-track-index="0" style="z-index:11">
+  <div id="b-f1" class="buehne weiss">
+    <div class="hg"><div id="hg-f1-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-f1-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <svg id="f1-icon" class="icon" viewBox="0 0 220 220"><rect x="45" y="20" width="130" height="150" rx="26" pathLength="1"/><rect x="65" y="45" width="90" height="50" rx="8" pathLength="1"/><circle cx="80" cy="130" r="9" pathLength="1"/><circle cx="140" cy="130" r="9" pathLength="1"/><path d="M70 170 L50 205 M150 170 L170 205" pathLength="1"/></svg>
+      <div id="f1-th" class="thema">Bildung</div>
+      <p id="f1-sa" class="d fs84"><span class="m"><span class="w">Bahn</span></span> <span class="m"><span class="w">und</span></span> <span class="m"><span class="w">Mittagessen</span></span> <span class="m"><span class="w g">gratis</span></span> <span class="m"><span class="w">für</span></span> <span class="m"><span class="w">alle</span></span> <span class="m"><span class="w">Schüler.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-f2" class="szene clip" data-start="35.74" data-duration="3.07" data-track-index="0" style="z-index:12">
+  <div id="b-f2" class="buehne gold">
+    <div class="hg"><div id="hg-f2-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-f2-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <svg id="f2-icon" class="icon" viewBox="0 0 220 220"><path d="M175 55 A75 75 0 1 0 175 165" pathLength="1"/><path d="M35 95 H140 M35 128 H140" pathLength="1"/></svg>
+      <div id="f2-th" class="thema">Familie &amp; Rente</div>
+      <p id="f2-sa" class="d fs84"><span class="m"><span class="w">Mehr</span></span> <span class="m"><span class="w">Geld</span></span> <span class="m"><span class="w">für</span></span> <span class="m"><span class="w">Familien,</span></span> <span class="m"><span class="w g">Pflegekräfte</span></span> <span class="m"><span class="w">und</span></span> <span class="m"><span class="w">Rentner.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-f3" class="szene clip" data-start="38.46" data-duration="2.03" data-track-index="0" style="z-index:13">
+  <div id="b-f3" class="buehne weiss">
+    <div class="hg"><div id="hg-f3-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-f3-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <svg id="f3-icon" class="icon" viewBox="0 0 220 220"><path d="M25 110 L110 35 L195 110" pathLength="1"/><path d="M50 90 V195 H170 V90" pathLength="1"/><path d="M93 195 V140 H127 V195" pathLength="1"/></svg>
+      <div id="f3-th" class="thema">Wohnen</div>
+      <p id="f3-sa" class="d fs84"><span class="m"><span class="w">Miet&shy;erhöhungen</span></span> <span class="m"><span class="w g">begrenzen.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-f4" class="szene clip" data-start="40.14" data-duration="3.23" data-track-index="0" style="z-index:14">
+  <div id="b-f4" class="buehne gold">
+    <div class="hg"><div id="hg-f4-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-f4-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <svg id="f4-icon" class="icon" viewBox="0 0 220 220"><path d="M128 15 L55 120 H108 L88 205 L168 92 H115 Z" pathLength="1"/></svg>
+      <div id="f4-th" class="thema">Energie</div>
+      <p id="f4-sa" class="d fs84"><span class="m"><span class="w">Erneuerbare</span></span> <span class="m"><span class="w">Energie</span></span> <span class="m"><span class="w">–</span></span> <span class="m"><span class="w">ohne</span></span> <span class="m"><span class="w">dass</span></span> <span class="m"><span class="w g">du</span></span> <span class="m"><span class="w">draufzahlst.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-f5" class="szene clip" data-start="43.02" data-duration="3.445" data-track-index="0" style="z-index:15">
+  <div id="b-f5" class="buehne weiss">
+    <div class="hg"><div id="hg-f5-licht" class="hg-licht"></div><div class="hg-raster"></div><svg id="hg-f5-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <svg id="f5-icon" class="icon" viewBox="0 0 220 220"><path d="M110 15 L185 45 V105 C185 160 150 190 110 207 C70 190 35 160 35 105 V45 Z" pathLength="1"/><path d="M72 108 L100 136 L150 82" pathLength="1"/></svg>
+      <div id="f5-th" class="thema">Migration</div>
+      <p id="f5-sa" class="d fs84"><span class="m"><span class="w">Integration</span></span> <span class="m"><span class="w">fördern.</span></span> <span class="m"><span class="w">Schwere</span></span> <span class="m"><span class="w">Straftäter</span></span> <span class="m"><span class="w g">abschieben.</span></span></p>
+    </div>
+  </div>
+</div>
+<div id="s-europa" class="szene clip" data-start="46.115" data-duration="8.03" data-track-index="0" style="z-index:16">
+  <div id="b-europa" class="buehne blau">
+    <div class="hg"><div id="hg-europa-licht" class="hg-licht"></div><div class="hg-raster"></div></div>
+
+    <div class="band">
+      <h2 id="eu-t" class="d fs120 goldtext">Und Europa?</h2>
+      <div id="eu1" class="eu s"><span class="bk"></span><span>Stark in EU und NATO.</span></div>
+      <div id="eu2" class="eu s"><span class="bk"></span><span>Unabhängiger von den USA.</span></div>
+      <div id="eu3" class="eu s"><span class="bk"></span><span>An der Seite der Ukraine – für einen gerechten Frieden.</span></div>
+    </div>
+    <div class="sternkreis"><svg id="stern0" class="stern" style="left:510px; top:1420px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern1" class="stern" style="left:595px; top:1443px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern2" class="stern" style="left:657px; top:1505px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern3" class="stern" style="left:680px; top:1590px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern4" class="stern" style="left:657px; top:1675px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern5" class="stern" style="left:595px; top:1737px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern6" class="stern" style="left:510px; top:1760px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern7" class="stern" style="left:425px; top:1737px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern8" class="stern" style="left:363px; top:1675px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern9" class="stern" style="left:340px; top:1590px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern10" class="stern" style="left:363px; top:1505px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg><svg id="stern11" class="stern" style="left:425px; top:1443px" viewBox="0 0 100 100"><path d="M50 5 L61 38 H96 L68 59 L79 93 L50 72 L21 93 L32 59 L4 38 H39 Z"/></svg></div>
+  </div>
+</div>
+<div id="s-warum" class="szene clip" data-start="53.795" data-duration="9.15" data-track-index="0" style="z-index:17">
+  <div id="b-warum" class="buehne blau mit-foto">
+    <div class="hg"><img id="hg-warum-foto" class="hg-foto" src="assets/hg/familie.jpg" alt="" /><div class="hg-scrim"></div><div class="hg-raster"></div><svg id="hg-warum-band" class="hg-band" viewBox="0 0 1080 600"><path class="rand" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#111111" d="M-80 466 C 360 446 760 326 1160 36"/><path class="st" stroke="#dd0a1a" d="M-80 500 C 360 480 760 360 1160 70"/><path class="st" stroke="#f5c22b" d="M-80 534 C 360 514 760 394 1160 104"/></svg></div>
+
+    <div class="band">
+      <h2 id="wa-t" class="d fs130">Warum <span class="goldtext">CSB?</span></h2>
+      <div class="gruende"><div id="wa1" class="grund"><svg id="wa1-h" class="haken" viewBox="0 0 100 100"><path d="M18 52 L42 76 L84 26" pathLength="1"/></svg><p class="d fs60"><span class="m"><span class="w">Sozial</span></span> <span class="m"><span class="w g">und</span></span> <span class="m"><span class="w">vernünftig.</span></span></p></div>
+<div id="wa2" class="grund"><svg id="wa2-h" class="haken" viewBox="0 0 100 100"><path d="M18 52 L42 76 L84 26" pathLength="1"/></svg><p class="d fs60"><span class="m"><span class="w">Leistung</span></span> <span class="m"><span class="w">lohnt</span></span> <span class="m"><span class="w">sich</span></span> <span class="m"><span class="w g">wieder.</span></span></p></div>
+<div id="wa3" class="grund"><svg id="wa3-h" class="haken" viewBox="0 0 100 100"><path d="M18 52 L42 76 L84 26" pathLength="1"/></svg><p class="d fs60"><span class="m"><span class="w">Eine</span></span> <span class="m"><span class="w">Mitte,</span></span> <span class="m"><span class="w">die</span></span> <span class="m"><span class="w g">anpackt.</span></span></p></div></div>
+    </div>
+  </div>
+</div>
+<div id="s-plakat" class="szene clip" data-start="62.595" data-duration="4.43" data-track-index="0" style="z-index:18">
+  <div id="b-plakat" class="buehne blau">
+    <div class="hg"><div id="hg-plakat-licht" class="hg-licht"></div><div class="hg-raster"></div></div>
+
+    <div id="pl-rahmen" class="plakat-rahmen"><img id="pl-bild" class="plakat" src="assets/plakat.jpg" alt="CSB-Plakat: Freiheit bewahren. Verantwortung tragen. Zukunft gestalten." /></div>
+  </div>
+</div>
+<div id="s-ende" class="szene clip" data-start="66.675" data-duration="3.365" data-track-index="0" style="z-index:19">
+  <div id="b-ende" class="buehne blau">
+    <div class="hg"><div id="hg-ende-licht" class="hg-licht"></div><div class="hg-raster"></div></div>
+
+    <div class="band mitte">
+      <div id="logo2-r" class="logo-rahmen klein-logo"><img id="logo2" class="logo" src="assets/csb-logo.png" alt="CSB Logo" /><div id="glanz2" class="glanz"></div></div>
+      <div id="ende-werte" class="d fs60 goldtext zentriert" style="margin-top:44px">Freiheit. Sicherheit.<br />Verantwortung.</div>
+      <div id="folgen" class="folgen">Folge der CSB</div>
+    </div>
+    <svg class="schwung" viewBox="0 0 1080 600">
+      <path id="sw1" d="M-60 560 C 380 540 760 420 1140 80" stroke="#111111" pathLength="1"/>
+      <path id="sw2" d="M-60 612 C 400 590 790 470 1160 130" stroke="#dd0a1a" pathLength="1"/>
+      <path id="sw3" d="M-60 664 C 420 640 820 520 1180 180" stroke="#f5c22b" pathLength="1"/>
+    </svg>
+  </div>
+</div>
+
+      <div id="wischer" class="clip" data-start="0" data-duration="70.04" data-track-index="1" data-layout-allow-overflow data-layout-allow-overlap style="position:absolute; inset:0; z-index:200; pointer-events:none">
+        <div id="band-wrap"><div id="band-zug">
+          <div id="st-schwarz" class="streifen"></div><div id="st-rot" class="streifen"></div><div id="st-gold" class="streifen"></div>
+        </div></div>
+      </div>
+
+      <div id="hinweis" class="clip" data-start="0" data-duration="70.04" data-track-index="2">Fiktive Partei</div>
+
+      <audio id="vo" src="assets/stimme/voiceover.mp3" data-start="0" data-volume="1"></audio>
+      <audio id="fx0" src="assets/sfx/whoosh-short.mp3" data-start="3.37" data-volume="0.25"></audio>
+      <audio id="fx1" src="assets/sfx/whoosh.mp3" data-start="4.5" data-volume="0.32"></audio>
+      <audio id="fx2" src="assets/sfx/whoosh-short.mp3" data-start="8.25" data-volume="0.25"></audio>
+      <audio id="fx3" src="assets/sfx/whoosh-short.mp3" data-start="13.77" data-volume="0.25"></audio>
+      <audio id="fx4" src="assets/sfx/whoosh-short.mp3" data-start="17.53" data-volume="0.25"></audio>
+      <audio id="fx5" src="assets/sfx/whoosh-short.mp3" data-start="21.93" data-volume="0.25"></audio>
+      <audio id="fx6" src="assets/sfx/whoosh.mp3" data-start="24.9" data-volume="0.32"></audio>
+      <audio id="fx7" src="assets/sfx/whoosh-short.mp3" data-start="28.01" data-volume="0.25"></audio>
+      <audio id="fx8" src="assets/sfx/whoosh.mp3" data-start="31.7" data-volume="0.32"></audio>
+      <audio id="fx9" src="assets/sfx/whoosh-short.mp3" data-start="32.89" data-volume="0.25"></audio>
+      <audio id="fx10" src="assets/sfx/whoosh-short.mp3" data-start="35.69" data-volume="0.25"></audio>
+      <audio id="fx11" src="assets/sfx/whoosh-short.mp3" data-start="38.41" data-volume="0.25"></audio>
+      <audio id="fx12" src="assets/sfx/whoosh-short.mp3" data-start="40.09" data-volume="0.25"></audio>
+      <audio id="fx13" src="assets/sfx/whoosh-short.mp3" data-start="42.97" data-volume="0.25"></audio>
+      <audio id="fx14" src="assets/sfx/whoosh-short.mp3" data-start="46.065" data-volume="0.25"></audio>
+      <audio id="fx15" src="assets/sfx/whoosh.mp3" data-start="53.675" data-volume="0.32"></audio>
+      <audio id="fx16" src="assets/sfx/whoosh.mp3" data-start="62.475" data-volume="0.32"></audio>
+      <audio id="fx17" src="assets/sfx/whoosh-short.mp3" data-start="66.625" data-volume="0.25"></audio>
+      <audio id="fx18" src="assets/sfx/impact-bass-2.mp3" data-start="2.88" data-volume="0.45"></audio>
+      <audio id="fx19" src="assets/sfx/click-soft.mp3" data-start="3.52" data-volume="0.45"></audio>
+      <audio id="fx20" src="assets/sfx/click-soft.mp3" data-start="3.76" data-volume="0.45"></audio>
+      <audio id="fx21" src="assets/sfx/click-soft.mp3" data-start="4.24" data-volume="0.45"></audio>
+      <audio id="fx22" src="assets/sfx/impact-bass-1.mp3" data-start="4.24" data-volume="0.5"></audio>
+      <audio id="fx23" src="assets/sfx/impact-bass-1.mp3" data-start="4.67" data-volume="0.45"></audio>
+      <audio id="fx24" src="assets/sfx/impact-bass-1.mp3" data-start="66.725" data-volume="0.4"></audio>
+      <audio id="fx25" src="assets/sfx/click-soft.mp3" data-start="29.28" data-volume="0.4"></audio>
+      <audio id="fx26" src="assets/sfx/click-soft.mp3" data-start="30.08" data-volume="0.4"></audio>
+      <audio id="fx27" src="assets/sfx/click-soft.mp3" data-start="30.96" data-volume="0.4"></audio>
+      <audio id="fx28" src="assets/sfx/pop.mp3" data-start="55.176" data-volume="0.3"></audio>
+      <audio id="fx29" src="assets/sfx/pop.mp3" data-start="57.815" data-volume="0.3"></audio>
+      <audio id="fx30" src="assets/sfx/pop.mp3" data-start="59.735" data-volume="0.3"></audio>
+    </div>
+
+    <script>
+      const W = [0.08, 0.8, 1.36, 1.6, 1.76, 2.48, 2.88, 3.52, 3.76, 4.24, 4.72, 4.88, 5.12, 5.36, 6.32, 6.48, 7.52, 8.4, 8.96, 9.12, 9.68, 11.2, 12.56, 13.92, 14.72, 14.96, 15.36, 15.52, 16.4, 16.64, 17.2, 17.68, 18.4, 18.72, 19.04, 19.68, 19.92, 20.16, 20.48, 20.64, 20.88, 21.12, 21.36, 22.08, 23.12, 23.28, 23.68, 23.84, 24.4, 24.64, 25.12, 25.44, 26.0, 26.24, 26.8, 27.04, 27.28, 28.16, 28.56, 29.28, 30.08, 30.96, 31.92, 32.4, 32.64, 33.04, 33.44, 33.52, 34.32, 34.8, 34.96, 35.2, 35.84, 36.08, 36.32, 36.48, 37.04, 37.92, 38.0, 38.56, 40.24, 41.04, 41.6, 41.84, 42.08, 42.24, 43.12, 43.84, 44.4, 44.88, 45.6, 46.215, 46.535, 47.175, 47.576, 47.815, 48.215, 48.375, 48.936, 49.655, 49.815, 49.975, 50.696, 50.935, 51.096, 51.255, 51.575, 51.735, 52.375, 52.615, 52.775, 53.335, 53.895, 54.375, 55.176, 55.495, 55.976, 56.136, 56.855, 57.815, 58.056, 58.535, 58.695, 58.935, 59.335, 59.735, 59.975, 60.215, 60.695, 60.935, 61.335, 61.655, 61.895, 62.695, 63.255, 64.056, 64.855, 65.415, 65.976, 66.775, 67.736, 68.215];
+      const SLOT = {"hook": 3.77, "aendern": 1.55, "logo": 4.03, "steckbrief": 5.87, "c": 4.11, "s": 4.75, "b": 3.39, "projekt": 3.39, "werte": 4.11, "konkret": 1.47, "f1": 3.15, "f2": 3.07, "f3": 2.03, "f4": 3.23, "f5": 3.445, "europa": 8.03, "warum": 9.15, "plakat": 4.43, "ende": 3.365};
+      const S = {"hook": 0, "aendern": 3.42, "logo": 4.62, "steckbrief": 8.3, "c": 13.82, "s": 17.58, "b": 21.98, "projekt": 25.02, "werte": 28.06, "konkret": 31.82, "f1": 32.94, "f2": 35.74, "f3": 38.46, "f4": 40.14, "f5": 43.02, "europa": 46.115, "warum": 53.795, "plakat": 62.595, "ende": 66.675};
+      const UE = [[3.42, "zoom"], [4.62, "wisch"], [8.3, "push"], [13.82, "push"], [17.58, "hoch"], [21.98, "push"], [25.02, "wisch"], [28.06, "zoom"], [31.82, "wisch"], [32.94, "push"], [35.74, "push"], [38.46, "push"], [40.14, "push"], [43.02, "push"], [46.115, "zoom"], [53.795, "wisch"], [62.595, "wisch"], [66.675, "zoom"]];
+      const IDS = ["hook", "aendern", "logo", "steckbrief", "c", "s", "b", "projekt", "werte", "konkret", "f1", "f2", "f3", "f4", "f5", "europa", "warum", "plakat", "ende"];
+      const tl = gsap.timeline({ paused: true });
+      const EIN = "power4.out";
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+
+      // Wörter schnellen aus ihren Masken, verteilt über die Sprechzeit (Abstand nach Zeichenzahl).
+      function woerter(sel, t, d) {
+        const ws = qa(sel + " .w");
+        const laengen = ws.map((w) => w.textContent.length + 1);
+        const summe = laengen.reduce((a, b) => a + b, 0);
+        let bisher = 0;
+        ws.forEach((w, i) => {
+          tl.fromTo(w, { yPercent: 110, rotation: 4 }, { yPercent: 0, rotation: 0, duration: 0.22, ease: "power3.out" }, t + (d * 0.85 * bisher) / summe);
+          bisher += laengen[i];
+        });
+      }
+      function zeichnen(sel, t, dauer, stagger = 0) {
+        qa(sel).forEach((el, i) => tl.fromTo(el, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: dauer, ease: "power2.inOut" }, t + i * stagger));
+      }
+      function knall(sel, t, von = 1.6) {
+        tl.fromTo(sel, { scale: von, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: "power4.out", transformOrigin: "0% 50%" }, t);
+      }
+      function wackeln(sel, t, staerke = 14) {
+        [-1, 0.8, -0.6, 0.4, -0.2, 0].forEach((f, i) => tl.to(sel, { x: f * staerke, y: -f * staerke * 0.5, duration: 0.035, ease: "none" }, t + i * 0.035));
+      }
+
+      // Übergänge (0,3 s): push = von rechts, hoch = von unten, zoom = rein, wisch = Schwarz-Rot-Gold-Band.
+      tl.set("#band-zug", { x: -2500 }, 0);
+      UE.forEach(([t, art], i) => {
+        const neu = "#b-" + IDS[i + 1], alt = "#b-" + IDS[i];
+        if (art === "push") {
+          tl.fromTo(neu, { xPercent: 100 }, { xPercent: 0, duration: 0.3, ease: "power4.inOut" }, t);
+          tl.fromTo(alt, { xPercent: 0 }, { xPercent: -30, duration: 0.3, ease: "power4.inOut" }, t);
+        } else if (art === "hoch") {
+          tl.fromTo(neu, { yPercent: 100 }, { yPercent: 0, duration: 0.3, ease: "power4.inOut" }, t);
+          tl.fromTo(alt, { yPercent: 0 }, { yPercent: -25, duration: 0.3, ease: "power4.inOut" }, t);
+        } else if (art === "zoom") {
+          tl.fromTo(neu, { scale: 1.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.28, ease: "power3.out" }, t);
+          tl.fromTo(alt, { scale: 1 }, { scale: 0.9, duration: 0.28, ease: "power2.in" }, t);
+        } else {
+          tl.fromTo("#band-zug", { x: -2500 }, { x: 0, duration: 0.2, ease: "power2.in" }, t - 0.2);
+          tl.to("#band-zug", { x: 2500, duration: 0.24, ease: "power2.out" }, t);
+        }
+      });
+
+      // Hintergründe leben: Fotos schwenken, Licht wandert, Band hebt sich.
+      IDS.forEach((id) => {
+        if (q(`#hg-${id}-foto`)) tl.fromTo(`#hg-${id}-foto`, { x: 420, scale: 1.04 }, { x: -420, scale: 1.12, duration: SLOT[id], ease: "none" }, S[id]);
+        if (q(`#hg-${id}-licht`)) tl.fromTo(`#hg-${id}-licht`, { x: -90, y: -50 }, { x: 110, y: 60, duration: SLOT[id], ease: "none" }, S[id]);
+        if (q(`#hg-${id}-band`)) tl.fromTo(`#hg-${id}-band`, { y: 50 }, { y: -14, duration: SLOT[id], ease: "power1.out" }, S[id]);
+      });
+
+      // 1 Hook (ab Frame 0 lesbar): Kontostand rauscht bis „nichts“ auf 0 € und kracht.
+      tl.fromTo("#hook1", { scale: 1.08 }, { scale: 1, duration: 0.3, ease: "power3.out", transformOrigin: "0% 50%" }, 0);
+      const konto = { v: 2480 };
+      const kz = q("#konto-zahl");
+      tl.fromTo(konto, { v: 2480 }, {
+        v: 0, duration: W[6] - W[1], ease: "power3.in",
+        onUpdate: () => { kz.textContent = Math.round(konto.v).toLocaleString("de-DE") + " €"; },
+      }, W[1]);
+      tl.fromTo("#konto-zahl", { color: "#062a75" }, { color: "#dd0a1a", duration: 0.08 }, W[6] - 0.04);
+      tl.fromTo("#konto", { rotation: 0 }, { rotation: -4, duration: 0.18, ease: "back.out(3)" }, W[6]);
+      wackeln("#konto", W[6], 16);
+
+      // 2 „Das ändern wir.“: drei Schläge im Takt der Stimme, beim letzten bebt das Bild.
+      knall("#ae1", W[7] - 0.03, 2.2); knall("#ae2", W[8] - 0.03, 2.2); knall("#ae3", W[9] - 0.03, 2.4);
+      wackeln("#b-aendern", W[9], 18);
+
+      // 3 Logo mit Glanz
+      tl.fromTo("#logo1-r", { scale: 1.4, rotation: -6 }, { scale: 1, rotation: 0, duration: 0.45, ease: "power4.out" }, S.logo);
+      tl.fromTo("#glanz1", { xPercent: -150 }, { xPercent: 300, duration: 0.6, ease: "power2.inOut" }, S.logo + 0.4);
+      woerter("#logo-name", W[14], W[16] + 0.5 - W[14]);
+
+      // 3b Steckbrief: Kamerafahrt vom Logo zu den Eckdaten
+      tl.fromTo("#sb-rahmen", { scale: 1.0, y: 30 }, { scale: 1.08, y: -200, duration: SLOT.steckbrief, ease: "sine.inOut", transformOrigin: "50% 40%" }, S.steckbrief);
+
+      // 4–6 Akronym: C, CS, CSB
+      [["c", 0, 23], ["s", 1, 31], ["b", 2, 43]].forEach(([k, i, wi]) => {
+        tl.fromTo(`#${k}-k${i}`, { y: -420, rotation: -18, opacity: 0 }, { y: 0, rotation: 0, opacity: 1, duration: 0.38, ease: "back.out(2)" }, S[k] + 0.02);
+        tl.fromTo(`#${k}-wort`, { scaleX: 1.6, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.25, ease: "power4.out", transformOrigin: "0% 50%" }, W[wi]);
+        const ende = { c: W[30] + 0.4, s: W[42] + 0.4, b: W[49] + 0.4 }[k];
+        woerter(`#${k}-satz`, W[wi + 1], ende - W[wi + 1]);
+      });
+
+      // 7 Ziel (über dem ICE)
+      knall("#pr-k", W[50], 1.4);
+      woerter("#pr-t", W[52], W[56] + 0.4 - W[52]);
+      tl.fromTo("#pr-strich", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power4.out", transformOrigin: "0% 50%" }, W[56] + 0.3);
+
+      // 8 Werte: jedes Wort schlägt ein, wenn es fällt
+      knall("#we-k", W[57], 1.4);
+      [59, 60, 61].forEach((wi, i) => {
+        knall(`#we${i + 1}`, W[wi] - 0.03, 1.8);
+        tl.fromTo(`#we${i + 1}b`, { scaleX: 0 }, { scaleX: 1, duration: 0.25, ease: "power4.out", transformOrigin: "0% 50%" }, W[wi] + 0.06);
+      });
+
+      // 9 Konkret
+      woerter("#ko-t", W[62] - 0.05, W[64] + 0.3 - W[62]);
+
+      // 10–14 Karten: Icon zeichnet sich, Thema, Forderung im Sprechtempo
+      [["f1", 65, 71], ["f2", 72, 78], ["f3", 79, 79], ["f4", 80, 85], ["f5", 86, 90]].forEach(([k, a, e]) => {
+        tl.fromTo(`#${k}-icon`, { scale: 0.4, rotation: -20 }, { scale: 1, rotation: 0, duration: 0.35, ease: "back.out(2.2)", transformOrigin: "50% 50%" }, S[k] + 0.05);
+        zeichnen(`#${k}-icon *`, S[k] + 0.05, 0.4, 0.05);
+        tl.fromTo(`#${k}-th`, { x: -120, opacity: 0 }, { x: 0, opacity: 1, duration: 0.22, ease: "power4.out" }, S[k] + 0.08);
+        woerter(`#${k}-sa`, W[a], Math.max(0.5, W[e] + 0.3 - W[a]));
+      });
+
+      // 15 Europa: Sterne drehen ein, Aussagen mit dem Satz
+      knall("#eu-t", W[91] - 0.03, 1.4);
+      for (let i = 0; i < 12; i++) {
+        tl.fromTo(`#stern${i}`, { scale: 0, rotation: -140 }, { scale: 1, rotation: 0, duration: 0.3, ease: "back.out(2.5)" }, W[92] + i * 0.045);
+      }
+      [["#eu1", 93], ["#eu2", 98], ["#eu3", 102]].forEach(([id, wi]) => {
+        tl.fromTo(id, { x: -90, opacity: 0 }, { x: 0, opacity: 1, duration: 0.22, ease: "power4.out" }, W[wi] - 0.05);
+      });
+
+      // 16–19 Warum CSB? (über der Familie)
+      knall("#wa-t", W[112] - 0.03, 1.5);
+      [["wa1", 114, 118], ["wa2", 119, 124], ["wa3", 125, 132]].forEach(([g, a, e]) => {
+        tl.fromTo(`#${g}-h`, { scale: 0, rotation: -30 }, { scale: 1, rotation: 0, duration: 0.25, ease: "back.out(2.4)" }, W[a] - 0.08);
+        zeichnen(`#${g}-h path`, W[a] + 0.05, 0.25);
+        woerter(`#${g}`, W[a], W[e] + 0.3 - W[a]);
+      });
+
+      // 20 Plakat: langsamer Zoom, Slogan wird gesprochen
+      tl.fromTo("#pl-rahmen", { scale: 1.0 }, { scale: 1.08, duration: SLOT.plakat, ease: "sine.inOut", transformOrigin: "50% 60%" }, S.plakat);
+
+      // 21 Endkarte
+      tl.fromTo("#logo2-r", { scale: 1.4 }, { scale: 1, duration: 0.45, ease: "power4.out" }, S.ende);
+      tl.fromTo("#glanz2", { xPercent: -150 }, { xPercent: 300, duration: 0.6, ease: "power2.inOut" }, S.ende + 0.35);
+      zeichnen(".schwung path", S.ende + 0.1, 0.7, 0.08);
+      knall("#ende-werte", S.ende + 0.3, 1.3);
+      tl.fromTo("#folgen", { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(2.4)" }, W[140] - 0.05);
+      [0, 0.6].forEach((dt) => {
+        tl.to("#folgen", { scale: 1.08, duration: 0.14, ease: "power2.out" }, W[141] + 0.4 + dt);
+        tl.to("#folgen", { scale: 1, duration: 0.22, ease: "power2.inOut" }, W[141] + 0.54 + dt);
+      });
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
