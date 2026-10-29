@@ -39,6 +39,10 @@
       .hg-raster { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 2px, rgba(255,255,255,0) 2px 24px); }
       .gold .hg-raster { background: repeating-linear-gradient(135deg, rgba(255,255,255,0.12) 0 2px, rgba(255,255,255,0) 2px 24px); }
       .weiss .hg-raster { background: repeating-linear-gradient(135deg, rgba(10,58,158,0.035) 0 2px, rgba(10,58,158,0) 2px 24px); }
+      /* Foto-Hintergründe: breites Bild schwenkt seitlich, Königsblau-Schleier hält den Text lesbar */
+      .hg-foto { position: absolute; top: 0; left: -1167px; width: 3414px; height: 1920px; }
+      .hg-scrim { position: absolute; inset: 0;
+        background: linear-gradient(180deg, rgba(5, 30, 90, 0.45) 0%, rgba(5, 30, 90, 0.64) 30%, rgba(5, 30, 90, 0.64) 68%, rgba(5, 30, 90, 0.25) 100%); }
       .hg-band { position: absolute; left: 0; top: 1330px; width: 1080px; height: 600px; overflow: visible; }
       .hg-band path { fill: none; stroke-linecap: butt; }
       .hg-band .rand { stroke: #062a75; stroke-width: 118; }
@@ -60,22 +64,19 @@
       .m { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
       .w { display: inline-block; }
       .blau .g { color: var(--gold); }
+      .mit-foto .d, .mit-foto .s { text-shadow: 0 4px 24px rgba(0, 0, 0, 0.35); }
       .gold .g, .weiss .g { background: var(--blau); color: var(--gold); padding: 0 0.12em; }
       #hook1 .g { color: var(--gold); }
 
       /* Hook */
-      .konto { margin: 56px 0 0; background: var(--weiss); color: var(--blau-tief); padding: 34px 44px 30px; box-shadow: 0 18px 0 var(--blau-tief); }
+      .konto { margin: 50px 0 0; transform-origin: 30% 50%; background: var(--weiss); color: var(--blau-tief); padding: 34px 44px 30px; box-shadow: 0 18px 0 var(--blau-tief); }
       .konto-label { font-weight: 800; font-size: 36px; text-transform: uppercase; letter-spacing: 0.03em; }
-      .konto-zahl { font-family: var(--display); font-size: 156px; line-height: 1.05; letter-spacing: -0.03em; }
+      .konto-zahl { font-family: var(--display); font-size: 170px; line-height: 1.05; letter-spacing: -0.03em; }
 
-      /* 60 Sekunden */
-      .ring-box { position: relative; width: 400px; height: 400px; margin: 30px 0; }
-      #ring { position: absolute; inset: 0; width: 400px; height: 400px; }
-      #ring circle { fill: none; stroke-width: 34; }
-      .ring-bg { stroke: rgba(6, 42, 117, 0.15); }
-      .ring-v { stroke: var(--blau); stroke-dasharray: 1; stroke-dashoffset: 1; stroke-linecap: butt; }
-      #ring-v { transform-origin: 220px 220px; }
-      .eins { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 240px; color: var(--blau); }
+      /* „Das ändern wir.“ */
+      .aendern { display: flex; flex-direction: column; font-size: 190px; line-height: 0.95; color: var(--blau-tief); letter-spacing: -0.03em; }
+      .ae { display: block; align-self: flex-start; }
+      .blau-block { background: var(--blau-tief); color: var(--gold); padding: 0 0.12em; margin-top: 12px; }
 
       /* Logo */
       .logo-rahmen { position: relative; width: 680px; height: 680px; overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); }
@@ -88,6 +89,8 @@
       .kb { display: inline-block; color: rgba(255, 255, 255, 0.22); }
       .kb.an { color: var(--gold); }
       .kb.weg { opacity: 0; }
+      .gold .kb { color: rgba(6, 42, 117, 0.28); }
+      .gold .kb.an { color: var(--blau-tief); }
       .wort { margin: 40px 0 34px; }
 
       /* Projekt */
@@ -97,7 +100,7 @@
       /* Werte */
       .werte { margin-top: 36px; display: flex; flex-direction: column; gap: 18px; }
       .wert-z { position: relative; display: flex; flex-direction: column; }
-      .wert { font-family: "League Gothic", sans-serif; text-transform: uppercase; font-size: 176px; color: var(--gold); line-height: 0.92; letter-spacing: 0.01em; }
+      .wert { font-family: "League Gothic", sans-serif; text-transform: uppercase; font-size: 150px; color: var(--gold); line-height: 0.92; letter-spacing: 0.01em; }
       .wert-b { display: block; width: 100%; height: 14px; background: var(--weiss); margin-top: 10px; }
 
       /* Forderungs-Karten */
@@ -161,8 +164,7 @@
     </div>
 
     <script>
-      const L = %%L%%;
-      const WT = %%WT%%;
+      const W = %%W%%;
       const SLOT = %%SLOT%%;
       const S = %%S%%;
       const UE = %%UEBERGAENGE%%;
@@ -172,126 +174,137 @@
       const q = (s) => document.querySelector(s);
       const qa = (s) => [...document.querySelectorAll(s)];
 
-      // Wörter steigen im Sprechtempo aus ihren Masken (Abstand nach Zeichenzahl).
+      // Wörter schnellen aus ihren Masken, verteilt über die Sprechzeit (Abstand nach Zeichenzahl).
       function woerter(sel, t, d) {
         const ws = qa(sel + " .w");
         const laengen = ws.map((w) => w.textContent.length + 1);
         const summe = laengen.reduce((a, b) => a + b, 0);
         let bisher = 0;
         ws.forEach((w, i) => {
-          tl.fromTo(w, { yPercent: 115 }, { yPercent: 0, duration: 0.34, ease: EIN }, t + (d * 0.88 * bisher) / summe);
+          tl.fromTo(w, { yPercent: 110, rotation: 4 }, { yPercent: 0, rotation: 0, duration: 0.22, ease: "power3.out" }, t + (d * 0.85 * bisher) / summe);
           bisher += laengen[i];
         });
       }
       function zeichnen(sel, t, dauer, stagger = 0) {
         qa(sel).forEach((el, i) => tl.fromTo(el, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: dauer, ease: "power2.inOut" }, t + i * stagger));
       }
+      function knall(sel, t, von = 1.6) {
+        tl.fromTo(sel, { scale: von, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: "power4.out", transformOrigin: "0% 50%" }, t);
+      }
+      function wackeln(sel, t, staerke = 14) {
+        [-1, 0.8, -0.6, 0.4, -0.2, 0].forEach((f, i) => tl.to(sel, { x: f * staerke, y: -f * staerke * 0.5, duration: 0.035, ease: "none" }, t + i * 0.035));
+      }
 
-      // Übergänge: Push (neue Szene schiebt von rechts, alte weicht mit Parallaxe) oder Schwarz-Rot-Gold-Wischer.
+      // Übergänge (0,3 s): push = von rechts, hoch = von unten, zoom = rein, wisch = Schwarz-Rot-Gold-Band.
       tl.set("#band-zug", { x: -2500 }, 0);
       UE.forEach(([t, art], i) => {
         const neu = "#b-" + IDS[i + 1], alt = "#b-" + IDS[i];
         if (art === "push") {
-          tl.fromTo(neu, { xPercent: 100 }, { xPercent: 0, duration: 0.45, ease: "power3.inOut" }, t);
-          tl.fromTo(alt, { xPercent: 0 }, { xPercent: -35, duration: 0.45, ease: "power3.inOut" }, t);
+          tl.fromTo(neu, { xPercent: 100 }, { xPercent: 0, duration: 0.3, ease: "power4.inOut" }, t);
+          tl.fromTo(alt, { xPercent: 0 }, { xPercent: -30, duration: 0.3, ease: "power4.inOut" }, t);
+        } else if (art === "hoch") {
+          tl.fromTo(neu, { yPercent: 100 }, { yPercent: 0, duration: 0.3, ease: "power4.inOut" }, t);
+          tl.fromTo(alt, { yPercent: 0 }, { yPercent: -25, duration: 0.3, ease: "power4.inOut" }, t);
+        } else if (art === "zoom") {
+          tl.fromTo(neu, { scale: 1.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.28, ease: "power3.out" }, t);
+          tl.fromTo(alt, { scale: 1 }, { scale: 0.9, duration: 0.28, ease: "power2.in" }, t);
         } else {
-          tl.fromTo("#band-zug", { x: -2500 }, { x: 0, duration: 0.3, ease: "power2.in" }, t - 0.3);
-          tl.to("#band-zug", { x: 2500, duration: 0.34, ease: "power2.out" }, t);
+          tl.fromTo("#band-zug", { x: -2500 }, { x: 0, duration: 0.2, ease: "power2.in" }, t - 0.2);
+          tl.to("#band-zug", { x: 2500, duration: 0.24, ease: "power2.out" }, t);
         }
       });
 
-      // Hintergründe leben: Licht wandert langsam, Band hebt sich leicht.
+      // Hintergründe leben: Fotos schwenken, Licht wandert, Band hebt sich.
       IDS.forEach((id) => {
-        if (q(`#hg-${id}-licht`)) tl.fromTo(`#hg-${id}-licht`, { x: -70, y: -40 }, { x: 90, y: 50, duration: SLOT[id], ease: "none" }, S[id]);
-        if (q(`#hg-${id}-band`)) tl.fromTo(`#hg-${id}-band`, { y: 40 }, { y: -12, duration: SLOT[id], ease: "power1.out" }, S[id]);
+        if (q(`#hg-${id}-foto`)) tl.fromTo(`#hg-${id}-foto`, { x: 420, scale: 1.04 }, { x: -420, scale: 1.12, duration: SLOT[id], ease: "none" }, S[id]);
+        if (q(`#hg-${id}-licht`)) tl.fromTo(`#hg-${id}-licht`, { x: -90, y: -50 }, { x: 110, y: 60, duration: SLOT[id], ease: "none" }, S[id]);
+        if (q(`#hg-${id}-band`)) tl.fromTo(`#hg-${id}-band`, { y: 50 }, { y: -14, duration: SLOT[id], ease: "power1.out" }, S[id]);
       });
 
-      // 1 Hook: Satz + Kontostand stehen ab Frame 0; bei „Und am Ende…“ rauscht er auf 0 €, bei „nichts“ ist er leer.
-      tl.fromTo("#hook1", { scale: 1.05 }, { scale: 1, duration: 0.45, ease: "power3.out", transformOrigin: "0% 50%" }, 0);
+      // 1 Hook (ab Frame 0 lesbar): Kontostand rauscht bis „nichts“ auf 0 € und kracht.
+      tl.fromTo("#hook1", { scale: 1.08 }, { scale: 1, duration: 0.3, ease: "power3.out", transformOrigin: "0% 50%" }, 0);
       const konto = { v: 2480 };
       const kz = q("#konto-zahl");
       tl.fromTo(konto, { v: 2480 }, {
-        v: 0, duration: WT.l01[12] - WT.l01[5], ease: "power2.in",
+        v: 0, duration: W[6] - W[1], ease: "power3.in",
         onUpdate: () => { kz.textContent = Math.round(konto.v).toLocaleString("de-DE") + " €"; },
-      }, WT.l01[5]);
-      tl.fromTo("#konto-zahl", { color: "#062a75" }, { color: "#dd0a1a", duration: 0.12 }, WT.l01[12] - 0.05);
-      [-14, 12, -9, 7, -4, 0].forEach((x, i) => tl.to("#konto", { x, duration: 0.045, ease: "none" }, WT.l01[12] + i * 0.045));
+      }, W[1]);
+      tl.fromTo("#konto-zahl", { color: "#062a75" }, { color: "#dd0a1a", duration: 0.08 }, W[6] - 0.04);
+      tl.fromTo("#konto", { rotation: 0 }, { rotation: -4, duration: 0.18, ease: "back.out(3)" }, W[6]);
+      wackeln("#konto", W[6], 16);
 
-      // 2 Eine Minute: Ring zieht sich zu.
-      tl.fromTo("#mi-dann", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: EIN }, S.minute + 0.35);
-      tl.fromTo("#ring-v", { strokeDashoffset: 1, rotation: -90 }, { strokeDashoffset: 0, rotation: -90, duration: 1.4, ease: "power1.inOut" }, L.l02.s);
-      tl.fromTo("#mi-1", { scale: 1.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2)" }, WT.l02[3] - 0.05);
-      tl.fromTo("#mi-min", { scaleX: 1.4, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.35, ease: EIN }, WT.l02[4]);
+      // 2 „Das ändern wir.“: drei Schläge im Takt der Stimme, beim letzten bebt das Bild.
+      knall("#ae1", W[7] - 0.03, 2.2); knall("#ae2", W[8] - 0.03, 2.2); knall("#ae3", W[9] - 0.03, 2.4);
+      wackeln("#b-aendern", W[9], 18);
 
       // 3 Logo mit Glanz
-      tl.fromTo("#logo1-r", { scale: 1.3, rotation: -5 }, { scale: 1, rotation: 0, duration: 0.7, ease: "power3.out" }, S.logo);
-      tl.fromTo("#glanz1", { xPercent: -150 }, { xPercent: 300, duration: 0.9, ease: "power2.inOut" }, S.logo + 0.6);
-      woerter("#logo-name", WT.l03[4], L.l03.s + L.l03.d - WT.l03[4]);
+      tl.fromTo("#logo1-r", { scale: 1.4, rotation: -6 }, { scale: 1, rotation: 0, duration: 0.45, ease: "power4.out" }, S.logo);
+      tl.fromTo("#glanz1", { xPercent: -150 }, { xPercent: 300, duration: 0.6, ease: "power2.inOut" }, S.logo + 0.4);
+      woerter("#logo-name", W[14], W[16] + 0.5 - W[14]);
 
-      // 3b Steckbrief: langsame Kamerafahrt vom Logo zu den Eckdaten
-      tl.fromTo("#sb-rahmen", { scale: 1.0, y: 30 }, { scale: 1.06, y: -170, duration: SLOT.steckbrief, ease: "sine.inOut", transformOrigin: "50% 40%" }, S.steckbrief);
+      // 3b Steckbrief: Kamerafahrt vom Logo zu den Eckdaten
+      tl.fromTo("#sb-rahmen", { scale: 1.0, y: 30 }, { scale: 1.08, y: -200, duration: SLOT.steckbrief, ease: "sine.inOut", transformOrigin: "50% 40%" }, S.steckbrief);
 
-      // 4–6 Das Akronym baut sich auf: C, CS, CSB
-      [["c", 0, "l04"], ["s", 1, "l05"], ["b", 2, "l06"]].forEach(([k, i, lid]) => {
-        tl.fromTo(`#${k}-k${i}`, { y: -460, rotation: -16, opacity: 0 }, { y: 0, rotation: 0, opacity: 1, duration: 0.55, ease: "back.out(1.8)" }, S[k] + 0.3);
-        tl.fromTo(`#${k}-wort`, { scaleX: 1.5, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.4, ease: EIN, transformOrigin: "0% 50%" }, L[lid].s);
-        woerter(`#${k}-satz`, WT[lid][1], L[lid].s + L[lid].d - WT[lid][1]);
+      // 4–6 Akronym: C, CS, CSB
+      [["c", 0, 23], ["s", 1, 31], ["b", 2, 43]].forEach(([k, i, wi]) => {
+        tl.fromTo(`#${k}-k${i}`, { y: -420, rotation: -18, opacity: 0 }, { y: 0, rotation: 0, opacity: 1, duration: 0.38, ease: "back.out(2)" }, S[k] + 0.02);
+        tl.fromTo(`#${k}-wort`, { scaleX: 1.6, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.25, ease: "power4.out", transformOrigin: "0% 50%" }, W[wi]);
+        const ende = { c: W[30] + 0.4, s: W[42] + 0.4, b: W[49] + 0.4 }[k];
+        woerter(`#${k}-satz`, W[wi + 1], ende - W[wi + 1]);
       });
 
-      // 7 Projekt
-      tl.fromTo("#pr-k", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: EIN }, S.projekt + 0.3);
-      woerter("#pr-t", WT.l07[2], L.l07.s + L.l07.d - WT.l07[2]);
-      tl.fromTo("#pr-strich", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: EIN, transformOrigin: "0% 50%" }, L.l07.s + L.l07.d - 0.3);
+      // 7 Ziel (über dem ICE)
+      knall("#pr-k", W[50], 1.4);
+      woerter("#pr-t", W[52], W[56] + 0.4 - W[52]);
+      tl.fromTo("#pr-strich", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power4.out", transformOrigin: "0% 50%" }, W[56] + 0.3);
 
-      // 8 Werte: jedes Wort knallt rein, wenn es gesprochen wird.
-      tl.fromTo("#we-k", { opacity: 0 }, { opacity: 1, duration: 0.3 }, S.werte + 0.35);
-      [4, 5, 6].forEach((wi, i) => {
-        const n = i + 1, t = WT.l08[wi];
-        tl.fromTo(`#we${n}`, { scale: 1.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: EIN, transformOrigin: "0% 50%" }, t);
-        tl.fromTo(`#we${n}b`, { scaleX: 0 }, { scaleX: 1, duration: 0.35, ease: EIN, transformOrigin: "0% 50%" }, t + 0.1);
+      // 8 Werte: jedes Wort schlägt ein, wenn es fällt
+      knall("#we-k", W[57], 1.4);
+      [59, 60, 61].forEach((wi, i) => {
+        knall(`#we${i + 1}`, W[wi] - 0.03, 1.8);
+        tl.fromTo(`#we${i + 1}b`, { scaleX: 0 }, { scaleX: 1, duration: 0.25, ease: "power4.out", transformOrigin: "0% 50%" }, W[wi] + 0.06);
       });
 
       // 9 Konkret
-      woerter("#ko-t", L.l09.s - 0.15, L.l09.d + 0.1);
+      woerter("#ko-t", W[62] - 0.05, W[64] + 0.3 - W[62]);
 
       // 10–14 Karten: Icon zeichnet sich, Thema, Forderung im Sprechtempo
-      ["f1", "f2", "f3", "f4", "f5"].forEach((k, i) => {
-        const lid = "l" + (10 + i);
-        tl.fromTo(`#${k}-icon`, { scale: 0.5, rotation: -12 }, { scale: 1, rotation: 0, duration: 0.5, ease: "back.out(2)", transformOrigin: "50% 50%" }, S[k] + 0.3);
-        zeichnen(`#${k}-icon *`, S[k] + 0.3, 0.6, 0.07);
-        tl.fromTo(`#${k}-th`, { x: -120, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: EIN }, S[k] + 0.4);
-        woerter(`#${k}-sa`, L[lid].s, L[lid].d);
+      [["f1", 65, 71], ["f2", 72, 78], ["f3", 79, 79], ["f4", 80, 85], ["f5", 86, 90]].forEach(([k, a, e]) => {
+        tl.fromTo(`#${k}-icon`, { scale: 0.4, rotation: -20 }, { scale: 1, rotation: 0, duration: 0.35, ease: "back.out(2.2)", transformOrigin: "50% 50%" }, S[k] + 0.05);
+        zeichnen(`#${k}-icon *`, S[k] + 0.05, 0.4, 0.05);
+        tl.fromTo(`#${k}-th`, { x: -120, opacity: 0 }, { x: 0, opacity: 1, duration: 0.22, ease: "power4.out" }, S[k] + 0.08);
+        woerter(`#${k}-sa`, W[a], Math.max(0.5, W[e] + 0.3 - W[a]));
       });
 
-      // 15 Europa: zwölf Sterne, Aussagen kommen mit dem gesprochenen Satz
-      tl.fromTo("#eu-t", { scale: 1.35, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: EIN, transformOrigin: "0% 50%" }, S.europa + 0.35);
+      // 15 Europa: Sterne drehen ein, Aussagen mit dem Satz
+      knall("#eu-t", W[91] - 0.03, 1.4);
       for (let i = 0; i < 12; i++) {
-        tl.fromTo(`#stern${i}`, { scale: 0, rotation: -120 }, { scale: 1, rotation: 0, duration: 0.4, ease: "back.out(2.5)" }, L.l15.s + 0.2 + i * 0.07);
+        tl.fromTo(`#stern${i}`, { scale: 0, rotation: -140 }, { scale: 1, rotation: 0, duration: 0.3, ease: "back.out(2.5)" }, W[92] + i * 0.045);
       }
-      [["#eu1", 2], ["#eu2", 7], ["#eu3", 11]].forEach(([id, wi]) => {
-        tl.fromTo(id, { x: -90, opacity: 0 }, { x: 0, opacity: 1, duration: 0.32, ease: EIN }, WT.l15[wi] - 0.05);
+      [["#eu1", 93], ["#eu2", 98], ["#eu3", 102]].forEach(([id, wi]) => {
+        tl.fromTo(id, { x: -90, opacity: 0 }, { x: 0, opacity: 1, duration: 0.22, ease: "power4.out" }, W[wi] - 0.05);
       });
 
-      // 16–19 Warum CSB? Haken zeichnen sich, Gründe im Sprechtempo
-      tl.fromTo("#wa-t", { scale: 1.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.6)", transformOrigin: "0% 50%" }, L.l16.s - 0.05);
-      [["wa1", "l17"], ["wa2", "l18"], ["wa3", "l19"]].forEach(([g, lid]) => {
-        tl.fromTo(`#${g}-h`, { scale: 0 }, { scale: 1, duration: 0.3, ease: "back.out(2)" }, L[lid].s - 0.1);
-        zeichnen(`#${g}-h path`, L[lid].s + 0.1, 0.35);
-        woerter(`#${g}`, L[lid].s + 0.1, L[lid].d - 0.1);
+      // 16–19 Warum CSB? (über der Familie)
+      knall("#wa-t", W[112] - 0.03, 1.5);
+      [["wa1", 114, 118], ["wa2", 119, 124], ["wa3", 125, 132]].forEach(([g, a, e]) => {
+        tl.fromTo(`#${g}-h`, { scale: 0, rotation: -30 }, { scale: 1, rotation: 0, duration: 0.25, ease: "back.out(2.4)" }, W[a] - 0.08);
+        zeichnen(`#${g}-h path`, W[a] + 0.05, 0.25);
+        woerter(`#${g}`, W[a], W[e] + 0.3 - W[a]);
       });
 
-      // 20 Plakat: Kamerafahrt über die Menschen, Slogan wird gesprochen
-      tl.fromTo("#pl-rahmen", { scale: 1.0 }, { scale: 1.07, duration: SLOT.plakat, ease: "sine.inOut", transformOrigin: "50% 60%" }, S.plakat);
+      // 20 Plakat: langsamer Zoom, Slogan wird gesprochen
+      tl.fromTo("#pl-rahmen", { scale: 1.0 }, { scale: 1.08, duration: SLOT.plakat, ease: "sine.inOut", transformOrigin: "50% 60%" }, S.plakat);
 
-      // 21 Endkarte: Logo, Werte, Folgen, Schwarz-Rot-Gold-Schwung
-      tl.fromTo("#logo2-r", { scale: 1.3 }, { scale: 1, duration: 0.7, ease: "power3.out" }, S.ende);
-      tl.fromTo("#glanz2", { xPercent: -150 }, { xPercent: 300, duration: 0.9, ease: "power2.inOut" }, S.ende + 0.6);
-      zeichnen(".schwung path", S.ende + 0.25, 1.0, 0.12);
-      tl.fromTo("#ende-werte", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: EIN }, S.ende + 0.45);
-      tl.fromTo("#folgen", { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2.2)" }, L.l21.s);
-      [0, 0.8].forEach((dt) => {
-        tl.to("#folgen", { scale: 1.08, duration: 0.18, ease: "power2.out" }, L.l21.s + 1.1 + dt);
-        tl.to("#folgen", { scale: 1, duration: 0.3, ease: "power2.inOut" }, L.l21.s + 1.28 + dt);
+      // 21 Endkarte
+      tl.fromTo("#logo2-r", { scale: 1.4 }, { scale: 1, duration: 0.45, ease: "power4.out" }, S.ende);
+      tl.fromTo("#glanz2", { xPercent: -150 }, { xPercent: 300, duration: 0.6, ease: "power2.inOut" }, S.ende + 0.35);
+      zeichnen(".schwung path", S.ende + 0.1, 0.7, 0.08);
+      knall("#ende-werte", S.ende + 0.3, 1.3);
+      tl.fromTo("#folgen", { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(2.4)" }, W[140] - 0.05);
+      [0, 0.6].forEach((dt) => {
+        tl.to("#folgen", { scale: 1.08, duration: 0.14, ease: "power2.out" }, W[141] + 0.4 + dt);
+        tl.to("#folgen", { scale: 1, duration: 0.22, ease: "power2.inOut" }, W[141] + 0.54 + dt);
       });
 
       window.__timelines["main"] = tl;

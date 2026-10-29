@@ -18,11 +18,13 @@ Antworte auf Deutsch.
 5. Eintrag im Video-Log in `kanal/KANAL.md` ergänzen.
 
 ## Stimme (deutsch, männlich)
-- Piper-Stimme „Thorsten“ (CC0), Skript `tools/sprecher.py` (Einrichtung steht im Kopf der Datei).
-- Modell kommt von GitHub-Releases (k2-fsa/sherpa-onnx, `vits-piper-de_DE-thorsten-high`); Hugging Face ist hier gesperrt.
-- Sprechertext in `sprechertext.json`, Abkürzungen für die Aussprache ausschreiben (`EU` → `E-U`).
-- Danach je Zeile `loudnorm=I=-14:TP=-1.5` → `assets/stimme/`, dann `python3 build.py` (Beispiel: `videos/001-csb-vorstellung`).
+- **Standard: ElevenLabs** über den ElevenLabs-Connector (`creative_generate_speech`), Stimme „Henri“ (`PgDR8pfZXGiB1HsizOuW`), Modell `eleven_v4`, der ganze Text als **ein** Take (klingt flüssiger als Einzelzeilen).
+- Audio-URL aus `creative_get_flow_run_status` mit `curl` laden (storage.googleapis.com ist erreichbar), mit `loudnorm=I=-14:TP=-1.5` nach `assets/stimme/voiceover.mp3`.
+- Wortzeiten lokal: `tools/wortzeiten.py` (Parakeet v3, Modell von GitHub-Releases) → `assets/stimme/voiceover-woerter.json`; danach `python3 build.py` (Beispiel: `videos/001-csb-vorstellung`). Szenen und Einsätze hängen an Wort-Indizes.
+- Kostenloses ElevenLabs-Konto: Bilder nur wenige pro Tag, Bilder kommen im Querformat 16:9.
+- Fallback ohne ElevenLabs: Piper „Thorsten“ über `tools/sprecher.py`.
 - Musik gibt es hier keine: in der TikTok-App einen Sound leise unterlegen.
+- Fertiges MP4 am Ende noch einmal auf −14 LUFS normalisieren (`-c:v copy`, nur Ton).
 
 ## Wichtig
 - GSAP liegt lokal in `assets/vendor/gsap.min.js` – der Render-Browser erreicht hier kein CDN. Keine CDN-Skripte verwenden.
