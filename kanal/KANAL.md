@@ -31,4 +31,4 @@
 ## Video-Log
 | Nr. | Titel | Format | Status | Datei |
 |---|---|---|---|---|
-| 001 | Wer ist die CSB? | Vorstellung, ElevenLabs-Stimme (70 s, v5) | fertig, nicht gepostet | `videos/001-csb-vorstellung` |
+| 001 | Wer ist die CSB? | Vorstellung, ElevenLabs-Stimme, Pausen gekürzt (65 s, v6) | fertig, nicht gepostet | `videos/001-csb-vorstellung` |
