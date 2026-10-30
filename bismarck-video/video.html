@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Bismarck Video</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --navy: #0a1730;
+    --navy2: #132648;
+    --gold: #c9a24a;
+    --gold2: #e6c878;
+    --beige: #e9dcc3;
+    --white: #f7f4ee;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--navy); }
+  #stage {
+    position: relative; width: 1080px; height: 1920px; overflow: hidden;
+    background: radial-gradient(ellipse 120% 80% at 50% 38%, #18305a 0%, var(--navy) 55%, #050c1b 100%);
+    font-family: 'Inter', sans-serif; color: var(--white);
+  }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .serif { font-family: 'Playfair Display', serif; }
+  .kicker {
+    position: absolute; left: 0; right: 0; text-align: center;
+    font: 600 26px 'Inter'; letter-spacing: 9px; text-transform: uppercase; color: var(--gold);
+  }
+  .rule { position: absolute; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .h1 {
+    position: absolute; left: 70px; right: 70px; text-align: center;
+    font: 700 84px/1.08 'Playfair Display'; color: var(--white);
+    text-shadow: 0 6px 30px rgba(0,0,0,.6);
+  }
+  .h2 {
+    position: absolute; left: 70px; right: 70px; text-align: center;
+    font: 700 68px/1.1 'Playfair Display'; color: var(--white);
+  }
+  #grain { position: absolute; inset: -256px; background: url(assets/grain.png); pointer-events: none; mix-blend-mode: overlay; opacity: .9; }
+  #vignette { position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 85% 70% at 50% 45%, transparent 55%, rgba(0,0,0,.55) 100%); }
+  #letterbox-top, #letterbox-bot { position: absolute; left: 0; right: 0; height: 6px; background: var(--gold); opacity: .0; }
+
+  /* Untertitel */
+  #subs {
+    position: absolute; left: 90px; right: 90px; top: 1395px; text-align: center;
+    font: 600 46px/1.32 'Inter'; color: var(--white);
+  }
+  #subs span {
+    background: rgba(5,12,27,.72); padding: 6px 18px; border-radius: 10px;
+    box-decoration-break: clone; -webkit-box-decoration-break: clone;
+    box-shadow: 0 0 0 1px rgba(201,162,74,.25);
+  }
+  #subs b { color: var(--gold2); font-weight: 600; }
+
+  /* Szene 1 */
+  #portraitWrap { position: absolute; left: 0; right: 0; top: 0; height: 1920px; overflow: hidden; }
+  #portrait { position: absolute; left: 50%; top: 50%; width: 1080px; height: 1920px; transform-origin: 50% 31%; }
+  #frameRing { position: absolute; left: 160px; top: 175px; width: 760px; height: 840px;
+    border: 3px solid var(--gold); border-radius: 50%; box-shadow: 0 0 0 14px rgba(201,162,74,.12), inset 0 0 80px rgba(0,0,0,.6); }
+  #nameplate { top: 1048px; }
+  #titleBand { position: absolute; left: 0; right: 0; top: 880px; height: 700px; background: linear-gradient(transparent, rgba(5,12,27,.85) 35%, rgba(5,12,27,.85) 75%, transparent); }
+
+  /* Timeline */
+  .tl-item { position: absolute; left: 150px; right: 90px; height: 150px; }
+  .tl-year { font: 700 64px 'Playfair Display'; color: var(--gold2); }
+  .tl-text { font: 500 36px/1.3 'Inter'; color: var(--beige); margin-top: 4px; }
+  #tlLine { position: absolute; left: 112px; width: 3px; background: linear-gradient(var(--gold), rgba(201,162,74,.2)); }
+  .tl-dot { position: absolute; left: -46px; top: 30px; width: 22px; height: 22px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 7px rgba(201,162,74,.22); }
+
+  /* Karten */
+  .kicker, .h1, .h2, .mapLabel, .rule { z-index: 2; }
+  .map { z-index: 0; position: absolute; left: 0; top: 260px; width: 1080px; height: 1100px; overflow: visible; }
+  .mapLabel { position: absolute; left: 70px; right: 70px; text-align: center; }
+
+  /* Sozialgesetze */
+  .card {
+    position: absolute; left: 90px; right: 90px; height: 190px; border-radius: 22px;
+    background: linear-gradient(135deg, rgba(233,220,195,.12), rgba(233,220,195,.04));
+    border: 1.5px solid rgba(201,162,74,.55); display: flex; align-items: center; padding: 0 40px; gap: 36px;
+  }
+  .card .ico { width: 110px; height: 110px; flex: none; }
+  .card .yr { font: 600 30px 'Inter'; letter-spacing: 5px; color: var(--gold2); }
+  .card .tt { font: 700 52px/1.1 'Playfair Display'; color: var(--white); }
+  #starkerStaat { position: absolute; left: 0; right: 0; top: 1110px; text-align: center; }
+  #starkerStaat .big { font: 900 118px 'Playfair Display'; letter-spacing: 6px; color: var(--gold2); text-shadow: 0 0 60px rgba(201,162,74,.35); }
+  #peitsche { position: absolute; left: 110px; right: 110px; top: 420px; text-align: center; }
+
+  /* Gegenwart */
+  .pillar { position: absolute; bottom: 0; width: 150px; border-radius: 8px 8px 0 0; }
+  .pillar .lbl { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%) rotate(180deg);
+     writing-mode: vertical-rl; white-space: nowrap; font: 600 38px 'Inter'; letter-spacing: 2px; }
+  .chip { display: inline-block; padding: 14px 30px; margin: 10px; border-radius: 999px; border: 1.5px solid var(--gold); font: 600 36px 'Inter'; color: var(--beige); background: rgba(10,23,48,.6); }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- ================= SZENE 1: HOOK ================= -->
+  <div class="scene" id="s1">
+    <div id="portraitWrap">
+      <div id="portrait"></div>
+    </div>
+    <div id="frameRing"></div>
+    <div id="titleBand"></div>
+    <div class="kicker" id="s1kicker" style="top:110px">Geschichte &amp; Politik</div>
+    <div id="nameplate" class="kicker" style="color:var(--beige);letter-spacing:7px;font-size:28px">Otto von Bismarck · 1815–1898</div>
+    <div class="rule" id="s1rule" style="top:1100px;left:240px;right:240px"></div>
+    <div class="h1" id="s1title" style="top:1122px;font-size:76px"></div>
+  </div>
+
+  <!-- ================= SZENE 2: EINIGUNG ================= -->
+  <div class="scene" id="s2">
+    <div class="kicker" style="top:180px">Kapitel I</div>
+    <div class="h2" style="top:240px">Der Weg zur Einheit</div>
+    <div class="rule" style="top:345px;left:300px;right:300px"></div>
+    <div id="tlLine" style="top:470px;height:0"></div>
+    <div class="tl-item" id="tl0" style="top:430px"><div class="tl-dot"></div><div class="tl-year">1862</div><div class="tl-text">Ministerpräsident Preußens</div></div>
+    <div class="tl-item" id="tl1" style="top:640px"><div class="tl-dot"></div><div class="tl-year">1864</div><div class="tl-text">Krieg gegen Dänemark</div></div>
+    <div class="tl-item" id="tl2" style="top:850px"><div class="tl-dot"></div><div class="tl-year">1866</div><div class="tl-text">Krieg gegen Österreich</div></div>
+    <div class="tl-item" id="tl3" style="top:1060px"><div class="tl-dot"></div><div class="tl-year">1870/71</div><div class="tl-text">Krieg gegen Frankreich</div></div>
+  </div>
+
+  <!-- ================= SZENE 3: KARTE ================= -->
+  <div class="scene" id="s3">
+    <div class="kicker" id="s3kicker" style="top:150px">Vor der Einigung</div>
+    <div class="h2" id="s3title" style="top:200px;font-size:60px">Ein Flickenteppich</div>
+    <svg class="map" id="map3" viewBox="0 0 1080 1100"></svg>
+    <div class="mapLabel" id="s3label" style="top:1230px">
+      <div class="serif" style="font:700 54px 'Playfair Display';color:var(--gold2)">18. Januar 1871</div>
+      <div style="font:500 32px 'Inter';color:var(--beige);margin-top:8px;letter-spacing:2px">Gründung des Deutschen Reiches</div>
+    </div>
+  </div>
+
+  <!-- ================= SZENE 4: SOZIALGESETZE ================= -->
+  <div class="scene" id="s4">
+    <div class="kicker" style="top:180px">Kapitel II</div>
+    <div class="h2" style="top:240px">Die Sozialgesetze</div>
+    <div class="rule" style="top:345px;left:300px;right:300px"></div>
+    <div class="card" id="c0" style="top:440px">
+      <svg class="ico" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#c9a24a" stroke-width="3"/><path d="M42 24h16v18h18v16H58v18H42V58H24V42h18z" fill="#e6c878"/></svg>
+      <div><div class="yr">1883</div><div class="tt">Krankenversicherung</div></div>
+    </div>
+    <div class="card" id="c1" style="top:660px">
+      <svg class="ico" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#c9a24a" stroke-width="3"/>
+        <g fill="#e6c878" transform="translate(50 50)"><circle r="15"/><g id="teeth"><rect x="-5" y="-27" width="10" height="12"/><rect x="-5" y="-27" width="10" height="12" transform="rotate(45)"/><rect x="-5" y="-27" width="10" height="12" transform="rotate(90)"/><rect x="-5" y="-27" width="10" height="12" transform="rotate(135)"/><rect x="-5" y="-27" width="10" height="12" transform="rotate(180)"/><rect x="-5" y="-27" width="10" height="12" transform="rotate(225)"/><rect x="-5" y="-27" width="10" height="12" transform="rotate(270)"/><rect x="-5" y="-27" width="10" height="12" transform="rotate(315)"/></g><circle r="6" fill="#0a1730"/></g></svg>
+      <div><div class="yr">1884</div><div class="tt">Unfallversicherung</div></div>
+    </div>
+    <div class="card" id="c2" style="top:880px">
+      <svg class="ico" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#c9a24a" stroke-width="3"/><path d="M30 22h40M30 78h40M34 22c0 18 32 18 32 28S34 60 34 78M66 22c0 18-32 18-32 28s32 10 32 28" fill="none" stroke="#e6c878" stroke-width="4" stroke-linecap="round"/><path d="M40 72h20l-10-12z" fill="#e6c878"/></svg>
+      <div><div class="yr">1889</div><div class="tt">Rentenversicherung</div></div>
+    </div>
+    <div id="starkerStaat">
+      <div class="kicker" style="position:static;color:var(--beige);font-size:24px">Das Prinzip</div>
+      <div class="big">STARKER STAAT</div>
+    </div>
+    <div id="peitsche">
+      <div class="kicker" style="position:static">Die Kehrseite</div>
+      <div class="serif" style="font:700 70px/1.15 'Playfair Display';margin-top:26px">„Zuckerbrot<br>und Peitsche“</div>
+      <div style="font:500 36px/1.4 'Inter';color:var(--beige);margin-top:34px">Sozialistengesetz 1878:<br>Verbot sozialdemokratischer Vereine &amp; Zeitungen</div>
+    </div>
+  </div>
+
+  <!-- ================= SZENE 5: GEGENWART ================= -->
+  <div class="scene" id="s5">
+    <div class="kicker" id="s5kicker" style="top:180px">Kapitel III · Heute</div>
+    <!-- 5a Bundestag -->
+    <div id="s5a" class="scene" style="opacity:0">
+      <div class="h2" style="top:240px">Der Bundestag</div>
+      <svg id="reichstag" style="position:absolute;left:90px;top:520px;width:900px;height:620px" viewBox="0 0 900 620">
+        <defs>
+          <linearGradient id="dome" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#bfe0ff" stop-opacity=".55"/><stop offset="1" stop-color="#e6c878" stop-opacity=".25"/></linearGradient>
+          <linearGradient id="stone" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e9dcc3"/><stop offset="1" stop-color="#b9a582"/></linearGradient>
+        </defs>
+        <g id="rtDome">
+          <path d="M330 250 Q330 90 450 80 Q570 90 570 250 Z" fill="url(#dome)" stroke="#e6c878" stroke-width="3"/>
+          <g stroke="#e6c878" stroke-width="1.6" opacity=".8" fill="none">
+            <path d="M360 250 Q362 120 450 82"/><path d="M400 250 Q402 105 450 81"/><path d="M450 250 V80"/><path d="M500 250 Q498 105 450 81"/><path d="M540 250 Q538 120 450 82"/>
+            <path d="M336 205 H564"/><path d="M345 160 H555"/><path d="M370 120 H530"/>
+          </g>
+        </g>
+        <g fill="url(#stone)">
+          <rect x="40" y="250" width="820" height="330"/>
+          <rect x="20" y="190" width="150" height="390"/><rect x="730" y="190" width="150" height="390"/>
+          <path d="M290 250 L450 175 L610 250 Z"/>
+        </g>
+        <g fill="#0a1730" opacity=".85">
+          <rect x="300" y="270" width="300" height="20"/>
+          <rect x="310" y="300" width="22" height="250"/><rect x="362" y="300" width="22" height="250"/><rect x="414" y="300" width="22" height="250"/><rect x="466" y="300" width="22" height="250"/><rect x="518" y="300" width="22" height="250"/><rect x="570" y="300" width="22" height="250"/>
+        </g>
+        <g fill="#0a1730" opacity=".55">
+          <rect x="45" y="230" width="100" height="40"/><rect x="755" y="230" width="100" height="40"/>
+          <rect x="60" y="330" width="30" height="70"/><rect x="110" y="330" width="30" height="70"/><rect x="60" y="440" width="30" height="70"/><rect x="110" y="440" width="30" height="70"/>
+          <rect x="760" y="330" width="30" height="70"/><rect x="810" y="330" width="30" height="70"/><rect x="760" y="440" width="30" height="70"/><rect x="810" y="440" width="30" height="70"/>
+          <rect x="200" y="330" width="30" height="70"/><rect x="245" y="330" width="30" height="70"/><rect x="200" y="440" width="30" height="70"/><rect x="245" y="440" width="30" height="70"/>
+          <rect x="625" y="330" width="30" height="70"/><rect x="670" y="330" width="30" height="70"/><rect x="625" y="440" width="30" height="70"/><rect x="670" y="440" width="30" height="70"/>
+        </g>
+        <rect x="0" y="578" width="900" height="6" fill="#c9a24a"/>
+        <text x="450" y="268" text-anchor="middle" font-family="Playfair Display" font-weight="700" font-size="17" letter-spacing="3" fill="#0a1730">DEM DEUTSCHEN VOLKE</text>
+      </svg>
+      <div class="mapLabel" style="top:1180px;font:500 34px 'Inter';color:var(--beige);letter-spacing:2px">Reichstagsgebäude · eröffnet 1894</div>
+    </div>
+    <!-- 5b Sozialstaat -->
+    <div id="s5b" class="scene" style="opacity:0">
+      <div class="h2" style="top:240px">Der Sozialstaat</div>
+      <div id="pillars" style="position:absolute;left:90px;right:90px;top:430px;height:720px">
+        <div class="pillar" style="left:0;background:linear-gradient(#e6c878,#a8843a);color:#0a1730"><div class="lbl">Kranken</div></div>
+        <div class="pillar" style="left:187px;background:linear-gradient(#e6c878,#a8843a);color:#0a1730"><div class="lbl">Unfall</div></div>
+        <div class="pillar" style="left:375px;background:linear-gradient(#e6c878,#a8843a);color:#0a1730"><div class="lbl">Rente</div></div>
+        <div class="pillar" style="left:562px;background:linear-gradient(#3a5585,#203a66);color:var(--white)"><div class="lbl">Arbeitslosen</div></div>
+        <div class="pillar" style="left:750px;background:linear-gradient(#3a5585,#203a66);color:var(--white)"><div class="lbl">Pflege</div></div>
+      </div>
+      <div class="rule" style="top:1150px;left:60px;right:60px;height:4px"></div>
+      <div id="pillarLegend" class="mapLabel" style="top:1190px;font:500 30px 'Inter';color:var(--beige)">
+        <span style="color:var(--gold2)">■</span> seit Bismarck &nbsp;&nbsp; <span style="color:#5d7bb0">■</span> 1927 / 1995
+      </div>
+    </div>
+    <!-- 5c Föderalismus -->
+    <div id="s5c" class="scene" style="opacity:0">
+      <div class="h2" style="top:240px">Föderalismus</div>
+      <svg class="map" id="map5" viewBox="0 0 1080 1100"></svg>
+      <div class="mapLabel" style="top:1210px">
+        <span class="chip">16 Länder</span><span class="chip">Bundesrat</span>
+      </div>
+    </div>
+    <!-- 5d Außenpolitik -->
+    <div id="s5d" class="scene" style="opacity:0">
+      <div class="h2" style="top:240px">Außenpolitik</div>
+      <svg class="map" id="map6" viewBox="0 0 1080 1100"></svg>
+      <div class="mapLabel" id="aussenChips" style="top:1190px">
+        <span class="chip">Mittellage</span><span class="chip">Bündnisse</span><span class="chip">Diplomatie</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SZENE 6: OUTRO ================= -->
+  <div class="scene" id="s6">
+    <div class="kicker" style="top:330px">Bismarcks Erbe</div>
+    <div class="rule" style="top:395px;left:300px;right:300px"></div>
+    <div class="h1" id="o1" style="top:470px;font-size:92px">Einiger.</div>
+    <div class="h1" id="o2" style="top:600px;font-size:92px">Machtpolitiker.</div>
+    <div class="h1" id="o3" style="top:730px;font-size:92px;color:var(--gold2)">Sozialreformer.</div>
+    <div id="o4" class="mapLabel" style="top:950px;font:500 40px/1.4 'Inter';color:var(--beige)">Umstritten – und bis heute wirksam.</div>
+    <div id="o5" class="kicker" style="top:1160px;font-size:24px;color:var(--beige)">Folge für mehr Geschichte &amp; Politik</div>
+  </div>
+
+  <div id="subs"></div>
+  <div id="vignette"></div>
+  <div id="grain"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const clamp = (x, a=0, b=1) => Math.max(a, Math.min(b, x));
+const ease = x => { x = clamp(x); return x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3) / 2; };
+const eOut = x => 1 - Math.pow(1 - clamp(x), 3);
+// Sichtbarkeit eines Abschnitts mit weichen Blenden
+const win = (t, a, b, f=0.6) => clamp((t - a) / f) * clamp((b - t) / f);
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+
+/* ---------- Porträt: echtes Bild, falls vorhanden, sonst stilisierte Silhouette ---------- */
+const PORTRAIT_SVG = `
+<svg viewBox="0 0 1080 1920" width="1080" height="1920" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <radialGradient id="pg" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#f1e3c4"/><stop offset=".55" stop-color="#c9a24a"/><stop offset="1" stop-color="#5a4518"/></radialGradient>
+  <linearGradient id="uni" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#22355c"/><stop offset="1" stop-color="#0b162c"/></linearGradient>
+  <radialGradient id="halo" cx="50%" cy="40%" r="50%"><stop offset="0" stop-color="#2b4a80" stop-opacity=".9"/><stop offset="1" stop-color="#0a1730" stop-opacity="0"/></radialGradient>
+  <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="7" height="7" fill="none"/><line x1="0" y1="0" x2="0" y2="7" stroke="#3b2c0c" stroke-width="1.6" opacity=".35"/></pattern>
+ </defs>
+ <ellipse cx="540" cy="680" rx="520" ry="620" fill="url(#halo)"/>
+ <!-- Schultern / Uniform -->
+ <path d="M90 1520 C140 1230 300 1120 430 1090 L700 1090 C820 1120 960 1230 1000 1520 Z" fill="url(#uni)" stroke="#c9a24a" stroke-width="3"/>
+ <path d="M175 1210 C230 1170 300 1150 360 1145 L350 1200 C290 1205 230 1225 175 1245Z" fill="#c9a24a" opacity=".9"/>
+ <path d="M905 1210 C850 1170 780 1150 720 1145 L730 1200 C790 1205 850 1225 905 1245Z" fill="#c9a24a" opacity=".9"/>
+ <!-- Kragen -->
+ <path d="M430 1000 L700 1000 L725 1110 L405 1110 Z" fill="#14244a" stroke="#e6c878" stroke-width="5"/>
+ <!-- Eisernes Kreuz -->
+ <g transform="translate(565 1170)"><path d="M-30 -34 L30 -34 L12 -10 L34 -30 L34 30 L12 10 L30 34 L-30 34 L-12 10 L-34 30 L-34 -30 L-12 -10 Z" fill="#0a1730" stroke="#e6c878" stroke-width="4"/></g>
+ <!-- Hals -->
+ <path d="M470 900 L660 900 L680 1010 L450 1010 Z" fill="url(#pg)"/>
+ <!-- Kopf im Profil (Blick nach rechts) -->
+ <path d="M395 640 C380 560 420 470 520 450 C610 435 690 470 712 540
+          L716 585 C722 600 738 612 746 640 C756 672 770 700 784 728 C792 742 782 752 766 756
+          C772 770 772 780 762 790 C786 800 812 820 818 842 C822 860 800 870 772 866
+          C768 900 752 932 724 952 C690 975 640 985 590 975 C540 965 500 935 478 900
+          C440 860 410 760 395 640 Z" fill="url(#pg)"/>
+ <path d="M395 640 C380 560 420 470 520 450 C610 435 690 470 712 540 L716 585 C722 600 738 612 746 640 C756 672 770 700 784 728 C792 742 782 752 766 756 C772 770 772 780 762 790 C786 800 812 820 818 842 C822 860 800 870 772 866 C768 900 752 932 724 952 C690 975 640 985 590 975 C540 965 500 935 478 900 C440 860 410 760 395 640 Z" fill="url(#hatch)" opacity=".7"/>
+ <!-- Ohr -->
+ <path d="M520 700 C495 690 480 720 488 760 C495 800 520 815 540 805 C548 770 545 720 520 700Z" fill="#a8843a" opacity=".8"/>
+ <!-- Augenbraue & Auge -->
+ <path d="M640 640 C665 628 695 630 715 645" stroke="#f7f4ee" stroke-width="16" stroke-linecap="round" fill="none"/>
+ <path d="M672 672 C685 666 700 668 708 676" stroke="#2a1f08" stroke-width="7" stroke-linecap="round" fill="none"/>
+ <!-- Schnurrbart -->
+ <path d="M700 800 C735 790 790 800 830 838 C845 855 838 878 812 880 C790 882 770 868 752 860 C730 880 700 885 676 872 C690 850 690 820 700 800Z" fill="#f7f4ee"/>
+ <path d="M700 805 C735 800 785 815 820 845" stroke="#bdb6a6" stroke-width="3" fill="none"/>
+ <!-- Pickelhaube -->
+ <path d="M380 610 C370 470 450 370 560 365 C670 362 740 440 735 560 L735 585 C680 575 600 575 540 585 C470 598 420 610 380 640 Z" fill="#0d1a33" stroke="#c9a24a" stroke-width="4"/>
+ <path d="M700 572 C760 575 800 590 815 610 C780 612 740 606 705 600 Z" fill="#0d1a33" stroke="#c9a24a" stroke-width="4"/>
+ <path d="M380 630 C360 650 350 680 352 700 C372 690 395 670 410 650 Z" fill="#0d1a33" stroke="#c9a24a" stroke-width="4"/>
+ <path d="M520 470 C540 430 580 430 600 470 C590 500 530 500 520 470Z" fill="#c9a24a"/>
+ <path d="M545 440 L560 250 L575 440 Z" fill="#e6c878" stroke="#a8843a" stroke-width="3"/>
+ <circle cx="560" cy="245" r="12" fill="#e6c878"/>
+ <path d="M590 480 C620 470 660 490 670 520 C640 530 600 520 590 480Z" fill="#c9a24a" opacity=".85"/>
+ <path d="M380 560 C450 548 600 540 735 560" stroke="#e6c878" stroke-width="5" fill="none" opacity=".8"/>
+</svg>`;
+
+function setupPortrait() {
+  const img = new Image();
+  img.onload = () => {
+    $('portrait').innerHTML = '';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;filter:contrast(1.04)';
+    $('portrait').appendChild(img);
+    window.__portrait = 'photo';
+  };
+  img.onerror = () => { $('portrait').innerHTML = PORTRAIT_SVG; window.__portrait = 'svg'; };
+  img.src = 'assets/portrait.jpg';
+}
+
+/* ---------- Karten ---------- */
+const PALETTE = ['#c9a24a','#e6c878','#b98f3a','#d9c08a','#a8843a','#e9dcc3','#8f7a4f','#cdb27a','#f0dca8','#b3995e'];
+function buildMaps(M) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const mk = (tag, attrs) => { const e = document.createElementNS(ns, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  // Szene 3: Flickenteppich -> Reich
+  const m3 = $('map3');
+  const gZoom = mk('g', {id:'m3zoom'}); m3.appendChild(gZoom);
+  const gNb = mk('g', {}); gZoom.appendChild(gNb);
+  M['1880'].filter(f => !f.de).forEach(f => gNb.appendChild(mk('path', {d:f.d, fill:'#16294d', stroke:'#2c4473', 'stroke-width':1.2})));
+  const gOld = mk('g', {id:'m3old'}); gZoom.appendChild(gOld);
+  M['1815'].filter(f => f.de).forEach((f, i) => {
+    const p = mk('path', {d:f.d, fill:PALETTE[(i*7) % PALETTE.length], stroke:'#0a1730', 'stroke-width':2.2, 'fill-opacity':.92});
+    p.dataset.i = i; gOld.appendChild(p);
+  });
+  const gNew = mk('g', {id:'m3new', opacity:0}); gZoom.appendChild(gNew);
+  M['1880'].filter(f => f.de).forEach(f => gNew.appendChild(mk('path', {d:f.d, fill:'#c9a24a', stroke:'#f7f4ee', 'stroke-width':3})));
+  const berlin = proj(13.4, 52.52);
+  gNew.appendChild(mk('circle', {cx:berlin[0], cy:berlin[1], r:9, fill:'#0a1730', stroke:'#f7f4ee', 'stroke-width':3}));
+  const tb = mk('text', {x:berlin[0]+18, y:berlin[1]-14, fill:'#0a1730', 'font-family':'Inter', 'font-weight':600, 'font-size':30}); tb.textContent='Berlin'; gNew.appendChild(tb);
+
+  // Szene 5c: Deutschland heute
+  const m5 = $('map5');
+  const g5 = mk('g', {id:'m5zoom'}); m5.appendChild(g5);
+  M['2000'].filter(f => !f.de).forEach(f => g5.appendChild(mk('path', {d:f.d, fill:'#16294d', stroke:'#2c4473', 'stroke-width':1.2})));
+  M['2000'].filter(f => f.de).forEach(f => g5.appendChild(mk('path', {d:f.d, id:'de2000', fill:'#c9a24a', 'fill-opacity':.55, stroke:'#f7f4ee', 'stroke-width':4})));
+  // Hauptstädte der 16 Länder als Punkte
+  const caps = [[9.99,53.55],[8.80,53.08],[10.14,54.32],[11.41,53.63],[13.06,52.40],[13.40,52.52],[9.73,52.37],[11.63,52.13],[13.74,51.05],[11.03,50.98],[8.24,50.08],[8.68,50.11+0.0],[6.78,51.23],[7.0,49.23],[9.18,48.78],[11.58,48.14]];
+  caps[11] = [8.24-0.0, 49.99]; // Mainz
+  caps[10] = [8.24, 50.08];     // Wiesbaden
+  const gC = mk('g', {id:'caps'}); g5.appendChild(gC);
+  caps.forEach(c => { const p = proj(c[0], c[1]); gC.appendChild(mk('circle', {cx:p[0], cy:p[1], r:9, fill:'#f7f4ee', stroke:'#0a1730', 'stroke-width':3, opacity:0})); });
+
+  // Szene 5d: Europa mit Verbindungen
+  const m6 = $('map6');
+  const g6 = mk('g', {id:'m6zoom'}); m6.appendChild(g6);
+  M['2000'].filter(f => !f.de).forEach(f => g6.appendChild(mk('path', {d:f.d, fill:'#1b315a', stroke:'#3a5585', 'stroke-width':1.2})));
+  M['2000'].filter(f => f.de).forEach(f => g6.appendChild(mk('path', {d:f.d, fill:'#c9a24a', stroke:'#f7f4ee', 'stroke-width':3})));
+  const targets = [[2.35,48.86],[4.35,50.85],[21.01,52.23],[14.42,50.08],[16.37,48.21],[12.57,55.68],[4.9,52.37],[6.13,49.61],[7.45,46.95]];
+  const gL = mk('g', {id:'links'}); g6.appendChild(gL);
+  targets.forEach(c => {
+    const a = berlin, b = proj(c[0], c[1]);
+    const mx = (a[0]+b[0])/2, my = (a[1]+b[1])/2 - 70;
+    const path = mk('path', {d:`M${a[0]},${a[1]} Q${mx},${my} ${b[0]},${b[1]}`, fill:'none', stroke:'#f7f4ee', 'stroke-width':3.5, 'stroke-linecap':'round'});
+    gL.appendChild(path);
+    gL.appendChild(mk('circle', {cx:b[0], cy:b[1], r:8, fill:'#e6c878'}));
+  });
+  g6.appendChild(mk('circle', {cx:berlin[0], cy:berlin[1], r:12, fill:'#0a1730', stroke:'#f7f4ee', 'stroke-width':4}));
+}
+function proj(lon, lat) {
+  const W = 1080, H = 1100, LON0 = 10.4, LAT0 = 51.2, K = 72, c = Math.cos(LAT0 * Math.PI / 180);
+  return [W/2 + (lon - LON0) * c * K, H/2 - (lat - LAT0) * K];
+}
+
+/* ---------- Untertitel ---------- */
+const SUBS = [
+  [0.4, 3.9, 'Dieser Mann beeinflusste Deutschland vor über <b>130 Jahren</b> –'],
+  [3.9, 7.0, 'und seine Politik wirkt <b>bis heute</b> nach.'],
+  [7.4, 11.0, '1862 wird Bismarck <b>preußischer Ministerpräsident</b>.'],
+  [11.0, 15.0, 'Mit Diplomatie – und <b>drei Kriegen</b> – treibt er die Einigung voran.'],
+  [15.4, 20.0, 'Vorher: ein Flickenteppich aus Königreichen, Herzogtümern und freien Städten.'],
+  [20.0, 25.0, '1871 entsteht das <b>Deutsche Reich</b> – ein Bundesstaat unter preußischer Führung.'],
+  [25.4, 29.0, 'Dann etwas Neues: Der Staat sichert Arbeiter gegen <b>Krankheit, Unfall und Alter</b> ab.'],
+  [29.0, 32.6, 'Eines der <b>ersten Sozialversicherungssysteme</b> der Welt.'],
+  [32.6, 36.8, 'Doch es war auch Machtpolitik: Die <b>Arbeiterbewegung</b> sollte geschwächt werden.'],
+  [37.2, 41.0, 'Der Bundestag tagt heute im <b>Reichstagsgebäude</b> – erbaut in Bismarcks Kaiserreich.'],
+  [41.0, 45.0, 'Kranken-, Unfall- und Rentenversicherung sind bis heute <b>Säulen des Sozialstaats</b>.'],
+  [45.0, 49.0, 'Der <b>Bundesrat</b> und das Zusammenspiel der Länder haben Wurzeln im Reich von 1871.'],
+  [49.0, 53.0, 'Und die <b>Mittellage</b> in Europa prägt die Außenpolitik – heute eingebunden in EU und NATO.'],
+  [53.4, 58.6, 'Bismarck: ein <b>umstrittenes Erbe</b>, das bis heute nachwirkt.'],
+];
+let lastSub = null;
+function renderSubs(t) {
+  const s = SUBS.find(s => t >= s[0] && t < s[1]);
+  const html = s ? `<span>${s[2]}</span>` : '';
+  if (html !== lastSub) { $('subs').innerHTML = html; lastSub = html; }
+  if (s) {
+    const a = clamp((t - s[0]) / .25) * clamp((s[1] - t) / .25);
+    $('subs').style.opacity = a;
+    $('subs').style.transform = `translateY(${(1 - eOut((t - s[0]) / .35)) * 18}px)`;
+  }
+}
+
+/* ---------- Titel-Typo (Wort für Wort) ---------- */
+const TITLE = 'Wie Bismarck Deutschland bis heute geprägt hat';
+function setupTitle() {
+  $('s1title').innerHTML = TITLE.split(' ').map(w => `<span style="display:inline-block;opacity:0;margin:0 10px">${w === 'Bismarck' ? '<span style=color:var(--gold2)>Bismarck</span>' : w}</span>`).join('');
+}
+
+/* ---------- Haupt-Render ---------- */
+window.render = function (t) {
+  // Grain bewegt sich jedes Frame
+  const fr = Math.floor(t * 30);
+  $('grain').style.transform = `translate(${(fr * 137) % 256}px, ${(fr * 71) % 256}px)`;
+
+  // Szene 1: Hook (0 – 7.4)
+  const s1 = clamp(t / .8) * clamp((7.6 - t) / .7);
+  $('s1').style.opacity = s1;
+  if (s1 > 0) {
+    const z = 1.0 + 0.10 * ease(t / 7.5);
+    $('portrait').style.transform = `translate(-50%,-50%) scale(${z})`;
+    $('frameRing').style.transform = `scale(${z})`;
+    $('frameRing').style.opacity = eOut((t - .3) / 1.2);
+    $('s1kicker').style.opacity = eOut((t - .4) / .8);
+    $('nameplate').style.opacity = eOut((t - 2.6) / .8);
+    $('nameplate').style.transform = `translateY(${(1 - eOut((t - 2.6) / .8)) * 20}px)`;
+    $('s1rule').style.transform = `scaleX(${ease((t - 1.0) / 1.4)})`;
+    // Titel: Wort für Wort, dann nach oben
+    const words = $('s1title').children;
+    for (let i = 0; i < words.length; i++) {
+      const p = eOut((t - 1.0 - i * .16) / .7);
+      words[i].style.opacity = p;
+      words[i].style.transform = `translateY(${(1 - p) * 30}px)`;
+      words[i].style.filter = `blur(${(1 - p) * 8}px)`;
+    }
+  }
+
+  // Szene 2: Einigung (7.0 – 15.2)
+  const s2 = win(t, 7.0, 15.4, .7);
+  $('s2').style.opacity = s2;
+  if (s2 > 0) {
+    $('tlLine').style.height = (ease(prog(t, 7.6, 13.6)) * 680) + 'px';
+    const starts = [7.8, 11.2, 12.1, 13.0];
+    starts.forEach((st, i) => {
+      const p = eOut((t - st) / .8);
+      const el = $('tl' + i);
+      el.style.opacity = p; el.style.transform = `translateX(${(1 - p) * 60}px)`;
+    });
+    $('s2').style.transform = `scale(${1 + .03 * prog(t, 7, 15.4)})`;
+  }
+
+  // Szene 3: Karte (15.0 – 25.2)
+  const s3 = win(t, 15.0, 25.4, .7);
+  $('s3').style.opacity = s3;
+  if (s3 > 0) {
+    const z = 1.18 + .12 * ease(prog(t, 15, 25.4));
+    $('m3zoom').setAttribute('transform', `translate(540 550) scale(${z}) translate(-540 -550)`);
+    // Staaten erscheinen gestaffelt
+    const olds = $('m3old').children;
+    for (let i = 0; i < olds.length; i++) {
+      const p = eOut((t - 15.4 - (i % 12) * .12 - Math.floor(i / 12) * .25) / .6);
+      olds[i].style.opacity = p * (1 - ease(prog(t, 19.8, 21.4)));
+    }
+    const pn = ease(prog(t, 19.9, 21.6));
+    $('m3new').setAttribute('opacity', pn);
+    $('s3label').style.opacity = eOut((t - 21.2) / .8);
+    $('s3label').style.transform = `translateY(${(1 - eOut((t - 21.2) / .8)) * 24}px)`;
+    // Überschrift wechselt
+    const sw = prog(t, 19.8, 20.4);
+    if (t < 20.1) { $('s3kicker').textContent = 'Vor der Einigung'; $('s3title').textContent = 'Ein Flickenteppich'; }
+    else { $('s3kicker').textContent = 'Nach 1871'; $('s3title').textContent = 'Ein Reich'; }
+    const ho = Math.abs(sw - .5) * 2;
+    $('s3kicker').style.opacity = eOut((t - 15.2) / .7) * ho;
+    $('s3title').style.opacity = eOut((t - 15.4) / .7) * ho;
+  }
+
+  // Szene 4: Sozialgesetze (25.0 – 37.0)
+  const s4 = win(t, 25.0, 37.2, .7);
+  $('s4').style.opacity = s4;
+  if (s4 > 0) {
+    const cardsOut = 1 - ease(prog(t, 32.4, 33.0));
+    [25.8, 26.9, 28.0].forEach((st, i) => {
+      const p = eOut((t - st) / .8);
+      $('c' + i).style.opacity = p * cardsOut;
+      $('c' + i).style.transform = `translateY(${(1 - p) * 50}px) scale(${.96 + .04 * p})`;
+    });
+    $('teeth').setAttribute('transform', `rotate(${t * 20})`);
+    const ss = eOut((t - 29.4) / 1.0) * (1 - ease(prog(t, 32.4, 33.0)));
+    $('starkerStaat').style.opacity = ss;
+    $('starkerStaat').style.transform = `scale(${.9 + .1 * eOut((t - 29.4) / 1.4)})`;
+    $('starkerStaat').style.letterSpacing = `${(1 - eOut((t - 29.4) / 2)) * 20}px`;
+    const pp = eOut((t - 33.0) / .9);
+    $('peitsche').style.opacity = pp;
+    $('peitsche').style.transform = `translateY(${(1 - pp) * 30}px)`;
+  }
+
+  // Szene 5: Gegenwart (37.0 – 53.2)
+  const s5 = win(t, 37.0, 53.4, .7);
+  $('s5').style.opacity = s5;
+  if (s5 > 0) {
+    $('s5a').style.opacity = win(t, 37.0, 41.2, .6);
+    $('s5b').style.opacity = win(t, 40.8, 45.2, .6);
+    $('s5c').style.opacity = win(t, 44.8, 49.2, .6);
+    $('s5d').style.opacity = win(t, 48.8, 53.6, .6);
+    // Bundestag: langsamer Zoom, Kuppel schwebt ein
+    const pa = prog(t, 37, 41.2);
+    $('reichstag').style.transform = `scale(${1 + .08 * ease(pa)}) translateY(${(1 - eOut(pa * 3)) * 40}px)`;
+    $('rtDome').setAttribute('opacity', eOut((t - 37.6) / 1.2));
+    $('rtDome').setAttribute('transform', `translate(0 ${(1 - eOut((t - 37.6) / 1.2)) * -40})`);
+    // Säulen wachsen
+    const heights = [620, 620, 620, 620, 620];
+    const pil = $('pillars').children;
+    for (let i = 0; i < pil.length; i++) {
+      const p = ease(prog(t, 41.2 + i * .35, 42.2 + i * .35));
+      pil[i].style.height = (heights[i] * p) + 'px';
+      pil[i].firstChild.style.opacity = p;
+    }
+    $('pillarLegend').style.opacity = eOut((t - 43.0) / .6);
+    // Föderalismus
+    const pc = prog(t, 45, 49.2);
+    $('m5zoom').setAttribute('transform', `translate(540 550) scale(${1.15 + .1 * ease(pc)}) translate(-540 -550)`);
+    const caps = $('caps').children;
+    for (let i = 0; i < caps.length; i++) caps[i].setAttribute('opacity', eOut((t - 45.6 - i * .1) / .4));
+    // Außenpolitik
+    const pd = prog(t, 49, 53.4);
+    $('m6zoom').setAttribute('transform', `translate(540 550) scale(${.92 + .06 * ease(pd)}) translate(-540 -550)`);
+    const links = $('links').children;
+    for (let i = 0; i < links.length; i += 2) {
+      const p = ease((t - 49.5 - i * .12) / .9);
+      const L = links[i].getTotalLength();
+      links[i].style.strokeDasharray = L; links[i].style.strokeDashoffset = L * (1 - p);
+      links[i + 1].setAttribute('opacity', p);
+    }
+    $('aussenChips').style.opacity = eOut((t - 50.6) / .7);
+  }
+
+  // Szene 6: Outro (53.0 – 59)
+  const s6 = clamp((t - 53.0) / .7) * clamp((59.0 - t) / .6);
+  $('s6').style.opacity = s6;
+  if (s6 > 0) {
+    ['o1', 'o2', 'o3'].forEach((id, i) => {
+      const p = eOut((t - 53.5 - i * .7) / .8);
+      $(id).style.opacity = p; $(id).style.transform = `translateY(${(1 - p) * 30}px)`;
+      $(id).style.filter = `blur(${(1 - p) * 6}px)`;
+    });
+    $('o4').style.opacity = eOut((t - 55.6) / .8);
+    $('o5').style.opacity = eOut((t - 56.4) / .8);
+  }
+
+  renderSubs(t);
+};
+
+window.ready = (async () => {
+  setupTitle();
+  setupPortrait();
+  const M = await (await fetch('maps.json')).json();
+  buildMaps(M);
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 300));
+  window.render(0);
+  return true;
+})();
+</script>
+</body>
+</html>
