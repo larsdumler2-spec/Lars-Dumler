@@ -77,7 +77,7 @@ def timp(st, vel=.5):
     nz=lp(rng.normal(0,1,n),400)*np.exp(-tt*8)*0.6
     v=(v+nz)*vel*np.minimum(1,tt/0.004)
     out[i0:i0+n]+=v[:,None]*0.5
-for s in (0.2,6.2,13.5,16.0,18.6,26.2,39.8): timp(s, .55 if s in (0.2,16.0,39.8) else .35)
+for s in (0.05,1.85,2.85,8.55,15.45,17.95,19.9,27.45,39.75): timp(s, .55 if s in (0.05,2.85,17.95,39.75) else .35)
 # Hall: exponentiell abklingendes Rauschen
 irn=int(2.8*SR); ti=np.arange(irn)/SR
 ir=np.stack([rng.normal(0,1,irn),rng.normal(0,1,irn)],1)*np.exp(-ti*2.3)[:,None]
