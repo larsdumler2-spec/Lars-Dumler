@@ -372,20 +372,19 @@ function proj(lon, lat) {
 
 /* ---------- Untertitel ---------- */
 const SUBS = [
-  [0.4, 3.9, 'Dieser Mann beeinflusste Deutschland vor über <b>130 Jahren</b> –'],
-  [3.9, 7.0, 'und seine Politik wirkt <b>bis heute</b> nach.'],
-  [7.4, 11.0, '1862 wird Bismarck <b>preußischer Ministerpräsident</b>.'],
-  [11.0, 15.0, 'Mit Diplomatie – und <b>drei Kriegen</b> – treibt er die Einigung voran.'],
-  [15.4, 20.0, 'Vorher: ein Flickenteppich aus Königreichen, Herzogtümern und freien Städten.'],
-  [20.0, 25.0, '1871 entsteht das <b>Deutsche Reich</b> – ein Bundesstaat unter preußischer Führung.'],
-  [25.4, 29.0, 'Dann etwas Neues: Der Staat sichert Arbeiter gegen <b>Krankheit, Unfall und Alter</b> ab.'],
-  [29.0, 32.6, 'Eines der <b>ersten Sozialversicherungssysteme</b> der Welt.'],
-  [32.6, 36.8, 'Doch es war auch Machtpolitik: Die <b>Arbeiterbewegung</b> sollte geschwächt werden.'],
-  [37.2, 41.0, 'Der Bundestag tagt heute im <b>Reichstagsgebäude</b> – erbaut in Bismarcks Kaiserreich.'],
-  [41.0, 45.0, 'Kranken-, Unfall- und Rentenversicherung sind bis heute <b>Säulen des Sozialstaats</b>.'],
-  [45.0, 49.0, 'Der <b>Bundesrat</b> und das Zusammenspiel der Länder haben Wurzeln im Reich von 1871.'],
-  [49.0, 53.0, 'Und die <b>Mittellage</b> in Europa prägt die Außenpolitik – heute eingebunden in EU und NATO.'],
-  [53.4, 58.6, 'Bismarck: ein <b>umstrittenes Erbe</b>, das bis heute nachwirkt.'],
+  [0.35, 3.98, 'Dieser Mann beeinflusste Deutschland vor über <b>130 Jahren</b> –'],
+  [4.08, 6.3, 'und seine Politik wirkt <b>bis heute</b> nach.'],
+  [6.44, 9.72, '1862 wird er <b>preußischer Ministerpräsident</b>.'],
+  [9.78, 13.55, 'Mit Diplomatie – und <b>drei Kriegen</b> – treibt er die Einigung voran.'],
+  [13.7, 18.65, 'Aus einem Flickenteppich von Einzelstaaten entsteht 1871 das <b>Deutsche Reich</b>.'],
+  [18.77, 20.98, '<b>Kranken-, Unfall- und Rentenversicherung</b>.'],
+  [21.04, 23.72, 'Eines der <b>ersten Sozialversicherungssysteme</b> der Welt –'],
+  [23.77, 26.25, 'aber auch ein Mittel gegen die <b>Arbeiterbewegung</b>.'],
+  [26.36, 29.37, 'Und heute? Der <b>Bundestag</b> tagt im Reichstagsgebäude.'],
+  [29.42, 32.3, 'Bismarcks Versicherungen tragen bis heute den <b>Sozialstaat</b>.'],
+  [32.36, 35.78, 'Der <b>Bundesrat</b> hat Wurzeln im Reich von 1871.'],
+  [35.83, 39.85, 'Und Deutschlands Lage in der <b>Mitte Europas</b> prägt die Außenpolitik bis heute.'],
+  [39.96, 44.5, 'Bismarck – ein <b>umstrittenes Erbe</b>, das bis heute nachwirkt.'],
 ];
 let lastSub = null;
 function renderSubs(t) {
@@ -411,138 +410,128 @@ window.render = function (t) {
   const fr = Math.floor(t * 30);
   $('grain').style.transform = `translate(${(fr * 137) % 256}px, ${(fr * 71) % 256}px)`;
 
-  // Szene 1: Hook (0 – 7.4)
-  const s1 = clamp(t / .8) * clamp((7.6 - t) / .7);
+  // Szene 1: Hook (0 – 6.5)
+  const s1 = clamp(t / .6) * clamp((6.6 - t) / .5);
   $('s1').style.opacity = s1;
   if (s1 > 0) {
-    const z = 1.0 + 0.10 * ease(t / 7.5);
+    const z = 1.0 + 0.10 * ease(t / 6.6);
     $('portrait').style.transform = `translate(-50%,-50%) scale(${z})`;
     $('frameRing').style.transform = `scale(${z})`;
-    $('frameRing').style.opacity = eOut((t - .3) / 1.2);
-    $('s1kicker').style.opacity = eOut((t - .4) / .8);
-    $('nameplate').style.opacity = eOut((t - 2.6) / .8);
-    $('nameplate').style.transform = `translateY(${(1 - eOut((t - 2.6) / .8)) * 20}px)`;
-    $('s1rule').style.transform = `scaleX(${ease((t - 1.0) / 1.4)})`;
-    // Titel: Wort für Wort, dann nach oben
+    $('frameRing').style.opacity = eOut((t - .2) / 1.0);
+    $('s1kicker').style.opacity = eOut((t - .3) / .7);
+    $('nameplate').style.opacity = eOut((t - 2.2) / .7);
+    $('nameplate').style.transform = `translateY(${(1 - eOut((t - 2.2) / .7)) * 20}px)`;
+    $('s1rule').style.transform = `scaleX(${ease((t - .8) / 1.2)})`;
     const words = $('s1title').children;
     for (let i = 0; i < words.length; i++) {
-      const p = eOut((t - 1.0 - i * .16) / .7);
+      const p = eOut((t - .7 - i * .14) / .6);
       words[i].style.opacity = p;
       words[i].style.transform = `translateY(${(1 - p) * 30}px)`;
       words[i].style.filter = `blur(${(1 - p) * 8}px)`;
     }
   }
 
-  // Szene 2: Einigung (7.0 – 15.2)
-  const s2 = win(t, 7.0, 15.4, .7);
+  // Szene 2: Einigung (6.2 – 13.7)
+  const s2 = win(t, 6.2, 13.75, .5);
   $('s2').style.opacity = s2;
   if (s2 > 0) {
-    $('tlLine').style.height = (ease(prog(t, 7.6, 13.6)) * 680) + 'px';
-    const starts = [7.8, 11.2, 12.1, 13.0];
-    starts.forEach((st, i) => {
-      const p = eOut((t - st) / .8);
+    $('tlLine').style.height = (ease(prog(t, 6.5, 12.4)) * 680) + 'px';
+    [6.5, 10.85, 11.35, 11.85].forEach((st, i) => {
+      const p = eOut((t - st) / .6);
       const el = $('tl' + i);
       el.style.opacity = p; el.style.transform = `translateX(${(1 - p) * 60}px)`;
     });
-    $('s2').style.transform = `scale(${1 + .03 * prog(t, 7, 15.4)})`;
+    $('s2').style.transform = `scale(${1 + .03 * prog(t, 6.2, 13.75)})`;
   }
 
-  // Szene 3: Karte (15.0 – 25.2)
-  const s3 = win(t, 15.0, 25.4, .7);
+  // Szene 3: Karte (13.5 – 18.9)
+  const s3 = win(t, 13.5, 18.95, .5);
   $('s3').style.opacity = s3;
   if (s3 > 0) {
-    const z = 1.18 + .12 * ease(prog(t, 15, 25.4));
+    const z = 1.18 + .12 * ease(prog(t, 13.5, 18.95));
     $('m3zoom').setAttribute('transform', `translate(540 550) scale(${z}) translate(-540 -550)`);
-    // Staaten erscheinen gestaffelt
     const olds = $('m3old').children;
     for (let i = 0; i < olds.length; i++) {
-      const p = eOut((t - 15.4 - (i % 12) * .12 - Math.floor(i / 12) * .25) / .6);
-      olds[i].style.opacity = p * (1 - ease(prog(t, 19.8, 21.4)));
+      const p = eOut((t - 13.7 - (i % 12) * .08 - Math.floor(i / 12) * .18) / .5);
+      olds[i].style.opacity = p * (1 - ease(prog(t, 15.9, 16.9)));
     }
-    const pn = ease(prog(t, 19.9, 21.6));
-    $('m3new').setAttribute('opacity', pn);
-    $('s3label').style.opacity = eOut((t - 21.2) / .8);
-    $('s3label').style.transform = `translateY(${(1 - eOut((t - 21.2) / .8)) * 24}px)`;
-    // Überschrift wechselt
-    const sw = prog(t, 19.8, 20.4);
-    if (t < 20.1) { $('s3kicker').textContent = 'Vor der Einigung'; $('s3title').textContent = 'Ein Flickenteppich'; }
+    $('m3new').setAttribute('opacity', ease(prog(t, 16.0, 17.1)));
+    $('s3label').style.opacity = eOut((t - 16.9) / .6);
+    $('s3label').style.transform = `translateY(${(1 - eOut((t - 16.9) / .6)) * 24}px)`;
+    const sw = prog(t, 15.9, 16.4);
+    if (t < 16.15) { $('s3kicker').textContent = 'Vor der Einigung'; $('s3title').textContent = 'Ein Flickenteppich'; }
     else { $('s3kicker').textContent = 'Nach 1871'; $('s3title').textContent = 'Ein Reich'; }
     const ho = Math.abs(sw - .5) * 2;
-    $('s3kicker').style.opacity = eOut((t - 15.2) / .7) * ho;
-    $('s3title').style.opacity = eOut((t - 15.4) / .7) * ho;
+    $('s3kicker').style.opacity = eOut((t - 13.6) / .5) * ho;
+    $('s3title').style.opacity = eOut((t - 13.7) / .5) * ho;
   }
 
-  // Szene 4: Sozialgesetze (25.0 – 37.0)
-  const s4 = win(t, 25.0, 37.2, .7);
+  // Szene 4: Sozialgesetze (18.6 – 26.3)
+  const s4 = win(t, 18.6, 26.35, .5);
   $('s4').style.opacity = s4;
   if (s4 > 0) {
-    const cardsOut = 1 - ease(prog(t, 32.4, 33.0));
-    [25.8, 26.9, 28.0].forEach((st, i) => {
-      const p = eOut((t - st) / .8);
+    const cardsOut = 1 - ease(prog(t, 23.5, 23.95));
+    [18.8, 19.45, 20.1].forEach((st, i) => {
+      const p = eOut((t - st) / .6);
       $('c' + i).style.opacity = p * cardsOut;
       $('c' + i).style.transform = `translateY(${(1 - p) * 50}px) scale(${.96 + .04 * p})`;
     });
     $('teeth').setAttribute('transform', `rotate(${t * 20})`);
-    const ss = eOut((t - 29.4) / 1.0) * (1 - ease(prog(t, 32.4, 33.0)));
+    const ss = eOut((t - 21.1) / .8) * cardsOut;
     $('starkerStaat').style.opacity = ss;
-    $('starkerStaat').style.transform = `scale(${.9 + .1 * eOut((t - 29.4) / 1.4)})`;
-    $('starkerStaat').style.letterSpacing = `${(1 - eOut((t - 29.4) / 2)) * 20}px`;
-    const pp = eOut((t - 33.0) / .9);
+    $('starkerStaat').style.transform = `scale(${.9 + .1 * eOut((t - 21.1) / 1.2)})`;
+    $('starkerStaat').style.letterSpacing = `${(1 - eOut((t - 21.1) / 1.6)) * 20}px`;
+    const pp = eOut((t - 23.85) / .7);
     $('peitsche').style.opacity = pp;
     $('peitsche').style.transform = `translateY(${(1 - pp) * 30}px)`;
   }
 
-  // Szene 5: Gegenwart (37.0 – 53.2)
-  const s5 = win(t, 37.0, 53.4, .7);
+  // Szene 5: Gegenwart (26.2 – 40.0)
+  const s5 = win(t, 26.2, 40.05, .5);
   $('s5').style.opacity = s5;
   if (s5 > 0) {
-    $('s5a').style.opacity = win(t, 37.0, 41.2, .6);
-    $('s5b').style.opacity = win(t, 40.8, 45.2, .6);
-    $('s5c').style.opacity = win(t, 44.8, 49.2, .6);
-    $('s5d').style.opacity = win(t, 48.8, 53.6, .6);
-    // Bundestag: langsamer Zoom, Kuppel schwebt ein
-    const pa = prog(t, 37, 41.2);
+    $('s5a').style.opacity = win(t, 26.2, 29.55, .45);
+    $('s5b').style.opacity = win(t, 29.2, 32.55, .45);
+    $('s5c').style.opacity = win(t, 32.2, 36.0, .45);
+    $('s5d').style.opacity = win(t, 35.65, 40.3, .45);
+    const pa = prog(t, 26.2, 29.55);
     $('reichstag').style.transform = `scale(${1 + .08 * ease(pa)}) translateY(${(1 - eOut(pa * 3)) * 40}px)`;
-    $('rtDome').setAttribute('opacity', eOut((t - 37.6) / 1.2));
-    $('rtDome').setAttribute('transform', `translate(0 ${(1 - eOut((t - 37.6) / 1.2)) * -40})`);
-    // Säulen wachsen
-    const heights = [620, 620, 620, 620, 620];
+    $('rtDome').setAttribute('opacity', eOut((t - 26.8) / 1.0));
+    $('rtDome').setAttribute('transform', `translate(0 ${(1 - eOut((t - 26.8) / 1.0)) * -40})`);
     const pil = $('pillars').children;
     for (let i = 0; i < pil.length; i++) {
-      const p = ease(prog(t, 41.2 + i * .35, 42.2 + i * .35));
-      pil[i].style.height = (heights[i] * p) + 'px';
+      const p = ease(prog(t, 29.5 + i * .25, 30.3 + i * .25));
+      pil[i].style.height = (620 * p) + 'px';
       pil[i].firstChild.style.opacity = p;
     }
-    $('pillarLegend').style.opacity = eOut((t - 43.0) / .6);
-    // Föderalismus
-    const pc = prog(t, 45, 49.2);
+    $('pillarLegend').style.opacity = eOut((t - 30.9) / .5);
+    const pc = prog(t, 32.2, 36.0);
     $('m5zoom').setAttribute('transform', `translate(540 550) scale(${1.15 + .1 * ease(pc)}) translate(-540 -550)`);
     const caps = $('caps').children;
-    for (let i = 0; i < caps.length; i++) caps[i].setAttribute('opacity', eOut((t - 45.6 - i * .1) / .4));
-    // Außenpolitik
-    const pd = prog(t, 49, 53.4);
+    for (let i = 0; i < caps.length; i++) caps[i].setAttribute('opacity', eOut((t - 32.7 - i * .08) / .35));
+    const pd = prog(t, 35.65, 40.3);
     $('m6zoom').setAttribute('transform', `translate(540 550) scale(${.92 + .06 * ease(pd)}) translate(-540 -550)`);
     const links = $('links').children;
     for (let i = 0; i < links.length; i += 2) {
-      const p = ease((t - 49.5 - i * .12) / .9);
+      const p = ease((t - 36.1 - i * .1) / .8);
       const L = links[i].getTotalLength();
       links[i].style.strokeDasharray = L; links[i].style.strokeDashoffset = L * (1 - p);
       links[i + 1].setAttribute('opacity', p);
     }
-    $('aussenChips').style.opacity = eOut((t - 50.6) / .7);
+    $('aussenChips').style.opacity = eOut((t - 37.0) / .6);
   }
 
-  // Szene 6: Outro (53.0 – 59)
-  const s6 = clamp((t - 53.0) / .7) * clamp((59.0 - t) / .6);
+  // Szene 6: Outro (39.8 – 45)
+  const s6 = clamp((t - 39.8) / .5) * clamp((45.0 - t) / .5);
   $('s6').style.opacity = s6;
   if (s6 > 0) {
     ['o1', 'o2', 'o3'].forEach((id, i) => {
-      const p = eOut((t - 53.5 - i * .7) / .8);
+      const p = eOut((t - 40.0 - i * .55) / .7);
       $(id).style.opacity = p; $(id).style.transform = `translateY(${(1 - p) * 30}px)`;
       $(id).style.filter = `blur(${(1 - p) * 6}px)`;
     });
-    $('o4').style.opacity = eOut((t - 55.6) / .8);
-    $('o5').style.opacity = eOut((t - 56.4) / .8);
+    $('o4').style.opacity = eOut((t - 41.9) / .7);
+    $('o5').style.opacity = eOut((t - 42.8) / .7);
   }
 
   renderSubs(t);

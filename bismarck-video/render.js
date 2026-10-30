@@ -19,7 +19,7 @@ const server = http.createServer((req, res) => {
     const ts = (process.argv[3] || '2,5.5,12,14.5,18,23,27,31,35,39,43,47,51,57').split(',').map(Number);
     for (const t of ts) { await page.evaluate(t => window.render(t), t); await page.screenshot({ path: `preview/t${t}.jpg`, quality: 80, type: 'jpeg' }); }
   } else {
-    const fps = 30, dur = 59.0; fs.mkdirSync('frames', { recursive: true });
+    const fps = 30, dur = 45.0; fs.mkdirSync('frames', { recursive: true });
     const n = Math.round(fps * dur);
     for (let i = 0; i < n; i++) {
       await page.evaluate(t => window.render(t), i / fps);
