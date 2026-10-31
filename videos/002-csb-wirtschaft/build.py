@@ -12,19 +12,21 @@ from pathlib import Path
 
 HIER = Path(__file__).parent
 WOERTER = json.loads((HIER / "assets/stimme/voiceover-woerter.json").read_text())
-W = [w["start"] for w in WOERTER]
-ENDE = round(WOERTER[-1]["end"] + 2.2, 2)
+# W[i] = neue Startzeit des Originalworts i (None, wenn der Satz herausgeschnitten wurde)
+W = [None] * (max(w["i"] for w in WOERTER) + 1)
+for w in WOERTER:
+    W[w["i"]] = w["start"]
+ENDE = round(WOERTER[-1]["end"] + 1.3, 2)
 DE = json.loads((HIER / "assets/karten/deutschland.json").read_text())
 EU = json.loads((HIER / "assets/karten/europa.json").read_text())
 VORLAUF, UEBERLAPP = 0.1, 0.35
 
 # (id, erstes Wort, Farbwelt, Übergang hinein)
 SZENEN = [
-    ("hook", 0, "blau", None), ("dmark", 20, "blau", "zoom"), ("erhard", 27, "weiss", "push"),
-    ("fenster", 35, "nacht", "hoch"), ("idee", 42, "blau", "wisch"), ("heute", 53, "nacht", "wisch"),
+    ("hook", 0, "blau", None), ("idee", 42, "blau", "wisch"), ("heute", 53, "nacht", "wisch"),
     ("drei", 71, "gold", "zoom"), ("markt", 77, "blau", "push"), ("sozial", 87, "gold", "push"),
     ("bremse", 103, "blau", "push"), ("widerspruch", 123, "nacht", "zoom"), ("antwort", 134, "blau", "wisch"),
-    ("steuern", 155, "gold", "push"), ("frage", 159, "blau", "zoom"),
+    ("frage", 159, "blau", "zoom"),
 ]
 START = {s: 0 if i == 0 else round(W[wi] - VORLAUF, 3) for i, (s, wi, *_) in enumerate(SZENEN)}
 SLOT = {}
@@ -36,7 +38,7 @@ def w(text):
     out = []
     for wort in text.split(" "):
         gold = bool(re.match(r"^\*.*\*[.,:?!]*$", wort))
-        out.append(f'<span class="m"><span class="w{" g" if gold else ""}">{wort.replace("*", "")}</span></span>')
+        out.append(f'<span class="m" data-layout-allow-occlusion><span class="w{" g" if gold else ""}">{wort.replace("*", "")}</span></span>')
     return " ".join(out)
 
 
@@ -47,10 +49,12 @@ OHNE_BAND = {"hook", "fenster", "heute", "markt", "frage", "sozial", "antwort"}
 
 
 def szene(sid, inhalt, z):
+    if sid not in START:          # Szene gehört nicht zur 50-s-Fassung
+        return ""
     welt = next(s for s in SZENEN if s[0] == sid)[2]
     band = "" if sid in OHNE_BAND else BAND_SVG.format(sid=sid)
     return (f'<div id="s-{sid}" class="szene clip" data-start="{START[sid]}" data-duration="{SLOT[sid]}" data-track-index="0" style="z-index:{z}">\n'
-            f'  <div id="b-{sid}" class="buehne {welt}"><div class="hg"><div id="hg-{sid}-licht" class="hg-licht"></div><div class="hg-raster"></div>{band}</div>\n{inhalt}\n  </div>\n</div>')
+            f'  <div id="b-{sid}" class="buehne {welt}"><div class="hg" data-layout-allow-occlusion><div id="hg-{sid}-licht" class="hg-licht"></div><div class="hg-raster"></div>{band}</div>\n{inhalt}\n  </div>\n</div>')
 
 
 z = iter(range(1, 100))
@@ -197,13 +201,8 @@ T.append(szene("sozial", f"""
         <div class="bal"><div id="so-b1" class="bal-saeule blau-bg"></div><div class="bal-l">Mit Arbeit</div></div>
         <div class="bal"><div id="so-b2" class="bal-saeule weiss-bg"></div><div class="bal-l">Ohne Arbeit</div></div>
       </div>
-      <p id="so-satz" class="d fs64">{w("Aber keiner fällt *durchs* Netz.")}</p>
-    </div>
-    <svg class="netz" viewBox="0 0 1080 420">
-      <path id="so-netz" d="M40 120 Q 540 380 1040 120" fill="none" stroke="#062a75" stroke-width="10" pathLength="1"/>
-      <path id="so-netz2" d="M40 120 L 300 290 L 540 330 L 780 290 L 1040 120 M180 200 L 300 290 M420 300 L 540 330 L 660 300 M780 290 L 900 200" fill="none" stroke="#062a75" stroke-width="6" pathLength="1"/>
-      <g id="so-figur"><circle cx="540" cy="150" r="30" fill="#dd0a1a"/><rect x="515" y="185" width="50" height="80" rx="20" fill="#dd0a1a"/></g>
-    </svg>""", next(z)))
+      <p id="so-satz" class="d fs64">{w("Wer arbeitet, hat *mehr.*")}</p>
+    </div>""", next(z)))
 
 # 10 Schuldenbremse – Grundgesetz und 0,35 %
 T.append(szene("bremse", """
@@ -241,7 +240,7 @@ T.append(szene("antwort", f"""
       <g id="an-l1"><circle cx="640" cy="420" r="16" fill="#fff"/><text x="610" y="400" text-anchor="end" class="kurve-t">Wirtschaft ▲</text></g>
       <g id="an-l2"><circle cx="1000" cy="80" r="16" fill="#fff"/><text x="970" y="150" text-anchor="end" class="kurve-t">Einnahmen ▲</text></g>
     </svg>
-    <div id="an-satz" class="unten-satz s fs56">{w("Ohne neue Steuern auf *Arbeit.*")}</div>""", next(z)))
+    <div id="an-satz" class="unten-satz s fs56" data-layout-allow-occlusion>{w("Ohne neue Steuern auf *Arbeit.*")}</div>""", next(z)))
 
 # 13 Steuern: ja / nein
 T.append(szene("steuern", """
@@ -273,10 +272,6 @@ sfx("impact-bass-2", W[4], 0.45)                                # Trümmern
 sfx("riser", W[5], 0.22, ' data-duration="2.9" data-fade-out="0.4"')
 sfx("impact-bass-1", W[15], 0.5)                                # Wirtschaftswunder
 sfx("impact-bass-2", W[16], 0.4)                                # Wie?
-sfx("impact-bass-1", W[26], 0.35)                               # D-Mark
-sfx("impact-bass-2", W[30] + 0.3, 0.4)                          # gestrichen
-for i in range(9):
-    sfx("pop", W[38] + i * 0.17, 0.22)                          # Waren
 sfx("impact-bass-2", W[59], 0.4)                                # Staatsschulden
 for i in range(10):
     sfx("click-soft", W[62] + i * 0.12, 0.2)                    # Münzen
@@ -285,7 +280,6 @@ for i in (74, 77, 87, 103):
 sfx("impact-bass-2", W[118], 0.4)                               # 0,35 %
 sfx("impact-bass-2", W[126], 0.45)                              # Widerspruch
 sfx("impact-bass-1", W[138], 0.45)                              # Wachstum
-sfx("pop", W[155], 0.35); sfx("pop", W[157], 0.35)
 sfx("impact-bass-1", W[172], 0.35)
 audio = ['<audio id="vo" src="assets/stimme/voiceover.mp3" data-start="0" data-volume="1"></audio>'] + fx
 
@@ -296,3 +290,4 @@ html = ((HIER / "vorlage.html.tpl").read_text()
         .replace("%%IDS%%", json.dumps([s[0] for s in SZENEN])))
 (HIER / "index.html").write_text(html)
 print(f"index.html: {ENDE} s, {len(SZENEN)} Szenen")
+assert all(W[i] is not None for _, i, *_ in SZENEN)

@@ -47,7 +47,7 @@
       .fs44 { font-size: 44px; } .fs48 { font-size: 48px; } .fs52 { font-size: 52px; } .fs56 { font-size: 56px; } .fs60 { font-size: 60px; }
       .fs64 { font-size: 64px; } .fs72 { font-size: 72px; } .fs80 { font-size: 80px; } .fs96 { font-size: 96px; } .fs104 { font-size: 104px; }
       .fs110 { font-size: 110px; } .fs120 { font-size: 120px; } .fs150 { font-size: 150px; }
-      .goldtext { color: var(--gold); } .blau-t { color: var(--blau-tief); } .rot-t { color: #ff4b55; } .cyan-t { color: #19d3ff; }
+      .goldtext { color: var(--gold); } .blau-t { color: var(--blau-tief); } .rot-t { color: #ff6b73; } .cyan-t { color: #19d3ff; }
       .blk { display: block; }
       .kicker.blau-t { color: var(--blau-tief); }
       .kasten { background: var(--blau-tief); padding: 0 0.14em; box-decoration-break: clone; -webkit-box-decoration-break: clone; line-height: 1.12; }
@@ -152,8 +152,9 @@
 
       /* 12 Antwort */
       .kurve { position: absolute; left: 0; top: 880px; width: 1080px; height: 760px; }
+      #an-li { stroke-dasharray: 1; }
       .kurve-t { font-family: var(--body); font-weight: 900; font-size: 46px; fill: #ffffff; }
-      .unten-satz { position: absolute; left: 80px; right: 160px; top: 720px; }
+      .unten-satz { position: absolute; left: 80px; right: 160px; top: 720px; z-index: 3; }
 
       /* 13 Steuern */
       .steuer { display: flex; align-items: center; gap: 34px; margin: 30px 0; }
@@ -275,27 +276,6 @@
       tl.to("#s-hook .band", { opacity: 0.2, duration: 0.2 }, W[16] - 0.05);
       knall("#h-wie", W[16] - 0.05, 2.4, "50% 50%");
 
-      // 2 D-Mark: Kalenderblatt klappt auf, der Schein fliegt herein
-      tl.fromTo("#dm-kal", { rotationX: -90, transformPerspective: 900, transformOrigin: "50% 0%" }, { rotationX: 0, duration: 0.45, ease: "back.out(1.6)" }, S.dmark + 0.05);
-      knall("#dm-titel", W[24] - 0.05, 1.5);
-      tl.fromTo("#dm-schein", { x: 900, rotation: 18 }, { x: 0, rotation: -4, duration: 0.5, ease: "power4.out" }, W[25]);
-      tl.to("#dm-schein", { rotation: 0, scale: 1.04, duration: 0.25, ease: "power2.out" }, W[26]);
-
-      // 3 Erhard streicht Preisvorschriften
-      knall("#er-name", S.erhard + 0.05, 1.4);
-      rein("#er-rolle", S.erhard + 0.2);
-      tl.fromTo("#er-dok", { y: 120, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "power4.out" }, S.erhard + 0.3);
-      tl.fromTo("#er-strich", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power3.inOut", transformOrigin: "0% 50%" }, W[30]);
-      tl.fromTo("#er-stempel", { scale: 2.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.18, ease: "power4.in" }, W[30] + 0.3);
-      wackeln("#er-dok", W[30] + 0.48, 10);
-
-      // 4 Über Nacht: Mond geht, Sonne kommt, Regale füllen sich
-      tl.to("#sf-mond", { y: 300, opacity: 0, duration: 0.6, ease: "power2.in" }, W[36]);
-      tl.to("#sf-tag", { opacity: 1, duration: 0.7, ease: "power1.inOut" }, W[36]);
-      tl.fromTo("#sf-sonne", { y: 260, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, W[37]);
-      knall("#sf-titel", S.fenster + 0.05, 1.3);
-      qa(".ware").forEach((el, i) => tl.fromTo(el, { scale: 0, rotation: -25 }, { scale: 1, rotation: 0, duration: 0.3, ease: "back.out(2.4)" }, W[38] + i * 0.17));
-
       // 5 Die Idee: Waage kippt zum Markt und findet die Balance
       knall("#id-k", W[42], 1.3);
       knall("#id-t1", W[45] - 0.03, 1.7); knall("#id-t2", W[46] - 0.03, 1.7);
@@ -327,22 +307,20 @@
       // 8 Freier Markt: Europa, Handelslinien ab Frankfurt
       knall("#mk-k", W[77] - 0.05, 1.4);
       tl.fromTo("#mk-de", { opacity: 0.3 }, { opacity: 1, duration: 0.3 }, W[78]);
-      rein("#mk-c1", W[80] - 0.05); rein("#mk-c2", W[82] - 0.05); rein("#mk-c3", W[84] - 0.05);
-      zeichnen(".handel", W[82], 0.45, 0.07);
-      qa(".stadt-p").forEach((p, i) => tl.fromTo(p, { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.2, ease: "back.out(3)" }, W[82] + 0.35 + i * 0.07));
+      rein("#mk-c1", W[78] + 0.25); rein("#mk-c2", W[78] + 0.5); rein("#mk-c3", W[78] + 0.75);
+      zeichnen(".handel", W[78] + 0.3, 0.45, 0.06);
+      qa(".stadt-p").forEach((p, i) => tl.fromTo(p, { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.2, ease: "back.out(3)" }, W[78] + 0.6 + i * 0.06));
 
       // 9 Soziale Sicherheit: Balken wachsen, Figur fällt ins Netz
       knall("#so-k", W[87] - 0.05, 1.3);
-      tl.fromTo("#so-b2", { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: "power4.out", transformOrigin: "50% 100%" }, W[90]);
-      tl.fromTo("#so-b1", { scaleY: 0 }, { scaleY: 1, duration: 0.5, ease: "back.out(1.6)", transformOrigin: "50% 100%" }, W[93]);
-      zeichnen("#so-netz", W[99], 0.4); zeichnen("#so-netz2", W[99] + 0.1, 0.4);
-      tl.fromTo("#so-figur", { y: -900 }, { y: 120, duration: 0.7, ease: "bounce.out" }, W[100]);
-      woerter("#so-satz", W[99], W[102] + 0.3 - W[99]);
+      tl.fromTo("#so-b2", { scaleY: 0 }, { scaleY: 1, duration: 0.35, ease: "power4.out", transformOrigin: "50% 100%" }, W[88]);
+      tl.fromTo("#so-b1", { scaleY: 0 }, { scaleY: 1, duration: 0.45, ease: "back.out(1.6)", transformOrigin: "50% 100%" }, W[88] + 0.25);
+      woerter("#so-satz", W[89], 0.6);
 
       // 10 Schuldenbremse: Grundgesetz, 2009, 0,35 %
       knall("#br-k", W[103] - 0.05, 1.3);
-      tl.fromTo("#br-buch", { y: -500, rotation: -20 }, { y: 0, rotation: 0, duration: 0.45, ease: "bounce.out" }, W[106] - 0.2);
-      knall("#br-seit", W[108] - 0.05, 1.6);
+      tl.fromTo("#br-buch", { y: -500, rotation: -20 }, { y: 0, rotation: 0, duration: 0.45, ease: "bounce.out" }, W[105] - 0.1);
+      knall("#br-seit", W[105] + 0.35, 1.6);
       rein("#br-bar", W[112] - 0.05, -120);
       tl.fromTo("#br-sliver", { scaleY: 0 }, { scaleY: 1, duration: 0.25, ease: "back.out(3)", transformOrigin: "50% 100%" }, W[117]);
       knall("#br-zahl", W[118] - 0.05, 2.0);
@@ -363,10 +341,6 @@
       tl.fromTo("#an-fl", { opacity: 0 }, { opacity: 0.18, duration: 1.2 }, W[141]);
       knall("#an-l1", W[143] - 0.1, 1.4, "50% 50%"); knall("#an-l2", W[147] - 0.1, 1.4, "50% 50%");
       woerter("#an-satz", W[150], W[154] + 0.3 - W[150]);
-
-      // 13 Steuern
-      knall("#st-1", W[155] - 0.05, 1.5); knall("#st-2", W[157] - 0.05, 1.5);
-      wackeln("#st-2", W[158], 12);
 
       // 14 Frage: Bild teilt sich in zwei Antworten
       knall("#fr-jetzt", W[159] - 0.05, 1.5);
