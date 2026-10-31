@@ -32,3 +32,4 @@
 | Nr. | Titel | Format | Status | Datei |
 |---|---|---|---|---|
 | 001 | Wer ist die CSB? | Vorstellung, ElevenLabs-Stimme, ohne Hinweis im Bild (65 s, v7) | fertig, nicht gepostet | `videos/001-csb-vorstellung` |
+| 002 | Die Wirtschaftspolitik der CSB | Erklärvideo (77 s) | fertig, nicht gepostet | `videos/002-csb-wirtschaft` |

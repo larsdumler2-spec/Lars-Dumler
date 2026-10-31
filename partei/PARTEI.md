@@ -26,6 +26,7 @@
 - **Migration:** bessere Integration, Abschiebung harter Straftäter, klare Anpassung an die deutsche Kultur.
 - **Energie:** klar für erneuerbare Energien – ohne dass die Bürger darunter leiden.
 - **Steuern:** für Erbschaftsteuer, gegen Vermögensteuer.
+- **Schuldenbremse:** dafür. Finanzierung über Wachstum statt Kredit („Wachstum statt Kredit“), keine neuen Steuern auf Arbeit.
 - **Familie & Rente:** mehr Unterstützung für Familien, mehr Geld für Alleinerziehende, Schulen und Kitas; mehr Geld für Rentner.
 - **Bildung:** stabile Bildung, Schulen modernisieren, Grundschule ohne Technik, Lehrkräfte sollen Schülerinteressen verstehen; kostenlos Bahnfahren und kostenloses Mittagessen für alle Schüler; mehr Sport und Ausflüge.
 - **Infrastruktur:** Modernisierung, pünktliche Züge, besserer Verkehr.

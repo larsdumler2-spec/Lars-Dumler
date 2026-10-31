@@ -1,0 +1,882 @@
+[
+ {
+  "text": "1948.",
+  "start": 0.0,
+  "end": 2.0
+ },
+ {
+  "text": "Deutschland",
+  "start": 2.0,
+  "end": 2.56
+ },
+ {
+  "text": "liegt",
+  "start": 2.56,
+  "end": 2.8
+ },
+ {
+  "text": "in",
+  "start": 2.8,
+  "end": 2.96
+ },
+ {
+  "text": "Trümmern.",
+  "start": 2.96,
+  "end": 3.84
+ },
+ {
+  "text": "Zehn",
+  "start": 3.84,
+  "end": 4.16
+ },
+ {
+  "text": "Jahre",
+  "start": 4.16,
+  "end": 4.4
+ },
+ {
+  "text": "später",
+  "start": 4.4,
+  "end": 4.8
+ },
+ {
+  "text": "staunt",
+  "start": 4.8,
+  "end": 5.28
+ },
+ {
+  "text": "die",
+  "start": 5.28,
+  "end": 5.44
+ },
+ {
+  "text": "ganze",
+  "start": 5.44,
+  "end": 5.76
+ },
+ {
+  "text": "Welt",
+  "start": 5.76,
+  "end": 6.0
+ },
+ {
+  "text": "über",
+  "start": 6.0,
+  "end": 6.24
+ },
+ {
+  "text": "das",
+  "start": 6.24,
+  "end": 6.4
+ },
+ {
+  "text": "deutsche",
+  "start": 6.4,
+  "end": 6.72
+ },
+ {
+  "text": "Wirtschaftswunder.",
+  "start": 6.72,
+  "end": 7.92
+ },
+ {
+  "text": "Wie",
+  "start": 7.92,
+  "end": 8.16
+ },
+ {
+  "text": "war",
+  "start": 8.16,
+  "end": 8.4
+ },
+ {
+  "text": "das",
+  "start": 8.4,
+  "end": 8.64
+ },
+ {
+  "text": "möglich?",
+  "start": 8.64,
+  "end": 9.44
+ },
+ {
+  "text": "Am",
+  "start": 9.44,
+  "end": 9.68
+ },
+ {
+  "text": "20.",
+  "start": 9.68,
+  "end": 10.32
+ },
+ {
+  "text": "Juni",
+  "start": 10.32,
+  "end": 10.72
+ },
+ {
+  "text": "1948",
+  "start": 10.72,
+  "end": 11.92
+ },
+ {
+  "text": "kommt",
+  "start": 11.92,
+  "end": 12.24
+ },
+ {
+  "text": "die",
+  "start": 12.24,
+  "end": 12.4
+ },
+ {
+  "text": "D-Mark.",
+  "start": 12.4,
+  "end": 13.28
+ },
+ {
+  "text": "Wenige",
+  "start": 13.28,
+  "end": 13.68
+ },
+ {
+  "text": "Tage",
+  "start": 13.68,
+  "end": 13.92
+ },
+ {
+  "text": "später",
+  "start": 13.92,
+  "end": 14.24
+ },
+ {
+  "text": "streicht",
+  "start": 14.24,
+  "end": 14.72
+ },
+ {
+  "text": "Ludwig",
+  "start": 14.72,
+  "end": 15.2
+ },
+ {
+  "text": "Erhard",
+  "start": 15.2,
+  "end": 15.68
+ },
+ {
+  "text": "viele",
+  "start": 15.68,
+  "end": 15.92
+ },
+ {
+  "text": "Preisvorschriften",
+  "start": 15.92,
+  "end": 17.04
+ },
+ {
+  "text": "und",
+  "start": 17.04,
+  "end": 17.28
+ },
+ {
+  "text": "über",
+  "start": 17.28,
+  "end": 17.52
+ },
+ {
+  "text": "Nacht",
+  "start": 17.52,
+  "end": 17.84
+ },
+ {
+  "text": "sind",
+  "start": 17.84,
+  "end": 18.08
+ },
+ {
+  "text": "die",
+  "start": 18.08,
+  "end": 18.16
+ },
+ {
+  "text": "Schaufenster",
+  "start": 18.16,
+  "end": 19.04
+ },
+ {
+  "text": "voll.",
+  "start": 19.04,
+  "end": 19.52
+ },
+ {
+  "text": "Die",
+  "start": 19.52,
+  "end": 19.68
+ },
+ {
+  "text": "Idee",
+  "start": 19.68,
+  "end": 20.08
+ },
+ {
+  "text": "dahinter?",
+  "start": 20.08,
+  "end": 20.88
+ },
+ {
+  "text": "Soziale",
+  "start": 20.88,
+  "end": 21.44
+ },
+ {
+  "text": "Marktwirtschaft.",
+  "start": 21.44,
+  "end": 22.403
+ },
+ {
+  "text": "Freier",
+  "start": 22.403,
+  "end": 22.963
+ },
+ {
+  "text": "Markt,",
+  "start": 22.963,
+  "end": 23.443
+ },
+ {
+  "text": "aber",
+  "start": 23.443,
+  "end": 23.683
+ },
+ {
+  "text": "niemand",
+  "start": 23.683,
+  "end": 24.083
+ },
+ {
+  "text": "wird",
+  "start": 24.083,
+  "end": 24.323
+ },
+ {
+  "text": "zurückgelassen.",
+  "start": 24.323,
+  "end": 25.283
+ },
+ {
+  "text": "Und",
+  "start": 25.283,
+  "end": 25.523
+ },
+ {
+  "text": "heute?",
+  "start": 25.523,
+  "end": 26.163
+ },
+ {
+  "text": "Über",
+  "start": 26.163,
+  "end": 26.563
+ },
+ {
+  "text": "2inhalb",
+  "start": 26.563,
+  "end": 27.443
+ },
+ {
+  "text": "Billionen",
+  "start": 27.443,
+  "end": 28.083
+ },
+ {
+  "text": "Euro",
+  "start": 28.083,
+  "end": 28.483
+ },
+ {
+  "text": "Staatsschulden.",
+  "start": 28.483,
+  "end": 29.363
+ },
+ {
+  "text": "Allein",
+  "start": 29.363,
+  "end": 29.683
+ },
+ {
+  "text": "der",
+  "start": 29.683,
+  "end": 29.843
+ },
+ {
+  "text": "Bund",
+  "start": 29.843,
+  "end": 30.163
+ },
+ {
+  "text": "zahlt",
+  "start": 30.163,
+  "end": 30.563
+ },
+ {
+  "text": "rund",
+  "start": 30.563,
+  "end": 30.803
+ },
+ {
+  "text": "30",
+  "start": 30.803,
+  "end": 31.203
+ },
+ {
+  "text": "Milliarden",
+  "start": 31.203,
+  "end": 31.683
+ },
+ {
+  "text": "Euro",
+  "start": 31.683,
+  "end": 32.003
+ },
+ {
+  "text": "Zinsen.",
+  "start": 32.003,
+  "end": 32.643
+ },
+ {
+  "text": "Jedes",
+  "start": 32.643,
+  "end": 33.043
+ },
+ {
+  "text": "Jahr.",
+  "start": 33.043,
+  "end": 33.683
+ },
+ {
+  "text": "Die",
+  "start": 33.683,
+  "end": 33.843
+ },
+ {
+  "text": "CSB",
+  "start": 33.843,
+  "end": 34.563
+ },
+ {
+  "text": "will",
+  "start": 34.563,
+  "end": 34.883
+ },
+ {
+  "text": "drei",
+  "start": 34.883,
+  "end": 35.123
+ },
+ {
+  "text": "Dinge",
+  "start": 35.123,
+  "end": 35.443
+ },
+ {
+  "text": "gleichzeitig.",
+  "start": 35.443,
+  "end": 36.403
+ },
+ {
+  "text": "Erstens,",
+  "start": 36.403,
+  "end": 37.123
+ },
+ {
+  "text": "freier",
+  "start": 37.123,
+  "end": 37.603
+ },
+ {
+  "text": "Markt.",
+  "start": 37.603,
+  "end": 38.083
+ },
+ {
+  "text": "Weniger",
+  "start": 38.083,
+  "end": 38.483
+ },
+ {
+  "text": "Bürokratie,",
+  "start": 38.483,
+  "end": 39.363
+ },
+ {
+  "text": "freier",
+  "start": 39.363,
+  "end": 39.763
+ },
+ {
+  "text": "Handel,",
+  "start": 39.763,
+  "end": 40.243
+ },
+ {
+  "text": "starke",
+  "start": 40.243,
+  "end": 40.723
+ },
+ {
+  "text": "private",
+  "start": 40.723,
+  "end": 41.203
+ },
+ {
+  "text": "Unternehmen.",
+  "start": 41.203,
+  "end": 42.003
+ },
+ {
+  "text": "Zweitens,",
+  "start": 42.003,
+  "end": 42.723
+ },
+ {
+  "text": "soziale",
+  "start": 42.723,
+  "end": 43.283
+ },
+ {
+  "text": "Sicherheit.",
+  "start": 43.283,
+  "end": 44.003
+ },
+ {
+  "text": "Wer",
+  "start": 44.003,
+  "end": 44.323
+ },
+ {
+  "text": "arbeitet,",
+  "start": 44.323,
+  "end": 44.803
+ },
+ {
+  "text": "hat",
+  "start": 44.803,
+  "end": 45.043
+ },
+ {
+  "text": "spürbar",
+  "start": 45.043,
+  "end": 45.603
+ },
+ {
+  "text": "mehr,",
+  "start": 45.603,
+  "end": 45.843
+ },
+ {
+  "text": "als",
+  "start": 45.843,
+  "end": 46.083
+ },
+ {
+  "text": "wer",
+  "start": 46.083,
+  "end": 46.323
+ },
+ {
+  "text": "nicht",
+  "start": 46.323,
+  "end": 46.563
+ },
+ {
+  "text": "arbeitet.",
+  "start": 46.563,
+  "end": 47.134
+ },
+ {
+  "text": "Aber",
+  "start": 47.134,
+  "end": 47.374
+ },
+ {
+  "text": "keiner",
+  "start": 47.374,
+  "end": 47.694
+ },
+ {
+  "text": "fäls",
+  "start": 47.694,
+  "end": 48.334
+ },
+ {
+  "text": "Netz.",
+  "start": 48.334,
+  "end": 48.814
+ },
+ {
+  "text": "Drittens",
+  "start": 48.814,
+  "end": 49.454
+ },
+ {
+  "text": "die",
+  "start": 49.454,
+  "end": 49.614
+ },
+ {
+  "text": "Schuldenbremse.",
+  "start": 49.614,
+  "end": 50.734
+ },
+ {
+  "text": "Sie",
+  "start": 50.734,
+  "end": 50.974
+ },
+ {
+  "text": "steht",
+  "start": 50.974,
+  "end": 51.294
+ },
+ {
+  "text": "seit",
+  "start": 51.294,
+  "end": 51.534
+ },
+ {
+  "text": "2009",
+  "start": 51.534,
+  "end": 52.174
+ },
+ {
+  "text": "im",
+  "start": 52.174,
+  "end": 52.334
+ },
+ {
+  "text": "Grundgesetz.",
+  "start": 52.334,
+  "end": 53.214
+ },
+ {
+  "text": "Im",
+  "start": 53.214,
+  "end": 53.374
+ },
+ {
+  "text": "Normalfall",
+  "start": 53.374,
+  "end": 54.014
+ },
+ {
+  "text": "darf",
+  "start": 54.014,
+  "end": 54.254
+ },
+ {
+  "text": "der",
+  "start": 54.254,
+  "end": 54.334
+ },
+ {
+  "text": "Bund",
+  "start": 54.334,
+  "end": 54.654
+ },
+ {
+  "text": "nur",
+  "start": 54.654,
+  "end": 54.894
+ },
+ {
+  "text": "0,35%",
+  "start": 54.894,
+  "end": 56.494
+ },
+ {
+  "text": "der",
+  "start": 56.494,
+  "end": 56.654
+ },
+ {
+  "text": "Wirtschaftsleistung",
+  "start": 56.654,
+  "end": 57.614
+ },
+ {
+  "text": "neu",
+  "start": 57.614,
+  "end": 57.934
+ },
+ {
+  "text": "leihen.",
+  "start": 57.934,
+  "end": 58.414
+ },
+ {
+  "text": "Klingt",
+  "start": 58.414,
+  "end": 58.814
+ },
+ {
+  "text": "nach",
+  "start": 58.814,
+  "end": 59.054
+ },
+ {
+  "text": "einem",
+  "start": 59.054,
+  "end": 59.214
+ },
+ {
+  "text": "Widerspruch?",
+  "start": 59.214,
+  "end": 60.014
+ },
+ {
+  "text": "Mehr",
+  "start": 60.014,
+  "end": 60.334
+ },
+ {
+  "text": "soziale",
+  "start": 60.334,
+  "end": 60.814
+ },
+ {
+  "text": "Sicherheit",
+  "start": 60.814,
+  "end": 61.454
+ },
+ {
+  "text": "und",
+  "start": 61.454,
+  "end": 61.694
+ },
+ {
+  "text": "trotzdem",
+  "start": 61.694,
+  "end": 62.174
+ },
+ {
+  "text": "weniger",
+  "start": 62.174,
+  "end": 62.654
+ },
+ {
+  "text": "Schulden?",
+  "start": 62.654,
+  "end": 63.294
+ },
+ {
+  "text": "Die",
+  "start": 63.294,
+  "end": 63.454
+ },
+ {
+  "text": "Antwort",
+  "start": 63.454,
+  "end": 63.774
+ },
+ {
+  "text": "der",
+  "start": 63.774,
+  "end": 64.014
+ },
+ {
+  "text": "CSB:",
+  "start": 64.014,
+  "end": 64.814
+ },
+ {
+  "text": "Wachstum",
+  "start": 64.814,
+  "end": 65.454
+ },
+ {
+  "text": "statt",
+  "start": 65.454,
+  "end": 65.774
+ },
+ {
+  "text": "Kredit.",
+  "start": 65.774,
+  "end": 66.414
+ },
+ {
+  "text": "Wächst",
+  "start": 66.414,
+  "end": 66.814
+ },
+ {
+  "text": "die",
+  "start": 66.814,
+  "end": 66.974
+ },
+ {
+  "text": "Wirtschaft,",
+  "start": 66.974,
+  "end": 67.534
+ },
+ {
+  "text": "wachsen",
+  "start": 67.534,
+  "end": 68.014
+ },
+ {
+  "text": "auch",
+  "start": 68.014,
+  "end": 68.174
+ },
+ {
+  "text": "die",
+  "start": 68.174,
+  "end": 68.254
+ },
+ {
+  "text": "Einnahmen",
+  "start": 68.254,
+  "end": 68.734
+ },
+ {
+  "text": "des",
+  "start": 68.734,
+  "end": 68.894
+ },
+ {
+  "text": "Staates,",
+  "start": 68.894,
+  "end": 69.534
+ },
+ {
+  "text": "ohne",
+  "start": 69.534,
+  "end": 69.854
+ },
+ {
+  "text": "neue",
+  "start": 69.854,
+  "end": 70.174
+ },
+ {
+  "text": "Steuern",
+  "start": 70.174,
+  "end": 70.654
+ },
+ {
+  "text": "auf",
+  "start": 70.654,
+  "end": 70.814
+ },
+ {
+  "text": "Arbeit.",
+  "start": 70.814,
+  "end": 71.426
+ },
+ {
+  "text": "Erbschaftssteuer",
+  "start": 71.426,
+  "end": 72.386
+ },
+ {
+  "text": "ja,",
+  "start": 72.386,
+  "end": 72.786
+ },
+ {
+  "text": "Vermögenssteuer",
+  "start": 72.786,
+  "end": 73.826
+ },
+ {
+  "text": "nein.",
+  "start": 73.826,
+  "end": 74.306
+ },
+ {
+  "text": "Jetzt",
+  "start": 74.306,
+  "end": 74.626
+ },
+ {
+  "text": "du.",
+  "start": 74.626,
+  "end": 75.106
+ },
+ {
+  "text": "Sollte",
+  "start": 75.106,
+  "end": 75.506
+ },
+ {
+  "text": "Deutschland",
+  "start": 75.506,
+  "end": 75.986
+ },
+ {
+  "text": "eisern",
+  "start": 75.986,
+  "end": 76.626
+ },
+ {
+  "text": "sparen",
+  "start": 76.626,
+  "end": 77.186
+ },
+ {
+  "text": "oder",
+  "start": 77.186,
+  "end": 77.426
+ },
+ {
+  "text": "für",
+  "start": 77.426,
+  "end": 77.586
+ },
+ {
+  "text": "die",
+  "start": 77.586,
+  "end": 77.746
+ },
+ {
+  "text": "Zukunft",
+  "start": 77.746,
+  "end": 78.226
+ },
+ {
+  "text": "auch",
+  "start": 78.226,
+  "end": 78.466
+ },
+ {
+  "text": "Schulden",
+  "start": 78.466,
+  "end": 78.866
+ },
+ {
+  "text": "machen?",
+  "start": 78.866,
+  "end": 79.266
+ },
+ {
+  "text": "Schreib's",
+  "start": 79.266,
+  "end": 79.746
+ },
+ {
+  "text": "in",
+  "start": 79.746,
+  "end": 79.906
+ },
+ {
+  "text": "die",
+  "start": 79.906,
+  "end": 79.986
+ },
+ {
+  "text": "Kommentare.",
+  "start": 79.986,
+  "end": 80.64
+ }
+]

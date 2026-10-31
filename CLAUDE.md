@@ -27,6 +27,10 @@ Antworte auf Deutsch.
 - Musik gibt es hier keine: in der TikTok-App einen Sound leise unterlegen.
 - Fertiges MP4 am Ende noch einmal auf −14 LUFS normalisieren (`-c:v copy`, nur Ton).
 
+## Bilder und Karten
+- Wikimedia/Bundesarchiv ist hier gesperrt, echte historische Fotos gibt es daher nicht. Keine KI-„Archivfotos“ erzeugen; historische Szenen als animierte Illustrationen bauen.
+- Karten: npm `world-atlas` (Natural Earth, gemeinfrei) + `d3-geo` → SVG-Pfade (Beispiel: `videos/002-csb-wirtschaft/assets/karten`).
+
 ## Wichtig
 - GSAP liegt lokal in `assets/vendor/gsap.min.js` – der Render-Browser erreicht hier kein CDN. Keine CDN-Skripte verwenden.
 - Text nur im Band 168–1330 px Höhe, rechts 160 px frei (TikTok-UI).
