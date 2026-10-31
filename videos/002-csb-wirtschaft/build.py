@@ -13,9 +13,10 @@ from pathlib import Path
 HIER = Path(__file__).parent
 WOERTER = json.loads((HIER / "assets/stimme/voiceover-woerter.json").read_text())
 # W[i] = neue Startzeit des Originalworts i (None, wenn der Satz herausgeschnitten wurde)
-W = [None] * (max(w["i"] for w in WOERTER) + 1)
+W = [None] * (max(w["i"] for w in WOERTER if w["i"] is not None) + 1)
 for w in WOERTER:
-    W[w["i"]] = w["start"]
+    if w["i"] is not None:          # Wörter der Neuaufnahme ohne Gegenstück im Original
+        W[w["i"]] = w["start"]
 ENDE = round(WOERTER[-1]["end"] + 1.3, 2)
 DE = json.loads((HIER / "assets/karten/deutschland.json").read_text())
 EU = json.loads((HIER / "assets/karten/europa.json").read_text())
@@ -254,33 +255,58 @@ T.append(szene("frage", """
     <div id="fr-oben" class="split oben-h"><div class="split-t d">Eisern<br />sparen?</div></div>
     <div id="fr-unten" class="split unten-h"><div class="split-t d">Schulden für<br />die Zukunft?</div></div>
     <div id="fr-oder" class="oder d">oder</div>
-    <div id="fr-jetzt" class="jetzt d">Jetzt du:</div>
+    <div id="fr-jetzt" class="jetzt d">Jetzt bist du dran:</div>
     <div id="fr-komm" class="komm"><svg viewBox="0 0 100 100"><path d="M10 14 H 90 V 70 H 40 L 20 90 V 70 H 10 Z" fill="#ffffff"/><circle cx="32" cy="42" r="6" fill="#062a75"/><circle cx="50" cy="42" r="6" fill="#062a75"/><circle cx="68" cy="42" r="6" fill="#062a75"/></svg><span class="s">Schreib's in die Kommentare</span></div>
     <img id="fr-logo" class="fr-logo" src="assets/csb-logo.png" alt="CSB Logo" />""", next(z)))
 
-# --- Ton ------------------------------------------------------------------
+# --- Ton: jeder Aktion ihr eigener Klang --------------------------------
 fx = []
 
 
-def sfx(name, t, vol=0.4, extra=""):
-    fx.append(f'<audio id="fx{len(fx)}" src="assets/sfx/{name}.mp3" data-start="{round(max(0, t), 3)}" data-volume="{vol}"{extra}></audio>')
+def sfx(name, t, vol=0.4, dauer=None, aus=None):
+    datei = name if "." in name else name + ".mp3"
+    extra = (f' data-duration="{dauer}"' if dauer else "") + (f' data-fade-out="{aus}"' if aus else "")
+    fx.append(f'<audio id="fx{len(fx)}" src="assets/sfx/{datei}" data-start="{round(max(0, t), 3)}" data-volume="{vol}"{extra}></audio>')
 
 
-for s, _, _, art in SZENEN[1:]:
-    sfx("whoosh" if art == "wisch" else "whoosh-short", START[s] - (0.12 if art == "wisch" else 0.05), 0.3 if art == "wisch" else 0.22)
-sfx("impact-bass-2", W[4], 0.45)                                # Trümmern
-sfx("riser", W[5], 0.22, ' data-duration="2.9" data-fade-out="0.4"')
-sfx("impact-bass-1", W[15], 0.5)                                # Wirtschaftswunder
-sfx("impact-bass-2", W[16], 0.4)                                # Wie?
-sfx("impact-bass-2", W[59], 0.4)                                # Staatsschulden
+for s_, _, _, art in SZENEN[1:]:                                 # Übergänge
+    if art == "wisch":
+        sfx("whoosh-cinematic", START[s_] - 0.25, 0.3, 1.2, 0.4)
+    elif art == "zoom":
+        sfx("whoosh", START[s_] - 0.08, 0.25)
+    else:
+        sfx("whoosh-short", START[s_] - 0.05, 0.22)
+# Hook: Trümmer grollen, Stadt wächst, Fenster gehen an, Wunder, Frage
+sfx("impact-bass-2", W[4], 0.45)
+sfx("riser", W[5], 0.22, 2.9, 0.4)
+sfx("sparkle", W[12], 0.35)
+sfx("impact-bass-1", W[15], 0.45); sfx("chime", W[15] + 0.05, 0.22)
+sfx("impact-bass-2", W[16], 0.4)
+# Idee: Waage
+sfx("click", W[45], 0.3); sfx("key-press", W[47], 0.35); sfx("chime", W[49], 0.3)
+# Heute: Zähler tippt, Schuldenschlag, Münzen klirren, Warnton
+sfx("typing", W[55], 0.3); sfx("typing", W[55] + 1.3, 0.3, 1.2, 0.3)
+sfx("impact-bass-2", W[59], 0.4)
 for i in range(10):
-    sfx("click-soft", W[62] + i * 0.12, 0.2)                    # Münzen
-for i in (74, 77, 87, 103):
-    sfx("impact-bass-1", W[i], 0.3)
-sfx("impact-bass-2", W[118], 0.4)                               # 0,35 %
-sfx("impact-bass-2", W[126], 0.45)                              # Widerspruch
-sfx("impact-bass-1", W[138], 0.45)                              # Wachstum
-sfx("impact-bass-1", W[172], 0.35)
+    sfx("muenze.wav", W[62] + i * 0.12 + 0.5, 0.22)
+sfx("error", W[69], 0.28)
+# Drei Säulen
+for i in range(3):
+    sfx("pop", W[74] + i * 0.12, 0.3)
+# Markt: Handelslinien zischen, Städte pingen
+sfx("impact-bass-1", W[77], 0.3); sfx("whoosh-short", W[78] + 0.3, 0.2)
+for i in range(4):
+    sfx("ping", W[78] + 0.6 + i * 0.12, 0.12)
+# Sozial: Balken
+sfx("impact-bass-1", W[87], 0.3); sfx("click", W[88], 0.3); sfx("pop", W[88] + 0.25, 0.3)
+# Bremse: Buch schlägt auf, 0,35 % pingt
+sfx("impact-bass-1", W[103], 0.3); sfx("impact-bass-2", W[105] + 0.2, 0.35); sfx("ping", W[118], 0.4)
+# Widerspruch: Glitch
+sfx("glitch-2", W[126] - 0.05, 0.35, 1.2, 0.3); sfx("click", W[127], 0.3); sfx("click", W[131], 0.3)
+# Antwort: Kurve steigt
+sfx("impact-bass-1", W[138], 0.4); sfx("riser", W[141], 0.18, 1.3, 0.3); sfx("ping", W[143], 0.25); sfx("ping", W[147], 0.25)
+# Frage
+sfx("whoosh-short", W[161], 0.25); sfx("pop", W[165], 0.35); sfx("notification", W[172], 0.35)
 audio = ['<audio id="vo" src="assets/stimme/voiceover.mp3" data-start="0" data-volume="1"></audio>'] + fx
 
 html = ((HIER / "vorlage.html.tpl").read_text()

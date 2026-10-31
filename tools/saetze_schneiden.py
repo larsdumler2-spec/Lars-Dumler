@@ -32,7 +32,7 @@ for b in bereiche.split(","):
     stueck[-blende:] *= rampe[::-1]
     for i in range(a, e + 1):
         w = woerter[i]
-        neu.append({"i": i, "text": w["text"], "start": round((pos + w["start"] - t0) / TEMPO, 3),
+        neu.append({"i": w.get("o", i), "text": w["text"], "start": round((pos + w["start"] - t0) / TEMPO, 3),
                     "end": round((pos + min(w["end"], t1) - t0) / TEMPO, 3)})
     teile.append(stueck)
     pos += len(stueck) / RATE

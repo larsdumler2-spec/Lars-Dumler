@@ -168,7 +168,7 @@
       .split-t { font-size: 112px; line-height: 0.98; }
       .oder { position: absolute; left: 380px; top: 860px; width: 200px; height: 200px; border-radius: 50%; background: var(--rot); color: #fff; font-size: 58px;
         display: flex; align-items: center; justify-content: center; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
-      .jetzt { position: absolute; left: 80px; top: 280px; font-size: 76px; color: var(--gold); }
+      .jetzt { position: absolute; left: 80px; top: 280px; font-size: 62px; color: var(--gold); }
       .komm { position: absolute; left: 80px; top: 400px; display: flex; align-items: center; gap: 22px; color: #fff; font-size: 46px; }
       .komm svg { width: 90px; height: 90px; }
       .fr-logo { position: absolute; left: 80px; top: 1570px; width: 200px; height: 200px; box-shadow: 0 16px 40px rgba(0,0,0,0.35); }

@@ -22,6 +22,8 @@ Antworte auf Deutsch.
 - Audio-URL aus `creative_get_flow_run_status` mit `curl` laden (storage.googleapis.com ist erreichbar), mit `loudnorm=I=-14:TP=-1.5` nach `assets/stimme/voiceover.mp3`.
 - Sprechpausen kürzen: `tools/pausen_kuerzen.py` (Pausen > 0,12 s → 0,08 s, Wortzeiten werden mitverschoben); Originale bleiben als `voiceover-original*`.
 - Auf Länge kürzen ohne neue Credits: `tools/saetze_schneiden.py` (ganze Sätze nach Wort-Indizes behalten, optional leicht beschleunigen; Wörter behalten ihren Original-Index `i`).
+- Einzelne falsch gesprochene Sätze: nur diese bei ElevenLabs neu aufnehmen und mit `tools/satz_ersetzen.py` einsetzen (spart Credits).
+- Soundeffekte abwechslungsreich wählen (whoosh-cinematic, sparkle, chime, typing, glitch, ping, notification, eigene `muenze.wav` …), nicht überall denselben Bass-Schlag.
 - Wortzeiten lokal: `tools/wortzeiten.py` (Parakeet v3, Modell von GitHub-Releases) → `assets/stimme/voiceover-woerter.json`; danach `python3 build.py` (Beispiel: `videos/001-csb-vorstellung`). Szenen und Einsätze hängen an Wort-Indizes.
 - Kostenloses ElevenLabs-Konto: Bilder nur wenige pro Tag, Bilder kommen im Querformat 16:9.
 - Fallback ohne ElevenLabs: Piper „Thorsten“ über `tools/sprecher.py`.
